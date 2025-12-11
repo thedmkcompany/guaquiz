@@ -1,26 +1,181 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   GLOW UP ACADEMY - Brand Visual Identity
+   ========================================================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Brand Colors */
+  --brand-blush-pink: #F8D7DA;
+  --brand-blush-pink-light: #FDF2F4;
+  --brand-blush-pink-dark: #E8B4B8;
+
+  --brand-deep-cherry: #8B2942;
+  --brand-deep-cherry-light: #A93D58;
+  --brand-deep-cherry-dark: #6D1F33;
+
+  --brand-emerald: #2D6A4F;
+  --brand-emerald-light: #40916C;
+  --brand-emerald-dark: #1B4332;
+
+  --brand-gold: #D4AF37;
+  --brand-gold-light: #E5C76B;
+  --brand-gold-dark: #B8960C;
+
+  --brand-deep-grey: #2D2D2D;
+  --brand-ivory: #FFFFF0;
+  --brand-ivory-dark: #F5F5DC;
+
+  --brand-nude: #E8D5C4;
+  --brand-beige: #F5E6D3;
+  --brand-beige-light: #FAF3EB;
+
+  /* Semantic Colors */
+  --background: var(--brand-ivory);
+  --background-soft: var(--brand-beige-light);
+  --foreground: var(--brand-deep-grey);
+  --foreground-muted: #6B6B6B;
+
+  --primary: var(--brand-deep-cherry);
+  --primary-light: var(--brand-blush-pink);
+  --primary-dark: var(--brand-deep-cherry-dark);
+
+  --accent: var(--brand-gold);
+  --accent-light: var(--brand-gold-light);
+
+  --highlight: var(--brand-emerald);
+  --highlight-light: var(--brand-emerald-light);
+
+  /* Font Families
+     Note: Holiday and Roca 2 are premium fonts.
+     Currently using Google Font fallbacks (Playfair Display, Poppins).
+     To use custom fonts, add them to /public/fonts and update these variables.
+  */
+  --font-headline: var(--font-playfair), 'Playfair Display', Georgia, serif;
+  --font-subheader: var(--font-poppins), 'Poppins', sans-serif;
+  --font-body: var(--font-be-vietnam), 'Be Vietnam Pro', sans-serif;
 }
 
+/* Tailwind v4 Theme Integration */
 @theme inline {
+  /* Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-blush-pink: var(--brand-blush-pink);
+  --color-blush-pink-light: var(--brand-blush-pink-light);
+  --color-blush-pink-dark: var(--brand-blush-pink-dark);
+
+  --color-deep-cherry: var(--brand-deep-cherry);
+  --color-deep-cherry-light: var(--brand-deep-cherry-light);
+  --color-deep-cherry-dark: var(--brand-deep-cherry-dark);
+
+  --color-emerald: var(--brand-emerald);
+  --color-emerald-light: var(--brand-emerald-light);
+  --color-emerald-dark: var(--brand-emerald-dark);
+
+  --color-gold: var(--brand-gold);
+  --color-gold-light: var(--brand-gold-light);
+  --color-gold-dark: var(--brand-gold-dark);
+
+  --color-deep-grey: var(--brand-deep-grey);
+  --color-ivory: var(--brand-ivory);
+  --color-ivory-dark: var(--brand-ivory-dark);
+
+  --color-nude: var(--brand-nude);
+  --color-beige: var(--brand-beige);
+  --color-beige-light: var(--brand-beige-light);
+
+  /* Fonts */
+  --font-headline: var(--font-headline);
+  --font-subheader: var(--font-subheader);
+  --font-body: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Base Styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+/* Typography Utilities */
+.font-headline {
+  font-family: var(--font-headline);
+}
+
+.font-subheader {
+  font-family: var(--font-subheader);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Gold Foil Effect (for special elements) */
+.text-gold-foil {
+  background: linear-gradient(
+    135deg,
+    var(--brand-gold-dark) 0%,
+    var(--brand-gold-light) 25%,
+    var(--brand-gold) 50%,
+    var(--brand-gold-light) 75%,
+    var(--brand-gold-dark) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Luxe Button Gradient */
+.btn-luxe {
+  background: linear-gradient(
+    135deg,
+    var(--brand-deep-cherry) 0%,
+    var(--brand-deep-cherry-light) 100%
+  );
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-luxe:hover {
+  background: linear-gradient(
+    135deg,
+    var(--brand-deep-cherry-dark) 0%,
+    var(--brand-deep-cherry) 100%
+  );
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 41, 66, 0.3);
+}
+
+/* Soft Glow Effect */
+.glow-soft {
+  box-shadow: 0 0 40px rgba(248, 215, 218, 0.4);
+}
+
+/* Premium Card Style */
+.card-premium {
+  background: linear-gradient(
+    145deg,
+    var(--brand-ivory) 0%,
+    var(--brand-beige-light) 100%
+  );
+  border: 1px solid var(--brand-blush-pink-dark);
+}
+
+/* Sparkle Animation (for special elements) */
+@keyframes sparkle {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+/* Selection Color */
+::selection {
+  background-color: var(--brand-blush-pink);
+  color: var(--brand-deep-cherry);
 }
