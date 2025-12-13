@@ -89,8 +89,8 @@ export function Quiz() {
     // Store result in sessionStorage for the result page
     sessionStorage.setItem("quizResult", JSON.stringify(result));
 
-    // Redirect to the recommended program
-    router.push(`/programs/${result.programSlug}`);
+    // Redirect to the results page with the recommended program
+    router.push(`/results/${result.programSlug}`);
   };
 
   const canProceed = selectedOptionIds.length > 0;
