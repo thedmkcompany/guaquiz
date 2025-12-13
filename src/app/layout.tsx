@@ -1,28 +1,43 @@
 import type { Metadata } from "next";
-import { Be_Vietnam_Pro, Playfair_Display, Poppins } from "next/font/google";
+import { Be_Vietnam_Pro } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/analytics";
 
-// Body font - Be Vietnam Pro
+// Custom fonts from /public/fonts/
+
+// Holiday - Headlines, hero text (luxe feminine serif)
+const holiday = localFont({
+  src: "../../public/fonts/HolidayFree.otf",
+  variable: "--font-holiday",
+  display: "swap",
+  weight: "400",
+});
+
+// Roca Two - Sub-headers, CTAs (modern geometric sans)
+const rocaTwo = localFont({
+  src: "../../public/fonts/roca-two.woff2",
+  variable: "--font-roca-two",
+  display: "swap",
+  weight: "400 700",
+});
+
+// The Seasons - Quotes, signatures (accent serif)
+const theSeasons = localFont({
+  src: "../../public/fonts/the-seasons.otf",
+  variable: "--font-the-seasons",
+  display: "swap",
+  weight: "400",
+});
+
+// Body font - Be Vietnam Pro (Google Fonts)
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-be-vietnam",
-  display: "swap",
-});
-
-// Fallback for Holiday (using Playfair Display until custom font is added)
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
-// Fallback for Roca 2 (using Poppins until custom font is added)
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
   display: "swap",
 });
 
@@ -59,9 +74,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <GoogleTagManager />
+      </head>
       <body
-        className={`${beVietnamPro.variable} ${playfairDisplay.variable} ${poppins.variable} antialiased`}
+        className={`${holiday.variable} ${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased`}
       >
+        <GoogleTagManagerNoScript />
         {children}
       </body>
     </html>

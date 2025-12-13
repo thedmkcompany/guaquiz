@@ -1,4 +1,5 @@
 import type { WixCustomerData } from '@/types/payment';
+import { getProgramById } from './programs';
 
 // ============================================
 // WIX CRM SYNC
@@ -390,15 +391,13 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
 }
 
 /**
- * Get Wix Plan ID for a program
+ * Get Wix Plan ID for a program (reads from centralized program config)
  */
 function getPlanIdForProgram(programId: string): string | null {
-  const planMapping: Record<string, string | undefined> = {
-    'program-1': process.env.WIX_PLAN_ID_PROGRAM_1,
-    'program-2': process.env.WIX_PLAN_ID_PROGRAM_2,
-    'program-3': process.env.WIX_PLAN_ID_PROGRAM_3,
-    'program-4': process.env.WIX_PLAN_ID_PROGRAM_4,
-  };
-
-  return planMapping[programId] || process.env.WIX_PLAN_ID_DEFAULT || null;
+  const program = getProgramById(programId);
+  if (program?.wixPlanId) {
+    return program.wixPlanId;
+  }
+  // Fallback to default plan if configured
+  return process.env.WIX_PLAN_ID_DEFAULT || null;
 }

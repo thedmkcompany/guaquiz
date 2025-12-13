@@ -27,8 +27,9 @@ export const programs: Program[] = [
       "Email support",
     ],
     isSubscription: false,
-    wixProductId: "",
-    wixPlanId: "",
+    // Configure these in Wix Dashboard and Razorpay Dashboard:
+    wixPlanId: process.env.WIX_PLAN_ID_ESSENTIALS || "",
+    razorpayPlanId: process.env.RAZORPAY_PLAN_ID_ESSENTIALS || "",
   },
   {
     id: "trial",
@@ -47,8 +48,8 @@ export const programs: Program[] = [
     ],
     isSubscription: false,
     upsellTo: "circle", // After trial, upsell to Circle
-    wixProductId: "",
-    wixPlanId: "",
+    wixPlanId: process.env.WIX_PLAN_ID_TRIAL || "",
+    razorpayPlanId: process.env.RAZORPAY_PLAN_ID_TRIAL || "",
   },
   {
     id: "circle",
@@ -68,8 +69,8 @@ export const programs: Program[] = [
       "Bonus masterclasses",
     ],
     isSubscription: false,
-    wixProductId: "",
-    wixPlanId: "",
+    wixPlanId: process.env.WIX_PLAN_ID_CIRCLE || "",
+    razorpayPlanId: process.env.RAZORPAY_PLAN_ID_CIRCLE || "",
   },
   {
     id: "transform",
@@ -91,9 +92,9 @@ export const programs: Program[] = [
     ],
     isSubscription: false,
     requiresCall: true, // High-ticket requires sales call
-    calendlyUrl: "", // Add your Calendly URL
-    wixProductId: "",
-    wixPlanId: "",
+    calendlyUrl: process.env.CALENDLY_URL_TRANSFORM || "",
+    wixPlanId: process.env.WIX_PLAN_ID_TRANSFORM || "",
+    razorpayPlanId: process.env.RAZORPAY_PLAN_ID_TRANSFORM || "",
   },
 ];
 
@@ -135,13 +136,13 @@ export function formatPrice(price: number, currency: string = "INR"): string {
   }).format(price);
 }
 
-// Get tier display color (for UI styling)
+// Get tier display color (for UI styling) - Updated for new brand colors
 export function getTierColor(tier: Program['tier']): string {
   const colors = {
-    essentials: "blue",
-    trial: "green",
-    circle: "purple",
-    transform: "gold",
+    essentials: "gold",      // Gold - Prestige & warmth
+    trial: "beige",          // Beige - Soft femininity
+    circle: "wine",          // Wine - Passion & luxury
+    transform: "forest",     // Forest - Strength & sophistication
   };
-  return colors[tier] || "gray";
+  return colors[tier] || "slate";
 }

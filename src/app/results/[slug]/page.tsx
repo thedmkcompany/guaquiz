@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
-import { getProgramBySlug, getAllPrograms, formatPrice } from "@/lib/programs";
+import { getProgramBySlug, getAllPrograms } from "@/lib/programs";
 import { ResultPageClient } from "./result-page-client";
+import { TrialResultClient } from "./trial-result-client";
 
 interface ResultPageProps {
   params: Promise<{ slug: string }>;
@@ -33,6 +34,11 @@ export default async function ResultPage({ params }: ResultPageProps) {
 
   if (!program) {
     notFound();
+  }
+
+  // Use specialized trial result page for the trial program
+  if (program.slug === "trial") {
+    return <TrialResultClient program={program} />;
   }
 
   return <ResultPageClient program={program} />;

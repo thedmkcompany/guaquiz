@@ -1,19 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookAuth } from '@/lib/payu';
 import { syncToWixCRM } from '@/lib/wix-crm';
+import {
+  isEventProcessed,
+  markEventProcessed,
+  generatePayUEventId,
+} from '@/lib/webhook-store';
 
 export async function POST(request: NextRequest) {
   try {
     // Verify authorization header
     const authHeader = request.headers.get('authorization');
     if (!verifyWebhookAuth(authHeader)) {
-      console.error('[PayU Webhook] Invalid authorization');
+      console.error('[Security] PayU webhook invalid authorization');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const body = await request.json();
 
-    console.log('[PayU Webhook] Received:', {
+    // SECURITY: Generate event ID and check for replay attacks
+    const eventId = generatePayUEventId(
+      body.txnid || '',
+      body.status || '',
+      body.mihpayid || ''
+    );
+
+    if (isEventProcessed(eventId)) {
+      console.log(`[PayU] Duplicate webhook ignored: ${eventId}`);
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    console.log('[PayU] Processing webhook:', {
       txnid: body.txnid,
       status: body.status,
       mihpayid: body.mihpayid,
@@ -45,15 +62,18 @@ export async function POST(request: NextRequest) {
         console.error('[PayU Webhook] Failed to sync to Wix:', error);
       }
     } else if (body.status === 'failure') {
-      console.log('[PayU Webhook] Payment failed:', {
+      console.log('[PayU] Payment failed:', {
         txnid: body.txnid,
         error: body.error,
       });
     }
 
+    // Mark event as processed to prevent replay attacks
+    markEventProcessed(eventId, 'payu');
+
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('[PayU Webhook] Error:', error);
+    console.error('[PayU] Webhook error:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json({ received: true });
   }
 }

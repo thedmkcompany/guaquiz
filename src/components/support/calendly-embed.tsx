@@ -3,6 +3,15 @@
 import { useEffect } from "react";
 import { Calendar } from "lucide-react";
 
+// Calendly window type declaration
+declare global {
+  interface Window {
+    Calendly?: {
+      initPopupWidget: (options: { url: string }) => void;
+    };
+  }
+}
+
 interface CalendlyEmbedProps {
   url?: string; // Calendly URL (e.g., "https://calendly.com/your-username/discovery-call")
   minWidth?: string;
@@ -89,8 +98,8 @@ export function CalendlyButton({
     }
 
     // Open Calendly popup if Calendly is loaded
-    if (typeof window !== "undefined" && (window as any).Calendly) {
-      (window as any).Calendly.initPopupWidget({ url: calendlyUrl });
+    if (typeof window !== "undefined" && window.Calendly) {
+      window.Calendly.initPopupWidget({ url: calendlyUrl });
     } else {
       // Fallback: open in new tab
       window.open(calendlyUrl, "_blank");

@@ -4,9 +4,22 @@ import {
   verifySubscriptionSignature,
   fetchPayment,
 } from '@/lib/razorpay';
+import {
+  checkRateLimit,
+  getClientIP,
+  rateLimitResponse,
+  RATE_LIMITS,
+} from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting by IP
+    const clientIP = getClientIP(request);
+    const ipLimit = checkRateLimit(`payment_verify_${clientIP}`, RATE_LIMITS.PAYMENT_VERIFY);
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(ipLimit.resetIn);
+    }
+
     const body = await request.json();
 
     const {
@@ -49,9 +62,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!isValid) {
-      console.error('Invalid payment signature');
+      console.error('[Security] Invalid payment signature attempt:', {
+        paymentId: razorpay_payment_id,
+        ip: clientIP,
+      });
       return NextResponse.json(
-        { error: 'Invalid payment signature', verified: false },
+        { error: 'Payment verification failed', verified: false },
         { status: 400 }
       );
     }
@@ -61,7 +77,7 @@ export async function POST(request: NextRequest) {
     try {
       paymentDetails = await fetchPayment(razorpay_payment_id);
     } catch (err) {
-      console.warn('Could not fetch payment details:', err);
+      // Non-critical - continue without details
     }
 
     return NextResponse.json({
@@ -72,7 +88,7 @@ export async function POST(request: NextRequest) {
       status: paymentDetails?.status || 'captured',
     });
   } catch (error) {
-    console.error('Razorpay verify error:', error);
+    console.error('[Payment] Verification failed:', error instanceof Error ? error.message : 'Unknown error');
     return NextResponse.json(
       { error: 'Verification failed', verified: false },
       { status: 500 }

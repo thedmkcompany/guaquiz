@@ -9,34 +9,35 @@ export const metadata = {
 
 export default function QuizPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-gradient-pastel font-body">
+      {/* Header - Glass effect */}
+      <header className="fixed top-0 left-0 right-0 z-50 glass-overlay border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <Link
             href="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="inline-flex items-center text-forest hover:text-forest-light transition-colors font-subheader font-medium"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            Back
           </Link>
+          <div className="text-forest font-headline font-bold text-lg">Glow Up Academy</div>
+          <div className="w-16"></div> {/* Spacer for centering if needed, or empty */}
         </div>
       </header>
 
-      {/* Quiz Container */}
-      <main className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Find Your Perfect Program
+      {/* Quiz Container - Centered content */}
+      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col justify-center">
+        <div className="max-w-xl mx-auto w-full">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl sm:text-4xl font-headline font-bold text-forest mb-3">
+              Your Skin Journey
             </h1>
-            <p className="text-gray-600">
-              Answer a few questions and we&apos;ll recommend the best program for
-              you.
+            <p className="text-charcoal/70 font-body text-base sm:text-lg">
+              Let's customize your perfect routine.
             </p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-10">
+          <div className="w-full">
             <Quiz />
           </div>
         </div>

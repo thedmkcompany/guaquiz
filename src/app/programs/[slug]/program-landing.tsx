@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Program } from '@/types';
-import { Button } from '@/components/ui/button';
-import { RazorpayCheckout, PayUCheckout } from '@/components/checkout';
-import { ArrowLeft, Check, Shield, Clock, Award, CreditCard } from 'lucide-react';
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Program } from "@/types";
+import { Button } from "@/components/ui/button";
+import { RazorpayCheckout, PayUCheckout } from "@/components/checkout";
+import { ArrowLeft, Check, Shield, Clock, Award, CreditCard } from "lucide-react";
 
 interface ProgramLandingProps {
   program: Program;

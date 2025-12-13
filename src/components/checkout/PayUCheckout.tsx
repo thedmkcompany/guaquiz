@@ -107,7 +107,7 @@ export function PayUCheckout({
         disabled={loading}
         className={className}
         size="lg"
-        variant="outline"
+        variant="secondary"
       >
         {loading ? (
           <>

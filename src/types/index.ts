@@ -51,14 +51,3 @@ export interface QuizResult {
   allScores: { [programId: string]: number };
 }
 
-// Checkout types
-export interface CheckoutRequest {
-  programId: string;
-  customerEmail?: string;
-  customerName?: string;
-}
-
-export interface CheckoutResponse {
-  checkoutUrl: string;
-  checkoutId: string;
-}

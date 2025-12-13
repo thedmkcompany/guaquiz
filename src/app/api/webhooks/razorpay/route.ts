@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature, paiseToRupees } from '@/lib/razorpay';
 import { syncToWixCRM } from '@/lib/wix-crm';
+import { isEventProcessed, markEventProcessed } from '@/lib/webhook-store';
 import type { RazorpayWebhookPayload } from '@/types/payment';
 
 export async function POST(request: NextRequest) {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     // Verify webhook signature
     if (!signature || !verifyWebhookSignature(body, signature)) {
-      console.error('Invalid Razorpay webhook signature');
+      console.error('[Security] Invalid Razorpay webhook signature');
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 401 }
@@ -20,7 +21,13 @@ export async function POST(request: NextRequest) {
     const payload: RazorpayWebhookPayload = JSON.parse(body);
     const eventId = request.headers.get('x-razorpay-event-id');
 
-    console.log(`[Razorpay Webhook] Event: ${payload.event} (ID: ${eventId})`);
+    // SECURITY: Prevent replay attacks
+    if (eventId && isEventProcessed(eventId)) {
+      console.log(`[Razorpay] Duplicate webhook ignored: ${eventId}`);
+      return NextResponse.json({ received: true, duplicate: true });
+    }
+
+    console.log(`[Razorpay] Processing event: ${payload.event} (ID: ${eventId})`);
 
     // Handle different events
     switch (payload.event) {
@@ -63,13 +70,18 @@ export async function POST(request: NextRequest) {
         break;
 
       default:
-        console.log('Unhandled Razorpay event:', payload.event);
+        console.log('[Razorpay] Unhandled event:', payload.event);
+    }
+
+    // Mark event as processed to prevent replay attacks
+    if (eventId) {
+      markEventProcessed(eventId, 'razorpay');
     }
 
     // Always return 200 quickly to prevent retries
     return NextResponse.json({ received: true });
   } catch (error) {
-    console.error('Razorpay webhook processing error:', error);
+    console.error('[Razorpay] Webhook processing error:', error instanceof Error ? error.message : 'Unknown error');
     // Still return 200 to prevent retries for parsing errors
     return NextResponse.json({ received: true, error: 'Processing error' });
   }

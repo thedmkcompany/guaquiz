@@ -89,6 +89,12 @@ export function Quiz() {
     // Store result in sessionStorage for the result page
     sessionStorage.setItem("quizResult", JSON.stringify(result));
 
+    // Store Q1 answer for archetype personalization on results page
+    const q1Answer = completeAnswers.find((a) => a.questionId === "q1");
+    if (q1Answer && q1Answer.selectedOptionIds.length > 0) {
+      sessionStorage.setItem("dmk_q1_answer", q1Answer.selectedOptionIds[0]);
+    }
+
     // Redirect to the results page with the recommended program
     router.push(`/results/${result.programSlug}`);
   };
@@ -97,64 +103,77 @@ export function Quiz() {
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Progress */}
-      <div className="mb-8">
-        <div className="flex justify-between text-sm text-gray-600 mb-2">
-          <span>Question {currentQuestionIndex + 1} of {totalQuestions}</span>
-          <span>{Math.round(progress)}% complete</span>
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
+      {/* Progress Indicator - Minimalist */}
+      <div className="mb-8 sm:mb-10 px-2">
+        <div className="flex justify-between items-center text-xs sm:text-sm text-forest/60 mb-3 font-subheader">
+          <span>Question {currentQuestionIndex + 1}/{totalQuestions}</span>
+          <span>{Math.round(progress)}% Completed</span>
         </div>
-        <Progress value={progress} />
+        <div className="h-1.5 w-full bg-white/40 rounded-full overflow-hidden backdrop-blur-sm">
+          <div 
+            className="h-full bg-wine rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(128,0,0,0.3)]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
 
-      {/* Question */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-          {currentQuestion.question}
-        </h2>
+      {/* Question Card - Glass effect */}
+      <div className="glass-card-strong rounded-[2.5rem] p-6 sm:p-10 mb-8 sm:mb-10 shadow-lg border border-white/60 relative overflow-hidden">
+        {/* Decorative soft glow behind text */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-gradient-to-b from-white/80 to-transparent pointer-events-none z-0" />
+        
+        <div className="relative z-10">
+          <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl text-forest leading-tight mb-8 text-center">
+            {currentQuestion.question}
+          </h2>
 
-        <div className="space-y-3">
-          {currentQuestion.options.map((option) => (
-            <QuizOption
-              key={option.id}
-              text={option.text}
-              isSelected={selectedOptionIds.includes(option.id)}
-              onSelect={() => handleOptionSelect(option.id)}
-            />
-          ))}
+          <div className="space-y-4">
+            {currentQuestion.options.map((option) => (
+              <QuizOption
+                key={option.id}
+                text={option.text}
+                isSelected={selectedOptionIds.includes(option.id)}
+                onSelect={() => handleOptionSelect(option.id)}
+              />
+            ))}
+          </div>
+
+          {currentQuestion.multiSelect && (
+            <p className="mt-6 text-xs sm:text-sm text-forest/40 font-body text-center tracking-wide uppercase">
+              Select all that apply
+            </p>
+          )}
         </div>
-
-        {currentQuestion.multiSelect && (
-          <p className="mt-3 text-sm text-gray-500">
-            You can select multiple options
-          </p>
-        )}
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center gap-4 px-2">
         <Button
-          variant="outline"
+          variant="ghost"
           onClick={handlePrevious}
           disabled={currentQuestionIndex === 0}
+          className="text-forest/60 hover:text-forest hover:bg-white/30 rounded-full px-6 transition-all"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Previous
+          <span className={currentQuestionIndex === 0 ? "invisible" : ""}>Back</span>
         </Button>
 
         <Button
+          variant="wine"
+          size="lg"
           onClick={handleNext}
           disabled={!canProceed || isCalculating}
+          className="rounded-full px-8 py-6 shadow-xl shadow-wine/20 hover:shadow-wine/30 hover:-translate-y-1 transition-all min-w-[140px]"
         >
           {isCalculating ? (
-            "Calculating..."
+            <span className="font-subheader">Calculating...</span>
           ) : isLastQuestion ? (
-            "See My Results"
+            <span className="font-subheader">Get Results</span>
           ) : (
-            <>
-              Next
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </>
+            <div className="flex items-center gap-2">
+              <span className="font-subheader">Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </div>
           )}
         </Button>
       </div>
