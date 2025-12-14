@@ -1,52 +1,178 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { QuizAnswer } from "@/types";
+import { QuizAnswer, QuizLead, QuizResponse } from "@/types";
 import { quizQuestions, calculateQuizResult } from "@/lib/quiz-data";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { QuizOption } from "./quiz-option";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+
+type QuizScreen =
+  | "intro"
+  | "question"
+  | "transition-after-q3"
+  | "loading"
+  | "lead-capture";
+
+// Detect device type
+function getDeviceType(): "mobile" | "desktop" | "tablet" {
+  if (typeof window === "undefined") return "desktop";
+  const width = window.innerWidth;
+  if (width < 768) return "mobile";
+  if (width < 1024) return "tablet";
+  return "desktop";
+}
+
+// Get referral source from URL params
+function getReferralSource(): string | undefined {
+  if (typeof window === "undefined") return undefined;
+  const params = new URLSearchParams(window.location.search);
+  return params.get("ref") || params.get("utm_source") || undefined;
+}
+
+// Constants - memoized outside component
+const TOTAL_QUESTIONS = quizQuestions.length;
 
 export function Quiz() {
   const router = useRouter();
+  const [screen, setScreen] = useState<QuizScreen>("intro");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswer[]>([]);
-  const [isCalculating, setIsCalculating] = useState(false);
+  const [loadingLineIndex, setLoadingLineIndex] = useState(0);
+  const [resultProgram, setResultProgram] = useState<string>("");
 
-  const currentQuestion = quizQuestions[currentQuestionIndex];
-  const totalQuestions = quizQuestions.length;
-  const progress = ((currentQuestionIndex + 1) / totalQuestions) * 100;
+  // Lead capture state
+  const [leadData, setLeadData] = useState<QuizLead>({
+    name: "",
+    email: "",
+    whatsapp: "",
+  });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+  const [leadErrors, setLeadErrors] = useState<Partial<QuizLead>>({});
 
-  // Get current answer for this question
-  const currentAnswer = answers.find(
-    (a) => a.questionId === currentQuestion.id
+  // Tracking data
+  const quizStartTime = useRef<string>("");
+  const quizResponseRef = useRef<QuizResponse | null>(null);
+
+  // Memoized derived values
+  const currentQuestion = useMemo(
+    () => quizQuestions[currentQuestionIndex],
+    [currentQuestionIndex]
   );
-  const selectedOptionIds = currentAnswer?.selectedOptionIds || [];
 
-  const handleOptionSelect = (optionId: string) => {
+  const progress = useMemo(
+    () => ((currentQuestionIndex + 1) / TOTAL_QUESTIONS) * 100,
+    [currentQuestionIndex]
+  );
+
+  const selectedOptionIds = useMemo(() => {
+    const currentAnswer = answers.find(
+      (a) => a.questionId === currentQuestion?.id
+    );
+    return currentAnswer?.selectedOptionIds || [];
+  }, [answers, currentQuestion?.id]);
+
+  const canProceed = selectedOptionIds.length > 0;
+  const isLastQuestion = currentQuestionIndex === TOTAL_QUESTIONS - 1;
+
+  // Record quiz start time when entering questions
+  useEffect(() => {
+    if (screen === "question" && !quizStartTime.current) {
+      quizStartTime.current = new Date().toISOString();
+    }
+  }, [screen]);
+
+  // Loading screen animation -> lead capture
+  useEffect(() => {
+    if (screen === "loading") {
+      const timers = [
+        setTimeout(() => setLoadingLineIndex(1), 1000),
+        setTimeout(() => setLoadingLineIndex(2), 2000),
+        setTimeout(() => {
+          // Calculate result
+          const completeAnswers = quizQuestions.map((q) => {
+            const existingAnswer = answers.find((a) => a.questionId === q.id);
+            return existingAnswer || { questionId: q.id, selectedOptionIds: [] };
+          });
+          const result = calculateQuizResult(completeAnswers);
+          setResultProgram(result.programSlug);
+
+          // Build quiz response data
+          const answersMap: { [key: string]: string[] } = {};
+          completeAnswers.forEach((a) => {
+            answersMap[a.questionId] = a.selectedOptionIds;
+          });
+
+          const quizResponse: QuizResponse = {
+            startedAt: quizStartTime.current,
+            completedAt: new Date().toISOString(),
+            answers: answersMap,
+            scores: {
+              essentials: result.allScores.essentials || 0,
+              trial: result.allScores.trial || 0,
+              circle: result.allScores.circle || 0,
+              transform: result.allScores.transform || 0,
+            },
+            recommendation: result.programSlug,
+            deviceType: getDeviceType(),
+            referralSource: getReferralSource(),
+          };
+
+          quizResponseRef.current = quizResponse;
+
+          // Store result in sessionStorage
+          sessionStorage.setItem("quizResult", JSON.stringify(result));
+
+          // Store Q1 answer for archetype personalization
+          const q1Answer = completeAnswers.find((a) => a.questionId === "q1");
+          if (q1Answer && q1Answer.selectedOptionIds.length > 0) {
+            sessionStorage.setItem("dmk_q1_answer", q1Answer.selectedOptionIds[0]);
+          }
+
+          // Move to lead capture
+          setScreen("lead-capture");
+        }, 3000),
+      ];
+      return () => timers.forEach(clearTimeout);
+    }
+  }, [screen, answers]);
+
+  // Transition after Q3 animation
+  useEffect(() => {
+    if (screen === "transition-after-q3") {
+      const timer = setTimeout(() => {
+        setScreen("question");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [screen]);
+
+  // Memoized handlers
+  const handleOptionSelect = useCallback((optionId: string) => {
+    const question = quizQuestions[currentQuestionIndex];
+    const isMultiSelect = question.multiSelect;
+
     setAnswers((prev) => {
-      const existingAnswerIndex = prev.findIndex(
-        (a) => a.questionId === currentQuestion.id
-      );
+      const questionId = question.id;
+      const existingAnswerIndex = prev.findIndex((a) => a.questionId === questionId);
+      const existingSelectedIds = existingAnswerIndex >= 0
+        ? prev[existingAnswerIndex].selectedOptionIds
+        : [];
 
       let newSelectedIds: string[];
 
-      if (currentQuestion.multiSelect) {
-        // Toggle selection for multi-select
-        if (selectedOptionIds.includes(optionId)) {
-          newSelectedIds = selectedOptionIds.filter((id) => id !== optionId);
+      if (isMultiSelect) {
+        if (existingSelectedIds.includes(optionId)) {
+          newSelectedIds = existingSelectedIds.filter((id) => id !== optionId);
         } else {
-          newSelectedIds = [...selectedOptionIds, optionId];
+          newSelectedIds = [...existingSelectedIds, optionId];
         }
       } else {
-        // Single select - replace
         newSelectedIds = [optionId];
       }
 
       const newAnswer: QuizAnswer = {
-        questionId: currentQuestion.id,
+        questionId,
         selectedOptionIds: newSelectedIds,
       };
 
@@ -58,81 +184,369 @@ export function Quiz() {
         return [...prev, newAnswer];
       }
     });
-  };
 
-  const handleNext = () => {
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    } else {
-      // Calculate result and redirect
-      handleSubmit();
+    // Auto-advance for single-select questions after a brief delay
+    if (!isMultiSelect) {
+      setTimeout(() => {
+        if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
+          const nextIndex = currentQuestionIndex + 1;
+          // Show transition screen after Q3 (index 2)
+          if (currentQuestionIndex === 2) {
+            setCurrentQuestionIndex(nextIndex);
+            setScreen("transition-after-q3");
+          } else {
+            setCurrentQuestionIndex(nextIndex);
+          }
+        } else {
+          // Last question - go to loading screen
+          setScreen("loading");
+        }
+      }, 300); // Brief delay for visual feedback
     }
-  };
+  }, [currentQuestionIndex]);
 
-  const handlePrevious = () => {
+  const handleNext = useCallback(() => {
+    if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
+      const nextIndex = currentQuestionIndex + 1;
+
+      // Show transition screen after Q3 (index 2)
+      if (currentQuestionIndex === 2) {
+        setCurrentQuestionIndex(nextIndex);
+        setScreen("transition-after-q3");
+      } else {
+        setCurrentQuestionIndex(nextIndex);
+      }
+    } else {
+      // Quiz complete - show loading screen
+      setScreen("loading");
+    }
+  }, [currentQuestionIndex]);
+
+  const handlePrevious = useCallback(() => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
     }
-  };
+  }, [currentQuestionIndex]);
 
-  const handleSubmit = () => {
-    setIsCalculating(true);
+  const handleStartQuiz = useCallback(() => {
+    setScreen("question");
+  }, []);
 
-    // Ensure all questions have answers
-    const completeAnswers = quizQuestions.map((q) => {
-      const existingAnswer = answers.find((a) => a.questionId === q.id);
-      return existingAnswer || { questionId: q.id, selectedOptionIds: [] };
-    });
+  // Validate lead form
+  const validateLead = useCallback((): boolean => {
+    const errors: Partial<QuizLead> = {};
 
-    const result = calculateQuizResult(completeAnswers);
-
-    // Store result in sessionStorage for the result page
-    sessionStorage.setItem("quizResult", JSON.stringify(result));
-
-    // Store Q1 answer for archetype personalization on results page
-    const q1Answer = completeAnswers.find((a) => a.questionId === "q1");
-    if (q1Answer && q1Answer.selectedOptionIds.length > 0) {
-      sessionStorage.setItem("dmk_q1_answer", q1Answer.selectedOptionIds[0]);
+    if (!leadData.name.trim()) {
+      errors.name = "Please enter your name";
     }
 
-    // Redirect to the results page with the recommended program
-    router.push(`/results/${result.programSlug}`);
-  };
+    if (!leadData.email.trim()) {
+      errors.email = "Please enter your email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadData.email)) {
+      errors.email = "Please enter a valid email";
+    }
 
-  const canProceed = selectedOptionIds.length > 0;
-  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+    if (!leadData.whatsapp.trim()) {
+      errors.whatsapp = "Please enter your WhatsApp number";
+    } else if (!/^[+]?[\d\s-]{10,}$/.test(leadData.whatsapp.replace(/\s/g, ""))) {
+      errors.whatsapp = "Please enter a valid phone number";
+    }
 
-  return (
-    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
-      {/* Progress Indicator - Minimalist */}
-      <div className="mb-8 sm:mb-10 px-2">
-        <div className="flex justify-between items-center text-xs sm:text-sm text-forest/60 mb-3 font-subheader">
-          <span>Question {currentQuestionIndex + 1}/{totalQuestions}</span>
-          <span>{Math.round(progress)}% Completed</span>
+    setLeadErrors(errors);
+    return Object.keys(errors).length === 0;
+  }, [leadData]);
+
+  // Handle lead submission
+  const handleLeadSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateLead()) return;
+
+    setIsSubmittingLead(true);
+
+    try {
+      // Add lead data to quiz response
+      if (quizResponseRef.current) {
+        quizResponseRef.current.lead = leadData;
+
+        // Store complete response in sessionStorage
+        sessionStorage.setItem("quizResponse", JSON.stringify(quizResponseRef.current));
+
+        // Send to API for Wix CRM (fire and forget for better UX)
+        fetch("/api/quiz/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: leadData.name,
+            email: leadData.email,
+            whatsapp: leadData.whatsapp,
+            recommendation: resultProgram,
+            answers: quizResponseRef.current.answers,
+            deviceType: quizResponseRef.current.deviceType,
+            referralSource: quizResponseRef.current.referralSource,
+          }),
+        }).catch(console.error); // Log errors but don't block
+      }
+
+      // Redirect directly to results page
+      router.push(`/results/${resultProgram}`);
+    } catch (error) {
+      console.error("Failed to submit lead:", error);
+      // Still proceed to results even if submission fails
+      router.push(`/results/${resultProgram}`);
+    }
+  }, [validateLead, leadData, resultProgram, router]);
+
+  // Skip lead capture (optional)
+  const handleSkipLead = useCallback(() => {
+    // Store response without lead data
+    if (quizResponseRef.current) {
+      sessionStorage.setItem("quizResponse", JSON.stringify(quizResponseRef.current));
+    }
+    router.push(`/results/${resultProgram}`);
+  }, [resultProgram, router]);
+
+  // Intro Screen
+  if (screen === "intro") {
+    return (
+      <div className="quiz-fullscreen quiz-intro-bg flex flex-col items-center justify-center px-6 text-center">
+        <div className="max-w-xl mx-auto">
+          {/* Headline */}
+          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl text-ivory font-bold mb-4 leading-tight">
+            8 Questions to Your Personal Path
+          </h1>
+
+          {/* Subheadline */}
+          <p className="text-ivory/90 font-body text-lg sm:text-xl mb-6">
+            Answer honestly. There are no wrong answers—just YOUR answers. Each response helps us design the perfect transformation path for you.
+          </p>
+
+          {/* Body Copy */}
+          <p className="text-ivory/70 font-body text-base sm:text-lg mb-10 max-w-md mx-auto">
+            This takes 2 minutes. Be honest about where you are right now, not where you think you &ldquo;should&rdquo; be. The more authentic your answers, the more personalized your path.
+          </p>
+
+          {/* CTA Button */}
+          <button
+            onClick={handleStartQuiz}
+            className="quiz-btn-gold text-lg sm:text-xl px-10 py-4 rounded-full font-subheader font-bold inline-flex items-center gap-3 hover:scale-105 transition-transform"
+          >
+            Let&apos;s Begin
+            <ArrowRight className="w-5 h-5" />
+          </button>
+
+          {/* Trust Line */}
+          <p className="text-ivory/60 font-body text-sm mt-8">
+            Used by 2,500+ women &bull; Created by TheDMK
+          </p>
         </div>
-        <div className="h-1.5 w-full bg-white/40 rounded-full overflow-hidden backdrop-blur-sm">
-          <div 
-            className="h-full bg-wine rounded-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(128,0,0,0.3)]"
+      </div>
+    );
+  }
+
+  // Transition Screen After Q3
+  if (screen === "transition-after-q3") {
+    return (
+      <div className="quiz-fullscreen quiz-transition-bg flex flex-col items-center justify-center px-6 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl text-ivory font-bold mb-6">
+          Understanding your path...
+        </h2>
+        {/* Pulsing dots animation */}
+        <div className="flex gap-3">
+          <span className="w-3 h-3 rounded-full bg-gold animate-pulse" style={{ animationDelay: '0ms' }} />
+          <span className="w-3 h-3 rounded-full bg-gold animate-pulse" style={{ animationDelay: '200ms' }} />
+          <span className="w-3 h-3 rounded-full bg-gold animate-pulse" style={{ animationDelay: '400ms' }} />
+        </div>
+      </div>
+    );
+  }
+
+  // Loading Screen After Q8
+  if (screen === "loading") {
+    const loadingLines = [
+      "Analyzing your answers...",
+      "Designing your personalized path...",
+      "Your transformation begins now.",
+    ];
+
+    return (
+      <div className="quiz-fullscreen quiz-loading-bg flex flex-col items-center justify-center px-6 text-center">
+        {/* Gold geometric pattern animation */}
+        <div className="quiz-loading-pattern absolute inset-0 pointer-events-none" />
+
+        <div className="relative z-10 space-y-4">
+          {loadingLines.map((line, index) => (
+            <p
+              key={index}
+              className={`font-body text-lg sm:text-xl text-ivory transition-all duration-500 ${
+                index <= loadingLineIndex
+                  ? "opacity-100 translate-y-0"
+                  : "opacity-0 translate-y-4"
+              }`}
+            >
+              {line}
+            </p>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Lead Capture Screen
+  if (screen === "lead-capture") {
+    return (
+      <div className="quiz-fullscreen quiz-lead-capture-bg flex flex-col items-center justify-center px-6">
+        <div className="w-full max-w-md mx-auto">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="font-headline text-3xl sm:text-4xl text-ivory font-bold mb-3">
+              Your path is ready!
+            </h2>
+            <p className="text-ivory/80 font-body text-base sm:text-lg">
+              Enter your details to see your personalized recommendation and receive your transformation roadmap.
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleLeadSubmit} className="space-y-4">
+            {/* Name */}
+            <div>
+              <label htmlFor="name" className="block text-ivory/90 font-body text-sm mb-2">
+                Your Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={leadData.name}
+                onChange={(e) => setLeadData({ ...leadData, name: e.target.value })}
+                placeholder="Enter your name"
+                className={`w-full px-4 py-3 rounded-xl bg-white/10 border-2 text-ivory placeholder-ivory/50 font-body focus:outline-none focus:ring-2 focus:ring-gold transition-all ${
+                  leadErrors.name ? "border-red-400" : "border-ivory/30 focus:border-gold"
+                }`}
+              />
+              {leadErrors.name && (
+                <p className="mt-1 text-red-300 text-sm font-body">{leadErrors.name}</p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div>
+              <label htmlFor="email" className="block text-ivory/90 font-body text-sm mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                id="email"
+                value={leadData.email}
+                onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                placeholder="your@email.com"
+                className={`w-full px-4 py-3 rounded-xl bg-white/10 border-2 text-ivory placeholder-ivory/50 font-body focus:outline-none focus:ring-2 focus:ring-gold transition-all ${
+                  leadErrors.email ? "border-red-400" : "border-ivory/30 focus:border-gold"
+                }`}
+              />
+              {leadErrors.email && (
+                <p className="mt-1 text-red-300 text-sm font-body">{leadErrors.email}</p>
+              )}
+            </div>
+
+            {/* WhatsApp */}
+            <div>
+              <label htmlFor="whatsapp" className="block text-ivory/90 font-body text-sm mb-2">
+                WhatsApp Number
+              </label>
+              <input
+                type="tel"
+                id="whatsapp"
+                value={leadData.whatsapp}
+                onChange={(e) => setLeadData({ ...leadData, whatsapp: e.target.value })}
+                placeholder="+91 98765 43210"
+                className={`w-full px-4 py-3 rounded-xl bg-white/10 border-2 text-ivory placeholder-ivory/50 font-body focus:outline-none focus:ring-2 focus:ring-gold transition-all ${
+                  leadErrors.whatsapp ? "border-red-400" : "border-ivory/30 focus:border-gold"
+                }`}
+              />
+              {leadErrors.whatsapp && (
+                <p className="mt-1 text-red-300 text-sm font-body">{leadErrors.whatsapp}</p>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={isSubmittingLead}
+              className="w-full quiz-btn-gold text-lg px-8 py-4 rounded-full font-subheader font-bold inline-flex items-center justify-center gap-3 hover:scale-[1.02] transition-transform disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+            >
+              {isSubmittingLead ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  See My Results
+                  <ArrowRight className="w-5 h-5" />
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Skip option */}
+          <button
+            onClick={handleSkipLead}
+            className="w-full mt-4 text-ivory/60 hover:text-ivory/80 font-body text-sm transition-colors"
+          >
+            Skip for now
+          </button>
+
+          {/* Privacy note */}
+          <p className="text-center text-ivory/50 font-body text-xs mt-6">
+            We respect your privacy. Your information is secure and will never be shared.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Question Screen
+  return (
+    <div className="quiz-fullscreen bg-ivory flex flex-col">
+      {/* Progress Bar - Fixed at top */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-ivory/95 backdrop-blur-sm">
+        <div className="h-1 w-full bg-beige">
+          <div
+            className="h-full bg-gold transition-all duration-500 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
+        <div className="px-4 py-3">
+          <p className="text-sm font-body text-forest/80 text-center">
+            Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS}
+          </p>
+        </div>
       </div>
 
-      {/* Question Card - Glass effect */}
-      <div className="glass-card-strong rounded-[2.5rem] p-6 sm:p-10 mb-8 sm:mb-10 shadow-lg border border-white/60 relative overflow-hidden">
-        {/* Decorative soft glow behind text */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-gradient-to-b from-white/80 to-transparent pointer-events-none z-0" />
-        
-        <div className="relative z-10">
-          <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl text-forest leading-tight mb-8 text-center">
-            {currentQuestion.question}
-          </h2>
+      {/* Question Content - Scrollable container */}
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 pt-20 pb-28">
+        <div className="w-full max-w-3xl mx-auto min-h-full flex flex-col justify-center py-6">
+          {/* Question */}
+          <div className="text-center mb-8 sm:mb-10">
+            <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-forest font-bold leading-tight mb-4">
+              {currentQuestion.question}
+            </h2>
+            {currentQuestion.subtext && (
+              <p className="font-body text-base sm:text-lg text-forest/70 max-w-xl mx-auto">
+                {currentQuestion.subtext}
+              </p>
+            )}
+          </div>
 
-          <div className="space-y-4">
-            {currentQuestion.options.map((option) => (
+          {/* Options */}
+          <div className="space-y-3 sm:space-y-4">
+            {currentQuestion.options.map((option, index) => (
               <QuizOption
                 key={option.id}
+                label={String.fromCharCode(65 + index)} // A, B, C, D
                 text={option.text}
+                description={option.description}
                 isSelected={selectedOptionIds.includes(option.id)}
                 onSelect={() => handleOptionSelect(option.id)}
               />
@@ -140,42 +554,42 @@ export function Quiz() {
           </div>
 
           {currentQuestion.multiSelect && (
-            <p className="mt-6 text-xs sm:text-sm text-forest/40 font-body text-center tracking-wide uppercase">
+            <p className="mt-6 text-sm text-forest/50 font-body text-center">
               Select all that apply
             </p>
           )}
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="flex justify-between items-center gap-4 px-2">
-        <Button
-          variant="ghost"
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-          className="text-forest/60 hover:text-forest hover:bg-white/30 rounded-full px-6 transition-all"
-        >
-          <span className={currentQuestionIndex === 0 ? "invisible" : ""}>Back</span>
-        </Button>
+      {/* Navigation - Fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-ivory/95 backdrop-blur-sm border-t border-beige">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+          <button
+            onClick={handlePrevious}
+            disabled={currentQuestionIndex === 0}
+            className={`flex items-center gap-2 px-5 py-3 rounded-full font-subheader font-medium transition-all min-h-[48px] ${
+              currentQuestionIndex === 0
+                ? "text-forest/30 cursor-not-allowed"
+                : "text-forest/60 hover:text-forest hover:bg-beige-light"
+            }`}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
 
-        <Button
-          variant="wine"
-          size="lg"
-          onClick={handleNext}
-          disabled={!canProceed || isCalculating}
-          className="rounded-full px-8 py-6 shadow-xl shadow-wine/20 hover:shadow-wine/30 hover:-translate-y-1 transition-all min-w-[140px]"
-        >
-          {isCalculating ? (
-            <span className="font-subheader">Calculating...</span>
-          ) : isLastQuestion ? (
-            <span className="font-subheader">Get Results</span>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="font-subheader">Continue</span>
-              <ArrowRight className="w-4 h-4" />
-            </div>
-          )}
-        </Button>
+          <button
+            onClick={handleNext}
+            disabled={!canProceed}
+            className={`flex items-center gap-2 px-8 py-3 rounded-full font-subheader font-bold transition-all min-h-[48px] ${
+              canProceed
+                ? "quiz-btn-gold hover:scale-105"
+                : "bg-beige text-forest/40 cursor-not-allowed"
+            }`}
+          >
+            {isLastQuestion ? "See My Results" : "Continue"}
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

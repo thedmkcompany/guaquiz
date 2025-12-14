@@ -10,6 +10,7 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit';
+import { maskIP } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,7 +65,7 @@ export async function POST(request: NextRequest) {
     if (!isValid) {
       console.error('[Security] Invalid payment signature attempt:', {
         paymentId: razorpay_payment_id,
-        ip: clientIP,
+        ip: maskIP(clientIP),
       });
       return NextResponse.json(
         { error: 'Payment verification failed', verified: false },
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest) {
     let paymentDetails = null;
     try {
       paymentDetails = await fetchPayment(razorpay_payment_id);
-    } catch (err) {
+    } catch {
       // Non-critical - continue without details
     }
 

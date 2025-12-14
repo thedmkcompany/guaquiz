@@ -1,4 +1,4 @@
-import { Program } from "@/types";
+// Types imported from @/types as needed
 
 // ============================================
 // QUIZ PERSONALIZATION TAGS
@@ -9,6 +9,9 @@ export interface QuizPersonalization {
   heroSubheadline: string;
   whyThisWorksReason: string;
   readyStatement: string;
+  // Trial-specific personalization
+  trialHeroSubheadline: string;
+  trialWhyThisWorksReason: string;
 }
 
 export interface QuizPersonalizationMap {
@@ -17,25 +20,37 @@ export interface QuizPersonalizationMap {
 
 export const quizPersonalization: QuizPersonalizationMap = {
   "q1-a": {
-    // Survival mode
+    // Survival mode - needs to work around demanding schedule
     heroSubheadline:
       "Based on your quiz answers, you're ready to move from survival to thriving—the perfect foundation for lasting transformation.",
-    whyThisWorksReason: "you need structure that doesn't add pressure to an already demanding life",
+    whyThisWorksReason: "you need to work around a demanding schedule",
     readyStatement: "move from surviving to thriving",
+    // Trial-specific
+    trialHeroSubheadline:
+      "You need to see results before committing—we get it.",
+    trialWhyThisWorksReason: "you need to see what works before fully committing",
   },
   "q1-b": {
-    // Inconsistent
+    // Inconsistent - wants to start at own pace
     heroSubheadline:
-      "Based on your quiz answers, you're ready for structure with flexibility—the perfect foundation for finally staying consistent.",
-    whyThisWorksReason: "you've tried before and need something that actually sticks",
+      "Based on your quiz answers, you're ready for structure with flexibility—the perfect foundation for lasting transformation.",
+    whyThisWorksReason: "you want to start at your own pace",
     readyStatement: "build consistency that lasts",
+    // Trial-specific
+    trialHeroSubheadline:
+      "You've started and stopped before—this time is different.",
+    trialWhyThisWorksReason: "you need to experience first before committing",
   },
   "q1-c": {
-    // Ready to go all in
+    // Ready to go all in - values independence
     heroSubheadline:
       "Based on your quiz answers, you're ready to go all in—this is the foundation that makes discipline feel luxurious.",
-    whyThisWorksReason: "you value structure and are ready to invest in yourself seriously",
+    whyThisWorksReason: "you value independence",
     readyStatement: "transform at the highest level",
+    // Trial-specific
+    trialHeroSubheadline:
+      "You're ready to experience, not just believe—smart choice.",
+    trialWhyThisWorksReason: "you're looking for proof before you invest fully",
   },
 };
 
@@ -46,8 +61,84 @@ export function getQuizPersonalization(q1OptionId: string): QuizPersonalization 
         "Based on your quiz answers, you're ready for structure with flexibility—the perfect foundation for lasting transformation.",
       whyThisWorksReason: "you need to work around a demanding schedule",
       readyStatement: "build consistency",
+      trialHeroSubheadline:
+        "You've started and stopped before—this time is different.",
+      trialWhyThisWorksReason: "you need to experience first before committing",
     }
   );
+}
+
+// ============================================
+// FULL QUIZ PERSONALIZATION (Multi-Answer)
+// ============================================
+// Extended personalization using all quiz answers
+
+export interface QuizAnswers {
+  q1?: string; // Current era
+  q2?: string; // Goals
+  q3?: string; // Rise style
+  q4?: string; // Time commitment
+  q5?: string; // Ideal experience
+  q6?: string; // History with programs
+  q7?: string; // Investment level
+  q8?: string; // When to start
+}
+
+export interface FullQuizPersonalization extends QuizPersonalization {
+  goalFocus: string;
+  riseStyle: string;
+  historyAcknowledgment: string;
+  timeCommitment: string;
+  urgencyMessage: string;
+}
+
+// Q2: Goals personalization
+const q2Personalization: { [key: string]: string } = {
+  "q2-a": "Your focus on feeling powerful in your body is exactly where transformation begins.",
+  "q2-b": "Building unshakeable confidence is at the heart of what we do. When you trust yourself, everything changes.",
+  "q2-c": "Creating sustainable, high-performing systems is how successful women operate.",
+  "q2-d": "You want complete transformation—body, confidence, and lifestyle. And you deserve it all.",
+};
+
+// Q3: Rise style personalization
+const q3Personalization: { [key: string]: string } = {
+  "q3-a": "You thrive with flexibility, working at your own pace. This program respects your autonomy.",
+  "q3-b": "You rise with your tribe. The community energy and sisterhood will be your superpower.",
+  "q3-c": "You want personalized guidance. Having a transformation architect in your corner changes everything.",
+};
+
+// Q4: Time commitment personalization
+const q4Personalization: { [key: string]: string } = {
+  "q4-a": "With 2-3 hours weekly, you'll see meaningful progress. Consistency beats intensity.",
+  "q4-b": "With 4-6 hours weekly, you have the perfect balance for steady transformation.",
+  "q4-c": "With 7+ hours weekly, you're ready for accelerated results.",
+};
+
+// Q6: History acknowledgment
+const q6Personalization: { [key: string]: string } = {
+  "q6-a": "This is your first real commitment—and you've chosen wisely.",
+  "q6-b": "You've started and stopped before. This program is designed to break that cycle.",
+  "q6-c": "You've hit a ceiling and need the next level. This is your breakthrough.",
+};
+
+// Q8: Urgency personalization
+const q8Personalization: { [key: string]: string } = {
+  "q8-a": "You're ready to start this week. That energy? Channel it.",
+  "q8-b": "You want to prepare first—that's thoughtful. Use this time wisely.",
+  "q8-c": "You're exploring options. Take the next step when you're ready.",
+};
+
+export function getFullQuizPersonalization(answers: QuizAnswers): FullQuizPersonalization {
+  const basePersonalization = getQuizPersonalization(answers.q1 || "q1-b");
+
+  return {
+    ...basePersonalization,
+    goalFocus: q2Personalization[answers.q2 || "q2-d"] || q2Personalization["q2-d"],
+    riseStyle: q3Personalization[answers.q3 || "q3-a"] || q3Personalization["q3-a"],
+    timeCommitment: q4Personalization[answers.q4 || "q4-b"] || q4Personalization["q4-b"],
+    historyAcknowledgment: q6Personalization[answers.q6 || "q6-a"] || q6Personalization["q6-a"],
+    urgencyMessage: q8Personalization[answers.q8 || "q8-a"] || q8Personalization["q8-a"],
+  };
 }
 
 // ============================================
@@ -102,6 +193,8 @@ export interface ProgramContent {
   // Disha Validation Section
   dishaHeadline: string;
   dishaQuote: string;
+  dishaSignature?: string; // Optional custom signature (default: "Disha Methi Khandelwal")
+  dishaCredentials?: string; // Optional custom credentials
 
   // Investment Section
   investmentHeadline: string;
@@ -321,7 +414,7 @@ I'll guide you through every step.`,
     description:
       "Many Essentials members add live workouts, group coaching, and sisterhood accountability when they're ready for that next level of transformation. If that sounds right for you now—or later—you can explore our live community program. Start with Essentials and upgrade anytime. No pressure. Just options.",
     ctaText: "Explore Live Community Option",
-    ctaHref: "/programs/circle",
+    ctaHref: "/circle",
   },
 
   // Final CTA
@@ -339,7 +432,7 @@ const trialContent: ProgramContent = {
   badge: "Your First Step",
   heroHeadline: "Experience the Magic—Risk Free",
   heroSubheadlineTemplate:
-    "{personalization} Trial gives you 7 days to experience our methodology before committing fully.",
+    "{trialPersonalization} Trial gives you 7 days to experience our methodology before committing fully.",
   heroImageAlt: "Woman discovering her potential, curious and excited energy",
 
   journeySectionHeadline: "7 Days to Discover Your Unstoppable Self",
@@ -397,14 +490,12 @@ const trialContent: ProgramContent = {
     },
   ],
 
-  dishaHeadline: '"Give Me 7 Days"',
-  dishaQuote: `I know you've been burned before. Programs that promised everything and delivered nothing.
+  dishaHeadline: '"The Framework Behind 2,500+ Transformations"',
+  dishaQuote: `In this 90-minute experience, you'll get the complete Glow Up Academy framework—the same one I've perfected over 5,000+ fitness sessions with everyone from busy corporate professionals to international clients.
 
-That's why I created Trial. Give me 7 days—just ₹499—and I'll show you exactly what makes our methodology different.
-
-If you don't feel the shift, you've risked almost nothing. But if you do? You'll have the proof you need to commit fully.
-
-This is how trust begins.`,
+This isn't theory. It's proven. It's what works.`,
+  dishaSignature: "Disha",
+  dishaCredentials: "Corporate Wellness Expert for Greenko, Gold's Gym, and leading organizations",
 
   investmentHeadline: "Your 7-Day Investment",
   pricePerDay: "₹71/day",
@@ -419,7 +510,7 @@ This is how trust begins.`,
   ],
 
   whyWorksHeadline: "Why Trial Is Perfect for You",
-  whyWorksIntroTemplate: "You want to try before committing because {reason}.",
+  whyWorksIntroTemplate: "You want to try before committing because {trialReason}.",
   whyWorksBenefits: [
     {
       headline: "ZERO RISK, REAL EXPERIENCE",
@@ -564,14 +655,15 @@ const circleContent: ProgramContent = {
     },
   ],
 
-  dishaHeadline: '"Transformation Is a Team Sport"',
-  dishaQuote: `I spent years trying to transform alone. It didn't work.
+  dishaHeadline: '"Why I Created Circle"',
+  dishaQuote: `After 5,000+ fitness sessions, I learned transformation isn't about willpower—it's about sisterhood.
 
-The moment I built my community—women who understood the journey, who showed up when I wanted to quit, who celebrated my wins—everything changed.
+I created Circle for women like you—ambitious, driven, ready for complete transformation but needing the right structure and support.
 
-Circle is that community. Built specifically for women like you, led by coaches who've walked this path.
+You'll work with my expert team of coaches (personally trained by me), join 2,500+ women in our community, and follow the 4-pillar framework that took me from dropping CA to building multiple successful businesses.
 
-You don't have to do this alone anymore. Your sisters are waiting.`,
+This is where you stop doing it alone.`,
+  dishaCredentials: "Founder & Transformation Architect | Featured in Telangana Today • Corporate Wellness Expert",
 
   investmentHeadline: "Your Investment in Community Transformation",
   pricePerDay: "₹150/day",
@@ -741,16 +833,24 @@ const transformContent: ProgramContent = {
     },
   ],
 
-  dishaHeadline: '"This Is My Full Attention"',
-  dishaQuote: `Transform is how I work with women who are ready for everything to change.
+  dishaHeadline: '"From CA to Transformation Architect"',
+  dishaQuote: `I understand high-achieving women because I am one.
 
-No generic programs. No group settings. Just you, me, and a custom transformation plan designed around your life, your goals, your obstacles.
+I have a Master's in Applied Finance. I was pursuing CA—the ultimate safe career in India. But I chose passion over prestige.
 
-Weekly calls. VIP access. Plans that adjust as you evolve. This is the level of support that creates extraordinary results.
+Since then, I've:
+• Conducted 5,000+ transformation sessions
+• Helped 2,500+ women become unstoppable
+• Built WebVeda to 400,000+ students
+• Founded successful businesses across education, wellness, and lifestyle
+• Worked with corporate leaders from Greenko to Harvard-affiliated events
 
-I only take a limited number of Transform clients because this level of attention requires my full commitment.
+Transform is where I personally architect your 6-month journey. My expert team delivers your weekly 1:1 coaching. I oversee everything and personally coach you monthly.
 
-If you're ready to invest in yourself at the highest level, let's talk.`,
+This is the highest level of transformation Glow Up Academy offers.
+
+And it starts with a 45-minute strategy call—just you and me.`,
+  dishaCredentials: "Master's in Applied Finance • Corporate Wellness Expert • Multi-Business Entrepreneur",
 
   investmentHeadline: "Your Investment in Complete Transformation",
   pricePerDay: "₹1,667/day",

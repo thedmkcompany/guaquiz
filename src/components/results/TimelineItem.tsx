@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo } from "react";
 import { ChevronDown, ChevronUp, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,7 +14,7 @@ interface TimelineItemProps {
   isLast?: boolean;
 }
 
-export function TimelineItem({
+export const TimelineItem = memo(function TimelineItem({
   timeRange,
   headline,
   subheadline,
@@ -34,14 +34,14 @@ export function TimelineItem({
 
       <div
         className={cn(
-          "bg-white rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-7 lg:p-8 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border border-beige-dark/10 transition-all duration-300",
-          isExpanded && "shadow-[0_25px_60px_rgba(0,0,0,0.08)]"
+          "glass-card rounded-[2rem] border border-white/60 transition-all duration-300 flex flex-col p-5 md:p-7 lg:p-8",
+          isExpanded ? "shadow-float" : "shadow-medium"
         )}
       >
         {/* Header - Always visible */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full text-left"
+          className="w-full text-left focus:outline-none"
         >
           <div className="flex items-start gap-4 md:gap-5">
             {/* Time badge */}
@@ -106,4 +106,4 @@ export function TimelineItem({
       </div>
     </article>
   );
-}
+});

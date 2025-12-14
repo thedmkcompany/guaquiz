@@ -1,16 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Program } from "@/types";
 import { formatPrice } from "@/lib/programs";
 import {
   getProgramContent,
-  getQuizPersonalization,
+  getFullQuizPersonalization,
   ProgramContent,
+  QuizAnswers,
 } from "@/lib/results-data";
 import { WhatsAppButton } from "@/components/support/whatsapp-button";
+import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
+import { Header } from "@/components/ui/header";
 import {
   Section,
   SectionHeader,
@@ -19,6 +22,7 @@ import {
   FAQItem,
   BenefitCard,
 } from "@/components/results";
+import { MobileLogoLoop } from "@/components/MobileLogoLoop";
 import {
   Check,
   Lock,
@@ -33,24 +37,45 @@ interface ResultPageClientProps {
 }
 
 export function ResultPageClient({ program }: ResultPageClientProps) {
-  const [personalization, setPersonalization] = useState({
-    heroSubheadline: "",
-    whyThisWorksReason: "",
-  });
+  // Store quiz answers for personalization
+  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers>({});
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const isHighTicket = program.requiresCall;
   const content: ProgramContent = getProgramContent(program.id);
 
-  // Get personalization from sessionStorage (set during quiz)
+  // Read quiz answers from sessionStorage on mount
   useEffect(() => {
-    const storedQ1Answer = sessionStorage.getItem("dmk_q1_answer");
-    const p = getQuizPersonalization(storedQ1Answer || "q1-b");
-    setPersonalization({
-      heroSubheadline: p.heroSubheadline,
-      whyThisWorksReason: p.whyThisWorksReason,
-    });
+    // Try to get full quiz response first
+    const quizResponseStr = sessionStorage.getItem("quizResponse");
+    if (quizResponseStr) {
+      try {
+        const quizResponse = JSON.parse(quizResponseStr);
+        const answers: QuizAnswers = {};
+        // Extract first selected option for each question
+        Object.entries(quizResponse.answers || {}).forEach(([qId, optionIds]) => {
+          const opts = optionIds as string[];
+          if (opts && opts.length > 0) {
+            answers[qId as keyof QuizAnswers] = opts[0];
+          }
+        });
+        setQuizAnswers(answers);
+      } catch {
+        // Fallback to q1 answer only
+        const q1 = sessionStorage.getItem("dmk_q1_answer") || "q1-b";
+        setQuizAnswers({ q1 });
+      }
+    } else {
+      // Fallback to q1 answer only
+      const q1 = sessionStorage.getItem("dmk_q1_answer") || "q1-b";
+      setQuizAnswers({ q1 });
+    }
   }, []);
+
+  // Derive full personalization from all quiz answers
+  const personalization = useMemo(() => {
+    return getFullQuizPersonalization(quizAnswers);
+  }, [quizAnswers]);
 
   const toggleFaq = (index: number) => {
     setExpandedFaq(expandedFaq === index ? null : index);
@@ -60,40 +85,32 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
     ? `/book-call?program=${program.slug}`
     : `/checkout?program=${program.slug}`;
 
-  // Build dynamic text
-  const heroSubheadline = content.heroSubheadlineTemplate.replace(
-    "{personalization}",
-    personalization.heroSubheadline
-  );
-  const whyWorksIntro = content.whyWorksIntroTemplate.replace(
-    "{reason}",
-    personalization.whyThisWorksReason
-  );
+  // Build dynamic text with program-specific personalization
+  const heroSubheadline = content.heroSubheadlineTemplate
+    .replace("{personalization}", personalization.heroSubheadline)
+    .replace("{trialPersonalization}", personalization.trialHeroSubheadline);
+  const whyWorksIntro = content.whyWorksIntroTemplate
+    .replace("{reason}", personalization.whyThisWorksReason)
+    .replace("{trialReason}", personalization.trialWhyThisWorksReason);
 
   return (
     <>
       {/* HEADER - Enhanced glass overlay */}
-      <header className="glass-overlay border-b border-white/30 sticky top-0 z-50">
-        <div className="container mx-auto px-6 md:px-8 py-4 md:py-5">
-          <div className="flex items-center justify-center">
-            <Link href="/" className="font-headline text-lg md:text-xl text-forest hover:text-forest-light transition-colors">
-              Glow Up Academy{" "}
-              <span className="text-gold font-normal">by THEDMK</span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header variant="logo" />
 
-      <main className="bg-gradient-pastel-vertical">
+      <main className="bg-gradient-pastel relative overflow-hidden">
+        {/* Decorative background blobs - Global for results page */}
+        <DecorativeBlobs />
+
         {/* HERO SECTION - Enhanced with glass effects */}
         <section className="relative overflow-hidden">
           <div className="container mx-auto px-6 md:px-8 lg:px-10 py-12 md:py-20 lg:py-24">
             <div className="max-w-4xl mx-auto">
               <div className="text-center mb-5 md:mb-7">
-                <span className="inline-flex items-center gap-2 glass-card-strong px-4 py-2 md:px-5 md:py-2.5 rounded-full font-subheader text-xs md:text-sm shadow-soft border border-gold/20">
+                <div className="glass-card rounded-full inline-flex shadow-soft border border-gold/20 flex items-center gap-2 px-4 py-2 md:px-5 md:py-2.5">
                   <Sparkles className="w-3 h-3 md:w-4 md:h-4 text-gold" />
-                  <span className="text-gold-dark font-semibold">{content.badge}</span>
-                </span>
+                  <span className="text-gold-dark font-subheader text-xs md:text-sm font-semibold">{content.badge}</span>
+                </div>
               </div>
 
               <h1 className="font-headline text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-forest leading-tight text-center mb-5 md:mb-7">
@@ -121,6 +138,9 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
             </div>
           </div>
         </section>
+
+        {/* Mobile Logo Loop - Below Hero */}
+        <MobileLogoLoop className="my-4" />
 
         {/* TRANSFORMATION JOURNEY - Uses PillarCard */}
         <Section background="white" maxWidth="5xl">
@@ -167,14 +187,20 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
 
               <div className="mt-8 md:mt-10 pt-5 md:pt-7 border-t border-beige-dark/20">
                 <p className="font-headline text-xl md:text-2xl text-forest mb-1">
-                  — Disha Methi Khandelwal
+                  — {content.dishaSignature || "Disha Methi Khandelwal"}
                 </p>
                 <p className="text-xs md:text-sm text-charcoal/60 font-body">
                   Founder, Glow Up Academy
                 </p>
-                <p className="text-[10px] md:text-xs text-charcoal/50 font-body mt-1">
-                  Master&apos;s in Applied Finance • Certified Wellness Expert
-                </p>
+                {content.dishaCredentials ? (
+                  <p className="text-[10px] md:text-xs text-charcoal/50 font-body mt-1">
+                    {content.dishaCredentials}
+                  </p>
+                ) : (
+                  <p className="text-[10px] md:text-xs text-charcoal/50 font-body mt-1">
+                    Master&apos;s in Applied Finance • Certified Wellness Expert
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -183,8 +209,8 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
         {/* INVESTMENT - Enhanced pricing card with glass */}
         <Section background="white" maxWidth="lg">
           {/* Glass floater with subtle border */}
-          <div className="glass-card-strong rounded-[2.5rem] p-2 shadow-float border border-white/60">
-            <div className="bg-gradient-to-b from-white/60 to-beige-light/40 backdrop-blur-sm rounded-[2rem] p-8 md:p-10 lg:p-12">
+          <div className="glass-card rounded-[2.5rem] shadow-float border border-white/60 p-2 flex flex-col">
+            <div className="bg-gradient-to-b from-white/60 to-beige-light/40 backdrop-blur-sm rounded-[2rem] p-8 md:p-10 lg:p-12 w-full">
               <div className="text-center">
                 <h2 className="font-headline text-xl sm:text-2xl md:text-3xl text-forest mb-3">
                   {content.investmentHeadline}
@@ -250,8 +276,69 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
           </div>
         </Section>
 
-        {/* WHY THIS WORKS - Uses BenefitCard */}
+        {/* PERSONALIZED INSIGHTS - Based on Quiz Answers */}
         <Section background="beige" maxWidth="3xl">
+          <SectionHeader
+            title="Why This is Perfect for You"
+            subtitle="Based on your quiz answers, here's what we know about your transformation journey."
+          />
+          <div className="space-y-4">
+            {/* Goal Focus */}
+            <div className="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-5 h-5 text-gold-dark" />
+                </div>
+                <div>
+                  <h3 className="font-subheader font-semibold text-forest mb-1">Your Goal</h3>
+                  <p className="text-sm md:text-base text-charcoal/80 font-body">{personalization.goalFocus}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Rise Style */}
+            <div className="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-wine/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <ArrowRight className="w-5 h-5 text-wine" />
+                </div>
+                <div>
+                  <h3 className="font-subheader font-semibold text-forest mb-1">How You Rise</h3>
+                  <p className="text-sm md:text-base text-charcoal/80 font-body">{personalization.riseStyle}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Time Commitment */}
+            <div className="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-forest/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-forest" />
+                </div>
+                <div>
+                  <h3 className="font-subheader font-semibold text-forest mb-1">Your Commitment</h3>
+                  <p className="text-sm md:text-base text-charcoal/80 font-body">{personalization.timeCommitment}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* History Acknowledgment */}
+            <div className="glass-card rounded-2xl p-5 md:p-6 border border-white/60">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 bg-beige-dark/30 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Check className="w-5 h-5 text-forest" />
+                </div>
+                <div>
+                  <h3 className="font-subheader font-semibold text-forest mb-1">Your Journey</h3>
+                  <p className="text-sm md:text-base text-charcoal/80 font-body">{personalization.historyAcknowledgment}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        {/* WHY THIS WORKS - Uses BenefitCard */}
+        <Section background="white" maxWidth="3xl">
           <SectionHeader title={content.whyWorksHeadline} subtitle={whyWorksIntro} />
           <div className="space-y-3 md:space-y-4 lg:space-y-6">
             {content.whyWorksBenefits.map((benefit, index) => (
@@ -270,7 +357,7 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
           <SectionHeader title={content.testimonialsHeadline} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {content.testimonials.map((testimonial) => (
-              <TestimonialCard key={testimonial.id} testimonial={testimonial} />
+              <TestimonialCard key={testimonial.id} testimonial={testimonial} asListItem={false} />
             ))}
           </div>
         </Section>
@@ -359,7 +446,6 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
                   Email us
                 </Link>
               </div>
-
               <p className="text-white/50 text-xs md:text-sm mt-8 md:mt-10 font-body">
                 {content.trustReminder}
               </p>
@@ -375,12 +461,18 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
             Trusted by 2,500+ women across India and globally
           </p>
 
-          <nav className="flex flex-wrap items-center justify-center gap-5 md:gap-7 text-xs md:text-sm text-white/50 font-body mb-6 md:mb-8">
+          <nav className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs md:text-sm text-white/50 font-body mb-6 md:mb-8">
             <Link href="/privacy" className="hover:text-white/80 transition-colors">
-              Privacy Policy
+              Privacy
             </Link>
             <Link href="/terms" className="hover:text-white/80 transition-colors">
               Terms
+            </Link>
+            <Link href="/refund" className="hover:text-white/80 transition-colors">
+              Refund
+            </Link>
+            <Link href="/about" className="hover:text-white/80 transition-colors">
+              About
             </Link>
             <Link href="/contact" className="hover:text-white/80 transition-colors">
               Contact
@@ -389,13 +481,13 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
 
           <div className="flex items-center justify-center">
             <a
-              href="https://instagram.com/thedmk"
+              href="https://instagram.com/_thedmk_"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/50 hover:text-white/80 flex items-center gap-2 text-xs md:text-sm transition-colors"
             >
               <Instagram className="w-4 h-4 md:w-5 md:h-5" />
-              @thedmk
+              @_thedmk_
             </a>
           </div>
 

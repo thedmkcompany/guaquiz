@@ -3,23 +3,21 @@
 import { MessageCircle } from "lucide-react";
 
 interface WhatsAppButtonProps {
-  phoneNumber?: string; // WhatsApp number with country code (e.g., "919876543210")
   message?: string; // Pre-filled message
   variant?: "fixed" | "inline" | "link";
   className?: string;
 }
 
-// Default WhatsApp number - update this with actual number
-const DEFAULT_WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "919876543210";
+// AiSensy WhatsApp Business URL
+const WHATSAPP_BASE_URL = "https://wa.aisensy.com/+918106139900";
 
 export function WhatsAppButton({
-  phoneNumber = DEFAULT_WHATSAPP_NUMBER,
   message = "Hi! I have a question about the programs.",
   variant = "inline",
   className = "",
 }: WhatsAppButtonProps) {
   const encodedMessage = encodeURIComponent(message);
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+  const whatsappUrl = `${WHATSAPP_BASE_URL}?text=${encodedMessage}`;
 
   if (variant === "fixed") {
     return (

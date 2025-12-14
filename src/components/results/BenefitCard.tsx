@@ -1,15 +1,17 @@
 "use client";
 
+import { memo } from "react";
+
 interface BenefitCardProps {
   index: number;
   headline: string;
   description: string;
 }
 
-export function BenefitCard({ index, headline, description }: BenefitCardProps) {
+export const BenefitCard = memo(function BenefitCard({ index, headline, description }: BenefitCardProps) {
   return (
-    <article className="glass-card-strong rounded-[2rem] p-5 md:p-7 lg:p-9 shadow-medium border border-white/50 hover:shadow-strong hover:scale-[1.01] transition-all duration-300">
-      <div className="flex items-start gap-4 md:gap-5">
+    <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-strong hover:scale-[1.01] transition-all duration-300 p-5 md:p-7 lg:p-9">
+      <div className="flex items-start gap-4 md:gap-5 h-full">
         <div className="flex-shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-forest to-forest-light text-white flex items-center justify-center font-subheader font-bold text-sm md:text-base shadow-soft">
           {index + 1}
         </div>
@@ -22,6 +24,6 @@ export function BenefitCard({ index, headline, description }: BenefitCardProps) 
           </p>
         </div>
       </div>
-    </article>
+    </div>
   );
-}
+});

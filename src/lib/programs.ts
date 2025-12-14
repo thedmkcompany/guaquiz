@@ -7,7 +7,7 @@ import { Program } from "@/types";
 // - Essentials: Entry-level (₹2,499)
 // - Trial: Low-commitment trial (₹499) - upsells to Circle
 // - Circle: Mid-tier community (₹4,499)
-// - Transform: High-ticket 1:1 (₹1,49,999) - requires sales call
+// - Transform: High-ticket 1:1 (₹1,99,999) - requires ₹9,999 strategy call
 // ============================================
 
 export const programs: Program[] = [
@@ -78,20 +78,20 @@ export const programs: Program[] = [
     name: "Transform",
     tagline: "Complete 1:1 transformation",
     description: "For those ready for a complete life transformation. Personalized 1:1 coaching, custom plans, and VIP support.",
-    price: 149999,
+    price: 199999,
     currency: "INR",
     tier: "transform",
     features: [
       "Everything in Circle",
-      "Personal 1:1 coaching",
+      "Personal 1:1 coaching with Disha",
       "Custom transformation plan",
-      "Weekly private calls",
-      "VIP WhatsApp support",
+      "Weekly private calls (30 min)",
+      "Daily WhatsApp accountability",
+      "6-month intensive program",
       "Lifetime access + updates",
-      "3-month intensive program",
     ],
     isSubscription: false,
-    requiresCall: true, // High-ticket requires sales call
+    requiresCall: true, // High-ticket requires strategy call (₹9,999)
     calendlyUrl: process.env.CALENDLY_URL_TRANSFORM || "",
     wixPlanId: process.env.WIX_PLAN_ID_TRANSFORM || "",
     razorpayPlanId: process.env.RAZORPAY_PLAN_ID_TRANSFORM || "",
@@ -99,19 +99,35 @@ export const programs: Program[] = [
 ];
 
 // ============================================
+// OPTIMIZED LOOKUP MAPS (O(1) instead of O(n))
+// ============================================
+
+const programsById = new Map<string, Program>(
+  programs.map((p) => [p.id, p])
+);
+
+const programsBySlug = new Map<string, Program>(
+  programs.map((p) => [p.slug, p])
+);
+
+const programsByTier = new Map<Program['tier'], Program>(
+  programs.map((p) => [p.tier, p])
+);
+
+// ============================================
 // HELPER FUNCTIONS
 // ============================================
 
 export function getProgramById(id: string): Program | undefined {
-  return programs.find((p) => p.id === id);
+  return programsById.get(id);
 }
 
 export function getProgramBySlug(slug: string): Program | undefined {
-  return programs.find((p) => p.slug === slug);
+  return programsBySlug.get(slug);
 }
 
 export function getProgramByTier(tier: Program['tier']): Program | undefined {
-  return programs.find((p) => p.tier === tier);
+  return programsByTier.get(tier);
 }
 
 export function getAllPrograms(): Program[] {

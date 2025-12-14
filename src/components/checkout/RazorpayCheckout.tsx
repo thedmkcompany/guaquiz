@@ -161,7 +161,7 @@ export function RazorpayCheckout({
           programId,
         },
         theme: {
-          color: '#8B2942', // Brand color
+          color: '#800000', // Brand wine color
         },
         handler: async function (response: RazorpayResponse) {
           // Verify payment on server

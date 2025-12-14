@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Dumbbell, Sparkles, Wallet, Crown, LucideIcon } from "lucide-react";
 import { ProgramPillar } from "@/lib/results-data";
 
@@ -14,14 +15,14 @@ interface PillarCardProps {
   pillar: ProgramPillar;
 }
 
-export function PillarCard({ pillar }: PillarCardProps) {
+export const PillarCard = memo(function PillarCard({ pillar }: PillarCardProps) {
   const IconComponent = pillarIcons[pillar.icon];
 
   return (
-    <article className="glass-card-strong rounded-[2rem] p-6 md:p-8 lg:p-10 shadow-medium border border-white/50 hover:shadow-strong transition-all duration-300">
+    <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-strong transition-all duration-300 flex flex-col h-full p-6 md:p-8 lg:p-10">
       {/* Icon + Title Row */}
       <div className="flex items-start gap-4 md:gap-5 mb-4 md:mb-5">
-        <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center text-gold shadow-soft border border-gold/10">
+        <div className="flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gold/20 to-gold/10 flex items-center justify-center text-gold shadow-soft border border-gold/10 shrink-0">
           <IconComponent className="w-5 h-5 md:w-6 md:h-6" />
         </div>
         <div className="min-w-0 flex-1">
@@ -35,12 +36,12 @@ export function PillarCard({ pillar }: PillarCardProps) {
       </div>
 
       {/* Description */}
-      <p className="text-sm md:text-base text-charcoal/80 font-body mb-4 md:mb-5 leading-relaxed">
+      <p className="text-sm md:text-base text-charcoal/80 font-body mb-4 md:mb-5 leading-relaxed flex-grow">
         {pillar.description}
       </p>
 
       {/* Benefits Box - Frosted inner card */}
-      <div className="frosted-glass rounded-2xl p-4 md:p-5 border border-white/30">
+      <div className="frosted-glass rounded-2xl p-4 md:p-5 border border-white/30 mt-auto">
         <p className="text-xs md:text-sm font-subheader text-forest/70 mb-2 md:mb-3 font-semibold">
           What this means for you:
         </p>
@@ -55,6 +56,6 @@ export function PillarCard({ pillar }: PillarCardProps) {
           ))}
         </ul>
       </div>
-    </article>
+    </div>
   );
-}
+});

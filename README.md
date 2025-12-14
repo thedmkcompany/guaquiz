@@ -1,5 +1,11 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Documentation
+
+- [Quiz Implementation Guide](./docs/QUIZ-IMPLEMENTATION.md) - Comprehensive quiz documentation
+- [Quiz Quick Reference](./docs/QUIZ-QUICK-REFERENCE.md) - Quick lookup for common tasks
+- [Integration Overview](./docs/integration/) - Payment and CRM integration details
+
 ## Getting Started
 
 First, run the development server:

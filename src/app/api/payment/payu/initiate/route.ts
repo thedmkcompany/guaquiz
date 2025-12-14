@@ -13,6 +13,7 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit';
+import { maskEmail, maskIP } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -81,8 +82,8 @@ export async function POST(request: NextRequest) {
         programId,
         expectedPrice: program.price,
         receivedAmount: amount,
-        ip: clientIP,
-        email: customerEmail,
+        ip: maskIP(clientIP),
+        email: maskEmail(customerEmail),
       });
       return NextResponse.json(
         { error: 'Invalid amount for selected program' },

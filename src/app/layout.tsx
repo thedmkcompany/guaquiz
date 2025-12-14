@@ -8,16 +8,12 @@ import {
 } from "@/components/analytics";
 
 // Custom fonts from /public/fonts/
+// Brand Typography (from 09-BRAND-COLORS.md):
+// - Primary: Roca Two (Headlines, logo text)
+// - Secondary: Be Vietnam Pro (Body text, captions)
+// - Accent: The Seasons (Quotes, signatures)
 
-// Holiday - Headlines, hero text (luxe feminine serif)
-const holiday = localFont({
-  src: "../../public/fonts/HolidayFree.otf",
-  variable: "--font-holiday",
-  display: "swap",
-  weight: "400",
-});
-
-// Roca Two - Sub-headers, CTAs (modern geometric sans)
+// Roca Two - Headlines, logo text, CTAs (modern geometric sans)
 const rocaTwo = localFont({
   src: "../../public/fonts/roca-two.woff2",
   variable: "--font-roca-two",
@@ -33,12 +29,20 @@ const theSeasons = localFont({
   weight: "400",
 });
 
-// Body font - Be Vietnam Pro (Google Fonts)
+// Be Vietnam Pro - Body text, captions (Google Fonts)
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   variable: "--font-be-vietnam",
   display: "swap",
+});
+
+// Holiday - Optional luxe emphasis (not in brand spec, kept for special use)
+const holiday = localFont({
+  src: "../../public/fonts/HolidayFree.otf",
+  variable: "--font-holiday",
+  display: "swap",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -78,7 +82,7 @@ export default function RootLayout({
         <GoogleTagManager />
       </head>
       <body
-        className={`${holiday.variable} ${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased`}
+        className={`${holiday.variable} ${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased overflow-x-hidden`}
       >
         <GoogleTagManagerNoScript />
         {children}

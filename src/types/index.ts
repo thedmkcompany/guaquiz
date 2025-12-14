@@ -26,6 +26,7 @@ export interface Program {
 export interface QuizQuestion {
   id: string;
   question: string;
+  subtext?: string; // Supporting text shown below the question
   options: QuizOption[];
   multiSelect?: boolean;
 }
@@ -33,6 +34,7 @@ export interface QuizQuestion {
 export interface QuizOption {
   id: string;
   text: string;
+  description?: string; // Italic explanation shown below the option text
   // Scoring weights for each program
   scores: {
     [programId: string]: number;
@@ -49,5 +51,42 @@ export interface QuizResult {
   programSlug: string;
   score: number;
   allScores: { [programId: string]: number };
+}
+
+// Lead capture data
+export interface QuizLead {
+  name: string;
+  email: string;
+  whatsapp: string;
+}
+
+// Complete quiz response for storage/analytics
+export interface QuizResponse {
+  // Timestamps
+  startedAt: string; // ISO timestamp
+  completedAt: string; // ISO timestamp
+
+  // All answers (Q1-Q8)
+  answers: {
+    [questionId: string]: string[]; // Array of selected option IDs
+  };
+
+  // Calculated scores
+  scores: {
+    essentials: number;
+    trial: number;
+    circle: number;
+    transform: number;
+  };
+
+  // Final recommendation
+  recommendation: string; // Program slug
+
+  // Device & tracking
+  deviceType: 'mobile' | 'desktop' | 'tablet';
+  referralSource?: string;
+
+  // Lead info (optional until capture)
+  lead?: QuizLead;
 }
 

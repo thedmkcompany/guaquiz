@@ -5,11 +5,10 @@
 
    This file defines the visual foundation using CSS custom properties.
 
-   Custom fonts are loaded via next/font/local in layout.tsx:
-   - --font-holiday: Holiday (headlines, hero text)
-   - --font-roca-two: Roca Two (sub-headers, CTAs)
-   - --font-the-seasons: The Seasons (quotes, signatures)
-   - --font-be-vietnam: Be Vietnam Pro (body text)
+   Brand Typography (from 09-BRAND-COLORS.md):
+   - Primary: Roca Two (Headlines, logo text) → --font-headline, --font-subheader
+   - Secondary: Be Vietnam Pro (Body text, captions) → --font-body
+   - Accent: The Seasons (Quotes, signatures) → --font-accent
    ========================================================================== */
 
 /* ==========================================================================
@@ -53,14 +52,13 @@
    2. TYPOGRAPHY TOKENS (from 09-BRAND-COLORS.md)
 
    Brand fonts loaded via next/font/local in layout.tsx:
-   - Holiday: Headlines, hero text, luxe emphasis (luxe feminine serif)
-   - Roca Two: Sub-headers, section titles, CTAs (modern geometric sans)
+   - Roca Two: Headlines, logo text, section titles, CTAs (modern geometric sans)
    - Be Vietnam Pro: Body text, captions (via Google Fonts)
    - The Seasons: Quotes, signatures (accent serif)
    ========================================================================== */
 :root {
   /* Font families - Using CSS variables from next/font with fallbacks */
-  --font-headline: var(--font-holiday), Georgia, serif;
+  --font-headline: var(--font-roca-two), system-ui, sans-serif;
   --font-subheader: var(--font-roca-two), system-ui, sans-serif;
   --font-body: var(--font-be-vietnam), 'Be Vietnam Pro', system-ui, sans-serif;
   --font-accent: var(--font-the-seasons), Georgia, serif;
@@ -204,6 +202,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Default to pastel gradient for the entire site */
+body {
+  background: linear-gradient(
+    135deg,
+    var(--color-ivory) 0%,
+    var(--color-beige-light) 50%,
+    var(--color-ivory) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
 /* ==========================================================================
    TYPOGRAPHY UTILITIES
    ========================================================================== */
@@ -263,6 +273,18 @@ body {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+}
+
+/* ==========================================================================
+   SCROLLBAR UTILITIES
+   ========================================================================== */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* ==========================================================================
@@ -528,12 +550,25 @@ body {
 .bg-gradient-pastel {
   background: linear-gradient(
     135deg,
-    #F2EBD9 0%,
-    #FAF6F0 25%,
-    #E8DCC3 50%,
-    #F2EBD9 75%,
-    #FAF6F0 100%
+    var(--color-ivory) 0%,
+    var(--color-beige-light) 30%,
+    var(--color-ivory) 60%,
+    var(--color-beige-light) 100%
   );
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .bg-gradient-pastel-vertical {
@@ -545,14 +580,15 @@ body {
   );
 }
 
-.bg-gradient-pink-purple {
+/* Brand-aligned soft gradient */
+.bg-gradient-soft-warm {
   background: linear-gradient(
     135deg,
-    #fce7f3 0%,
-    #ede9fe 25%,
-    #fef3c7 50%,
-    #fce7f3 75%,
-    #ede9fe 100%
+    var(--color-ivory) 0%,
+    var(--color-beige-light) 25%,
+    var(--color-beige) 50%,
+    var(--color-beige-light) 75%,
+    var(--color-ivory) 100%
   );
 }
 
@@ -566,8 +602,19 @@ body {
 }
 
 /* ==========================================================================
-   ENHANCED GLASS EFFECTS
+   GLASS EFFECT SYSTEM
+   ==========================================================================
+   Four distinct glass effects for different UI contexts:
+
+   .glass-card        - Primary cards (testimonials, FAQ, features) - 70% opacity
+   .glass-card-strong - Hero sections, floater frames - 85% opacity, more prominent
+   .glass-overlay     - Sticky headers, navigation bars - 50% opacity, lighter
+   .frosted-glass     - Inner elements, subtle accents - 40% opacity, delicate
+
+   All use GPU-accelerated backdrop-filter for smooth 60fps performance.
    ========================================================================== */
+
+/* Primary card style - most common usage */
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
@@ -576,6 +623,7 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
 }
 
+/* Strong variant for hero sections and floater frames */
 .glass-card-strong {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(24px);
@@ -584,6 +632,7 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
 }
 
+/* Overlay style for sticky headers */
 .glass-overlay {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(16px);
@@ -591,6 +640,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
+/* Subtle frosted style for inner elements */
 .frosted-glass {
   background: rgba(255, 255, 255, 0.4);
   backdrop-filter: blur(12px);
@@ -639,3 +689,341 @@ body {
   background: var(--color-gold);
 }
 */
+
+/* ==========================================================================
+   QUIZ-SPECIFIC STYLES
+   ========================================================================== */
+
+/* Full screen quiz container - GPU accelerated */
+.quiz-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  min-height: 100vh;
+  overflow-y: auto;
+  z-index: 100;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Intro screen background - Deep Forest Green with gold accents */
+.quiz-intro-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-forest) 0%,
+    var(--color-forest-dark) 50%,
+    var(--color-forest) 100%
+  );
+  position: relative;
+}
+
+.quiz-intro-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(212, 175, 55, 0.1) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 70% 80%,
+    rgba(212, 175, 55, 0.08) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* Transition screen background */
+.quiz-transition-bg {
+  background: linear-gradient(
+    180deg,
+    var(--color-forest) 0%,
+    var(--color-forest-dark) 100%
+  );
+}
+
+/* Loading screen background */
+.quiz-loading-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-forest) 0%,
+    var(--color-forest-dark) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+/* Gold geometric pattern animation for loading screen (GPU accelerated) */
+.quiz-loading-pattern {
+  opacity: 0.15;
+  transform: translateZ(0);
+}
+
+.quiz-loading-pattern::before,
+.quiz-loading-pattern::after {
+  content: '';
+  position: absolute;
+  border: 1px solid var(--color-gold);
+  border-radius: 50%;
+  animation: loadingPulse 2s ease-in-out infinite;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.quiz-loading-pattern::before {
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%) translateZ(0);
+}
+
+.quiz-loading-pattern::after {
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  transform: translate(-50%, -50%) translateZ(0);
+  animation-delay: 0.5s;
+}
+
+@keyframes loadingPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translate(-50%, -50%) scale(1) translateZ(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translate(-50%, -50%) scale(1.1) translateZ(0);
+  }
+}
+
+/* Quiz gold CTA button */
+.quiz-btn-gold {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold) 0%,
+    var(--color-gold-light) 50%,
+    var(--color-gold) 100%
+  );
+  color: var(--color-charcoal);
+  box-shadow: 0 8px 32px rgba(212, 175, 55, 0.4);
+  transition: all 0.3s ease;
+}
+
+.quiz-btn-gold:hover {
+  background: linear-gradient(
+    135deg,
+    var(--color-gold-light) 0%,
+    var(--color-gold) 50%,
+    var(--color-gold-light) 100%
+  );
+  box-shadow: 0 12px 40px rgba(212, 175, 55, 0.5);
+}
+
+/* Quiz option cards - Unselected state (GPU accelerated) */
+.quiz-option-unselected {
+  background: rgba(255, 255, 255, 0.6);
+  border: 2px solid var(--color-beige);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, box-shadow, border-color;
+}
+
+.quiz-option-unselected:hover {
+  border-color: var(--color-wine);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px) translateZ(0);
+}
+
+/* Quiz option cards - Selected state (GPU accelerated) */
+.quiz-option-selected {
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.15) 0%,
+    rgba(212, 175, 55, 0.08) 100%
+  );
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.2);
+  transform: scale(1.01) translateZ(0);
+  -webkit-transform: scale(1.01) translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, box-shadow;
+}
+
+/* Quiz progress bar fill animation */
+@keyframes progressFill {
+  from {
+    width: 0;
+  }
+}
+
+/* Quiz slide transition for questions */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quiz-slide-in {
+  animation: slideInFromRight 0.4s ease-out;
+}
+
+/* Quiz fade transition */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.quiz-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* General fade-in animation utility */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Animation delay utilities */
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-500 {
+  animation-delay: 500ms;
+}
+
+.delay-700 {
+  animation-delay: 700ms;
+}
+
+.delay-1000 {
+  animation-delay: 1000ms;
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+    opacity: 0.6;
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Slow spin animation for decorative elements */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* Desktop-specific quiz enhancements */
+@media (min-width: 1024px) {
+  .quiz-option-unselected:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .quiz-option-selected {
+    box-shadow: 0 8px 32px rgba(212, 175, 55, 0.25);
+  }
+}
+
+/* Mobile-specific quiz adjustments */
+@media (max-width: 640px) {
+  .quiz-fullscreen {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Lead capture screen background */
+.quiz-lead-capture-bg {
+  background: linear-gradient(
+    135deg,
+    var(--color-forest) 0%,
+    var(--color-forest-dark) 50%,
+    var(--color-forest) 100%
+  );
+  position: relative;
+}
+
+.quiz-lead-capture-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(212, 175, 55, 0.12) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+/* Lead capture form inputs */
+.quiz-lead-capture-bg input {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.quiz-lead-capture-bg input:-webkit-autofill,
+.quiz-lead-capture-bg input:-webkit-autofill:hover,
+.quiz-lead-capture-bg input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ivory);
+  -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.1) inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Reduced motion support for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .quiz-fullscreen,
+  .quiz-option-unselected,
+  .quiz-option-selected,
+  .quiz-btn-gold,
+  .quiz-loading-pattern::before,
+  .quiz-loading-pattern::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .quiz-option-unselected:hover,
+  .quiz-option-selected {
+    transform: none !important;
+  }
+}

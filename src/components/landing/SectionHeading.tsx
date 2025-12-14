@@ -30,7 +30,7 @@ export function SectionHeading({
         "text-2xl sm:text-3xl lg:text-4xl",
         "font-bold",
         // Responsive bottom margin
-        "mb-8 sm:mb-10 md:mb-12 lg:mb-16",
+        "mb-6 sm:mb-8 md:mb-10 lg:mb-12",
         centered && "text-center",
         className
       )}

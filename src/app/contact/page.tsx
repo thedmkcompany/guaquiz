@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, MessageCircle, Mail, Phone, Clock } from "lucide-react";
+import { MessageCircle, Mail, Phone, Clock } from "lucide-react";
 import { WhatsAppButton } from "@/components/support";
+import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
+import { MobileLogoLoop } from "@/components/MobileLogoLoop";
+import { Header } from "@/components/ui/header";
 
 export const metadata = {
   title: "Contact Us | DMK",
@@ -9,97 +12,92 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-pastel font-body text-forest">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href="/"
-            className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
-        </div>
-      </header>
+      <Header variant="back" position="fixed" />
 
       {/* Main Content */}
-      <main className="py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-2xl mx-auto">
+      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-60px)] relative overflow-hidden">
+        <DecorativeBlobs />
+
+        <div className="max-w-2xl w-full relative z-10">
           {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl sm:text-4xl font-headline font-bold text-forest mb-4">
               We&apos;re Here to Help
             </h1>
-            <p className="text-gray-600">
+            <p className="text-forest/80 font-body text-lg">
               Have questions about our programs? Want to know which one is right
               for you? Reach out - we typically respond within a few hours.
             </p>
           </div>
 
+          {/* Mobile Logo Loop - Below Hero */}
+          <MobileLogoLoop className="mb-8 -mx-4 sm:-mx-6 lg:-mx-8" />
+
           {/* Contact Options */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             {/* WhatsApp - Primary */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-6 h-6 text-green-600" />
+            <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
+              <div className="flex items-start gap-5 w-full">
+                <div className="w-14 h-14 bg-[#25D366]/10 rounded-full flex items-center justify-center flex-shrink-0 border border-[#25D366]/20">
+                  <MessageCircle className="w-7 h-7 text-[#25D366]" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-semibold text-gray-900 mb-1">
+                  <h2 className="font-headline font-bold text-lg text-forest mb-1">
                     WhatsApp (Fastest)
                   </h2>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-forest/70 text-sm mb-5 font-body">
                     Chat with us directly. We usually reply within minutes
                     during business hours.
                   </p>
                   <WhatsAppButton
                     message="Hi! I have a question about the programs."
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md font-semibold px-6 py-3"
                   />
                 </div>
               </div>
             </div>
 
             {/* Email */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Mail className="w-6 h-6 text-purple-600" />
+            <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
+              <div className="flex items-start gap-5 w-full">
+                <div className="w-14 h-14 bg-wine/10 rounded-full flex items-center justify-center flex-shrink-0 border border-wine/20">
+                  <Mail className="w-7 h-7 text-wine" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-semibold text-gray-900 mb-1">Email</h2>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <h2 className="font-headline font-bold text-lg text-forest mb-1">Email</h2>
+                  <p className="text-forest/70 text-sm mb-5 font-body">
                     For detailed inquiries or if you prefer email
                     communication.
                   </p>
                   <a
-                    href="mailto:support@example.com"
-                    className="inline-flex items-center gap-2 text-purple-600 font-medium hover:text-purple-700"
+                    href="mailto:support@thedmk.in"
+                    className="inline-flex items-center gap-2 text-wine font-medium hover:text-wine-light font-subheader text-lg hover:underline underline-offset-4 transition-all"
                   >
-                    support@example.com
+                    support@thedmk.in
                   </a>
                 </div>
               </div>
             </div>
 
             {/* Book a Call */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-6 h-6 text-yellow-600" />
+            <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
+              <div className="flex items-start gap-5 w-full">
+                <div className="w-14 h-14 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0 border border-gold/20">
+                  <Phone className="w-7 h-7 text-gold-dark" />
                 </div>
                 <div className="flex-1">
-                  <h2 className="font-semibold text-gray-900 mb-1">
+                  <h2 className="font-headline font-bold text-lg text-forest mb-1">
                     Book a Call
                   </h2>
-                  <p className="text-gray-600 text-sm mb-4">
+                  <p className="text-forest/70 text-sm mb-5 font-body">
                     Prefer to talk? Schedule a free 20-minute discovery call
                     with us.
                   </p>
                   <Link
                     href="/book-call"
-                    className="inline-flex items-center gap-2 bg-yellow-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-yellow-600 transition-colors"
+                    className="inline-flex items-center gap-2 bg-gold-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-gold transition-all shadow-md hover:-translate-y-0.5"
                   >
                     Schedule a Call
                   </Link>
@@ -109,22 +107,22 @@ export default function ContactPage() {
           </div>
 
           {/* Response Time */}
-          <div className="mt-8 bg-gray-100 rounded-xl p-6 text-center">
-            <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
+          <div className="mt-8 bg-white/40 backdrop-blur-sm rounded-xl p-6 text-center border border-white/30">
+            <div className="flex items-center justify-center gap-2 text-forest/80 mb-2 font-subheader">
               <Clock className="w-5 h-5" />
               <span className="font-medium">Average Response Time</span>
             </div>
-            <p className="text-gray-500 text-sm">
+            <p className="text-forest/60 text-sm font-body">
               WhatsApp: Within minutes | Email: Within 24 hours
             </p>
           </div>
 
           {/* FAQ Link */}
           <div className="mt-8 text-center">
-            <p className="text-gray-600 mb-2">Looking for quick answers?</p>
+            <p className="text-forest/70 mb-2 font-body">Looking for quick answers?</p>
             <Link
               href="/#faq"
-              className="text-purple-600 font-medium hover:underline"
+              className="text-wine font-semibold hover:text-wine-light hover:underline font-subheader"
             >
               Check our FAQ section
             </Link>

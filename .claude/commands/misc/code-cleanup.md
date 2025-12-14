@@ -1,207 +1,112 @@
 ---
-description: Refactor and clean up code following best practices
+description: Refactor and clean up code for readability, maintainability, and adherence to best practices
 model: claude-sonnet-4-5
 ---
 
-Clean up and refactor the following code to improve readability, maintainability, and follow best practices.
+Transform the provided code to improve clarity, structure, and alignment with modern standards.
 
-## Code to Clean
+## Code to Refactor
 
 $ARGUMENTS
 
-## Cleanup Checklist for Solo Developers
+## Code Quality Refactoring Checklist
 
-### 1. **Code Smells to Fix**
+### 1. **Naming & Structure**
 
-**Naming**
--  Descriptive variable/function names
--  Consistent naming conventions (camelCase, PascalCase)
--  Avoid abbreviations unless obvious
--  Boolean names start with is/has/can
+- Use clear, descriptive names (camelCase for variables/functions, PascalCase for types/components)
+- Prefer full words over abbreviations
+- Prefix booleans with is/has/can for intent
 
-**Functions**
--  Single responsibility per function
--  Keep functions small (<50 lines)
--  Reduce parameters (max 3-4)
--  Extract complex logic
--  Avoid side effects where possible
+### 2. **Functions & Logic**
 
-**DRY (Don't Repeat Yourself)**
--  Extract repeated code to utilities
--  Create reusable components
--  Use TypeScript generics for type reuse
--  Centralize constants/configuration
+- Ensure functions have a single responsibility
+- Limit function size and parameter count (ideally ≤ 4 parameters)
+- Extract complex blocks into helpers
+- Minimize side effects (prefer pure functions)
 
-**Complexity**
--  Reduce nested if statements
--  Replace complex conditions with functions
--  Use early returns
--  Simplify boolean logic
+### 3. **Duplication & Reuse**
 
-**TypeScript**
--  Remove `any` types
--  Add proper type annotations
--  Use interfaces for object shapes
--  Leverage utility types (Pick, Omit, Partial)
+- Consolidate repeated code into shared utilities or hooks
+- Create reusable components for repeated UI
+- Apply generics for shared TypeScript types
+- Centralize constants and config
 
-### 2. **Modern Patterns to Apply**
+### 4. **Complexity Reduction**
 
-**JavaScript/TypeScript**
-```typescript
-// Use optional chaining
-const value = obj?.prop?.nested
+- Simplify deep/nested logic where possible
+- Extract complex conditions into aptly-named functions
+- Use early returns and declarative patterns
+- Simplify boolean expressions
 
-// Use nullish coalescing
-const result = value ?? defaultValue
+### 5. **TypeScript Best Practices**
 
-// Use destructuring
-const { name, email } = user
+- Remove `any` types and use precise type annotations
+- Define interfaces/types for object shapes
+- Utilize Partial, Pick, Omit, and other utility types when appropriate
 
-// Use template literals
-const message = `Hello, ${name}!`
+### 6. **Modern JavaScript/TypeScript Features**
 
-// Use array methods
-const filtered = arr.filter(x => x.active)
-```
+- Use optional chaining: `obj?.prop?.nested`
+- Use nullish coalescing: `value ?? fallback`
+- Prefer destructuring: `const { foo, bar } = obj`
+- Use template literals for string interpolation
+- Prefer array methods like filter, map, reduce over loops
 
-**React**
-```typescript
-// Extract custom hooks
-const useUserData = () => {
-  // logic here
-}
+### 7. **React Patterns**
 
-// Use proper TypeScript types
-interface Props {
-  user: User
-  onUpdate: (user: User) => void
-}
-
-// Avoid prop drilling with composition
-<Provider value={data}>
-  <Component />
-</Provider>
-```
-
-### 3. **Refactoring Techniques**
-
-**Extract Function**
-```typescript
-// Before
-const process = () => {
-  // 50 lines of code
-}
-
-// After
-const validate = () => { /* ... */ }
-const transform = () => { /* ... */ }
-const save = () => { /* ... */ }
-
-const process = () => {
-  validate()
-  const data = transform()
-  save(data)
-}
-```
-
-**Replace Conditional with Polymorphism**
-```typescript
-// Before
-if (type === 'A') return processA()
-if (type === 'B') return processB()
-
-// After
-const processors = {
-  A: processA,
-  B: processB
-}
-return processors[type]()
-```
-
-**Introduce Parameter Object**
-```typescript
-// Before
-function create(name, email, age, address)
-
-// After
-interface UserData {
-  name: string
-  email: string
-  age: number
-  address: string
-}
-function create(userData: UserData)
-```
-
-### 4. **Common Cleanup Tasks**
-
-**Remove Dead Code**
-- Unused imports
-- Unreachable code
-- Commented out code
-- Unused variables
-
-**Improve Error Handling**
-```typescript
-// Before
-try { doSomething() } catch (e) { console.log(e) }
-
-// After
-try {
-  doSomething()
-} catch (error) {
-  if (error instanceof ValidationError) {
-    // Handle validation
-  } else {
-    logger.error('Unexpected error', { error })
-    throw error
+- Create custom hooks for business or UI logic
+- Explicitly type props/interfaces
+  ```typescript
+  interface MyComponentProps {
+    user: User
+    onEdit: (u: User) => void
   }
-}
-```
+  ```
+- Use context to avoid prop drilling
 
-**Consistent Formatting**
-- Proper indentation
-- Consistent quotes
-- Line length (<100 characters)
-- Organized imports
+### 8. **Routine Cleanup**
 
-**Better Comments**
-- Remove obvious comments
-- Add why, not what
-- Document complex logic
-- Update outdated comments
+- Remove unused imports, dead code, and outdated comments
+- Ensure consistent formatting (indentation, quotes, line length ≤100 chars)
+- Group and order imports logically
 
-### 5. **Next.js/React Specific**
+### 9. **Error Handling**
 
-**Server vs Client Components**
-```typescript
-// Move state to client component
-'use client'
-function Interactive() {
-  const [state, setState] = useState()
-}
+- Prefer explicit, granular error handling:
+  ```typescript
+  try {
+    doThing()
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      // Handle specific error
+    } else {
+      logger.error('Unexpected error', { error })
+      throw error
+    }
+  }
+  ```
 
-// Keep data fetching in server component
-async function Page() {
-  const data = await fetchData()
-}
-```
+### 10. **React & Next.js Considerations**
 
-**Proper Data Fetching**
-```typescript
-// Use SWR/React Query for client
-const { data } = useSWR('/api/user')
+- Use "use client" only when local state or effects are required
+- Do data-fetching in server components where possible
+- Client-side fetch/caching: prefer SWR/React Query
+- Server-side: use `fetch` with `await`
 
-// Use direct fetch in server components
-const data = await fetch('/api/user').then(r => r.json())
-```
+### 11. **Documentation & Comments**
 
-## Output Format
+- Write why-focused comments only for non-obvious or crucial logic
+- Use JSDoc/TSDoc for public APIs, functions, and components
+- Avoid stating the obvious or repeating code
 
-1. **Issues Found** - List of code smells and problems
-2. **Cleaned Code** - Refactored version
-3. **Explanations** - What changed and why
-4. **Before/After Comparison** - Side-by-side if helpful
-5. **Further Improvements** - Optional enhancements
+---
 
-Focus on practical improvements that make code more maintainable without over-engineering. Balance clean code with pragmatism.
+## Output: What to Expect
+
+1. **Issue Summary** – Key code smells or structure issues found
+2. **Refactored Code** – Improved, cleaned-up code
+3. **Explanation** – What changed and why
+4. **Before/After Comparison** – (optional)
+5. **Additional Suggestions** – For future improvement (optional)
+
+Focus on clarity, maintainability, and practical refactoring in your output.

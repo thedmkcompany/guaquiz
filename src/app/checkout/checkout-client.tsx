@@ -1,16 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getProgramBySlug, formatPrice } from "@/lib/programs";
 import { RazorpayCheckout } from "@/components/checkout";
-import { ArrowLeft, Shield, Lock } from "lucide-react";
+import { Shield, Lock } from "lucide-react";
+import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
+import { Header } from "@/components/ui/header";
 
 interface CustomerInfo {
   name: string;
   email: string;
   phone: string;
+}
+
+interface QuizResponse {
+  lead?: {
+    name: string;
+    email: string;
+    whatsapp: string;
+  };
+}
+
+/**
+ * Cleans a phone number to extract the 10-digit Indian mobile number.
+ * Handles various formats: +91, 91, 0, spaces, dashes, etc.
+ */
+function cleanPhoneNumber(phone: string | undefined | null): string {
+  if (!phone) return "";
+
+  // Remove all non-digit characters
+  let digits = phone.replace(/\D/g, "");
+
+  // Handle various country code formats
+  if (digits.startsWith("91") && digits.length === 12) {
+    // +91 or 91 prefix with 10-digit number
+    digits = digits.slice(2);
+  } else if (digits.startsWith("0") && digits.length === 11) {
+    // 0 prefix (trunk code)
+    digits = digits.slice(1);
+  }
+
+  return digits;
 }
 
 export function CheckoutPageClient() {
@@ -25,6 +57,55 @@ export function CheckoutPageClient() {
   });
   const [step, setStep] = useState<"info" | "payment">("info");
   const [errors, setErrors] = useState<Partial<CustomerInfo>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Pre-fill from quiz data on mount
+  useEffect(() => {
+    try {
+      const quizResponseStr = sessionStorage.getItem("quizResponse");
+      if (quizResponseStr) {
+        const quizResponse: QuizResponse = JSON.parse(quizResponseStr);
+        if (quizResponse.lead) {
+          const { name, email, whatsapp } = quizResponse.lead;
+          // Clean phone number using robust helper
+          const cleanPhone = cleanPhoneNumber(whatsapp);
+
+          const preFilled = {
+            name: name?.trim() || "",
+            email: email?.trim() || "",
+            phone: cleanPhone,
+          };
+
+          setCustomerInfo(preFilled);
+
+          // If all fields are filled with valid data, skip directly to payment
+          const hasValidName = preFilled.name.length > 0;
+          const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(preFilled.email);
+          const hasValidPhone = /^[6-9]\d{9}$/.test(preFilled.phone);
+
+          if (hasValidName && hasValidEmail && hasValidPhone) {
+            setStep("payment");
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error loading quiz data:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Show loading while checking for quiz data
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-pastel flex items-center justify-center">
+        <div className="glass-card rounded-full shadow-medium border border-white/60 px-8 py-4 flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-gold border-t-transparent rounded-full animate-spin" />
+          <div className="text-forest font-subheader font-medium">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   if (!program) {
     return (
@@ -108,32 +189,31 @@ export function CheckoutPageClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-pastel-vertical">
+    <div className="min-h-screen bg-gradient-pastel relative overflow-hidden">
+      <DecorativeBlobs />
+
       {/* Header - Glass effect */}
-      <header className="glass-overlay border-b border-white/20 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link
-            href={`/results/${program.slug}`}
-            className="inline-flex items-center text-forest hover:text-forest-light transition-colors font-subheader font-medium"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to results
-          </Link>
-        </div>
-      </header>
+      <Header
+        variant="back"
+        backHref={`/results/${program.slug}`}
+        backText="Back to results"
+      />
 
       {/* Main Content */}
-      <main className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <main className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="max-w-lg mx-auto">
-          <div className="glass-card-strong rounded-[2rem] shadow-float overflow-hidden">
+          <div className="glass-card rounded-[2.5rem] shadow-float border border-white/60 overflow-hidden flex flex-col p-0">
             {/* Order Summary Header */}
-            <div className="bg-gradient-to-br from-forest to-forest-light px-6 sm:px-8 py-5 sm:py-6 text-white">
-              <h1 className="text-xl sm:text-2xl font-bold font-headline">Secure Checkout</h1>
-              <p className="text-white/80 text-sm font-body mt-1">Complete your purchase</p>
+            <div className="bg-forest px-6 sm:px-8 py-5 sm:py-6 text-white relative overflow-hidden w-full">
+               <div className="absolute inset-0 bg-gradient-to-r from-forest to-forest-light opacity-50" />
+               <div className="relative z-10">
+                 <h1 className="text-xl sm:text-2xl font-bold font-headline">Secure Checkout</h1>
+                 <p className="text-white/80 text-sm font-body mt-1">Complete your purchase</p>
+               </div>
             </div>
 
             {/* Order Summary */}
-            <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/20 bg-gradient-to-br from-beige-light/40 to-white/40 backdrop-blur-sm">
+            <div className="px-6 sm:px-8 py-5 sm:py-6 border-b border-white/20 bg-white/40 backdrop-blur-sm w-full">
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
                   <p className="font-headline text-lg sm:text-xl text-forest mb-1">{program.name}</p>
@@ -148,7 +228,7 @@ export function CheckoutPageClient() {
             </div>
 
             {/* Form / Payment */}
-            <div className="px-6 sm:px-8 py-6 sm:py-8">
+            <div className="px-6 sm:px-8 py-6 sm:py-8 w-full">
               {step === "info" ? (
                 <form onSubmit={handleInfoSubmit} className="space-y-5">
                   <div>
@@ -165,8 +245,8 @@ export function CheckoutPageClient() {
                       onChange={(e) =>
                         setCustomerInfo({ ...customerInfo, name: e.target.value })
                       }
-                      className={`w-full px-4 py-3.5 border-2 rounded-[1rem] focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all font-body bg-white/60 backdrop-blur-sm ${
-                        errors.name ? "border-wine" : "border-white/40 hover:border-beige-dark/40"
+                      className={`w-full px-5 py-3.5 border rounded-2xl focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all font-body bg-white/60 backdrop-blur-sm outline-none ${
+                        errors.name ? "border-wine" : "border-white/40 hover:border-gold/40"
                       }`}
                       placeholder="Enter your full name"
                     />
@@ -189,8 +269,8 @@ export function CheckoutPageClient() {
                       onChange={(e) =>
                         setCustomerInfo({ ...customerInfo, email: e.target.value })
                       }
-                      className={`w-full px-4 py-3.5 border-2 rounded-[1rem] focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all font-body bg-white/60 backdrop-blur-sm ${
-                        errors.email ? "border-wine" : "border-white/40 hover:border-beige-dark/40"
+                      className={`w-full px-5 py-3.5 border rounded-2xl focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all font-body bg-white/60 backdrop-blur-sm outline-none ${
+                        errors.email ? "border-wine" : "border-white/40 hover:border-gold/40"
                       }`}
                       placeholder="you@example.com"
                     />
@@ -213,8 +293,8 @@ export function CheckoutPageClient() {
                       onChange={(e) =>
                         setCustomerInfo({ ...customerInfo, phone: e.target.value })
                       }
-                      className={`w-full px-4 py-3.5 border-2 rounded-[1rem] focus:ring-2 focus:ring-forest/20 focus:border-forest transition-all font-body bg-white/60 backdrop-blur-sm ${
-                        errors.phone ? "border-wine" : "border-white/40 hover:border-beige-dark/40"
+                      className={`w-full px-5 py-3.5 border rounded-2xl focus:ring-2 focus:ring-gold/20 focus:border-gold transition-all font-body bg-white/60 backdrop-blur-sm outline-none ${
+                        errors.phone ? "border-wine" : "border-white/40 hover:border-gold/40"
                       }`}
                       placeholder="9876543210"
                     />
@@ -225,7 +305,7 @@ export function CheckoutPageClient() {
 
                   <button
                     type="submit"
-                    className="w-full btn-luxe text-white py-4 px-6 rounded-full font-subheader font-semibold shadow-medium hover:shadow-strong transition-all"
+                    className="w-full btn-luxe text-white py-4 px-6 rounded-full font-subheader font-semibold shadow-medium hover:shadow-strong transition-all hover:-translate-y-1"
                   >
                     Continue to Payment
                   </button>
@@ -233,7 +313,7 @@ export function CheckoutPageClient() {
               ) : (
                 <div className="space-y-5">
                   {/* Customer Info Summary */}
-                  <div className="frosted-glass rounded-[1.25rem] p-5 border border-white/40">
+                  <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="text-xs font-subheader uppercase tracking-wide text-forest/60 mb-2">Paying as:</p>
@@ -249,7 +329,7 @@ export function CheckoutPageClient() {
                       </div>
                       <button
                         onClick={() => setStep("info")}
-                        className="text-sm text-wine hover:text-wine-dark font-subheader font-medium transition-colors"
+                        className="text-sm text-wine hover:text-wine-dark font-subheader font-medium transition-colors underline underline-offset-4"
                       >
                         Edit
                       </button>
@@ -272,7 +352,7 @@ export function CheckoutPageClient() {
             </div>
 
             {/* Trust Badges */}
-            <div className="px-6 sm:px-8 py-5 bg-gradient-to-r from-beige-light/30 to-white/30 border-t border-white/20 backdrop-blur-sm">
+            <div className="px-6 sm:px-8 py-5 bg-forest/5 border-t border-forest/5 backdrop-blur-sm w-full">
               <div className="flex items-center justify-center gap-6 sm:gap-8 text-xs sm:text-sm text-forest/70 font-subheader">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-forest" />

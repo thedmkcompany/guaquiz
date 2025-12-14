@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyWebhookSignature, paiseToRupees } from '@/lib/razorpay';
 import { syncToWixCRM } from '@/lib/wix-crm';
 import { isEventProcessed, markEventProcessed } from '@/lib/webhook-store';
+import { maskEmail } from '@/lib/validation';
 import type { RazorpayWebhookPayload } from '@/types/payment';
 
 export async function POST(request: NextRequest) {
@@ -98,7 +99,7 @@ async function handlePaymentCaptured(payload: RazorpayWebhookPayload) {
     paymentId: payment.id,
     orderId: payment.order_id,
     amount: paiseToRupees(payment.amount),
-    email: payment.email,
+    email: maskEmail(payment.email || ''),
   });
 
   // Extract customer data from payment notes
@@ -146,7 +147,7 @@ async function handlePaymentFailed(payload: RazorpayWebhookPayload) {
   console.log('[Razorpay] Payment failed:', {
     paymentId: payment.id,
     orderId: payment.order_id,
-    email: payment.email,
+    email: maskEmail(payment.email || ''),
     reason: payment.notes,
   });
 

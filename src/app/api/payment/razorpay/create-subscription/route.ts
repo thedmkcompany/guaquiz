@@ -7,6 +7,7 @@ import {
   rateLimitResponse,
   RATE_LIMITS,
 } from '@/lib/rate-limit';
+import { maskEmail, maskIP } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -61,8 +62,8 @@ export async function POST(request: NextRequest) {
         programId,
         expectedPlanId: program.razorpayPlanId,
         receivedPlanId: planId,
-        ip: clientIP,
-        email: customerEmail,
+        ip: maskIP(clientIP),
+        email: maskEmail(customerEmail),
       });
       return NextResponse.json(
         { error: 'Invalid subscription plan' },
