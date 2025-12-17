@@ -44,13 +44,15 @@
  * ```
  */
 export function getCDNUrl(path: string): string {
-  const blobUrl = process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN;
+  // This should be a PUBLIC base URL (not a token), e.g.
+  // https://<store>.public.blob.vercel-storage.com
+  const blobBaseUrl = process.env.NEXT_PUBLIC_BLOB_BASE_URL;
 
   // If CDN is configured, use it
-  if (blobUrl) {
+  if (blobBaseUrl) {
     // Remove leading slash if present
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    return `${blobUrl}/${cleanPath}`;
+    return `${blobBaseUrl.replace(/\/+$/, '')}/${cleanPath}`;
   }
 
   // Fallback to local public folder
@@ -64,7 +66,7 @@ export function getCDNUrl(path: string): string {
  * @returns true if Vercel Blob storage is configured
  */
 export function isUsingCDN(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN);
+  return Boolean(process.env.NEXT_PUBLIC_BLOB_BASE_URL);
 }
 
 /**

@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 60,
     // Allow unoptimized images in development for faster builds
     unoptimized: process.env.NODE_ENV === "development",
+
+    // Allow using Vercel Blob public URLs directly (when components use getCDNUrl)
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
+      },
+    ],
   },
 
   // ============================================
@@ -66,6 +74,23 @@ const nextConfig: NextConfig = {
             value: "public, max-age=31536000, immutable",
           },
         ],
+      },
+    ];
+  },
+
+  // If assets are migrated to Vercel Blob, keep existing `/images/**` paths working
+  // by redirecting to the Blob CDN at runtime.
+  async redirects() {
+    const base = process.env.NEXT_PUBLIC_BLOB_BASE_URL;
+    if (!base) return [];
+
+    const cleanBase = base.replace(/\/+$/, "");
+
+    return [
+      {
+        source: "/images/:path*",
+        destination: `${cleanBase}/images/:path*`,
+        permanent: true,
       },
     ];
   },

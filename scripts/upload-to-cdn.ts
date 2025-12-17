@@ -15,6 +15,7 @@
  *   2. Run: npm install
  */
 
+import 'dotenv/config';
 import { put, list } from '@vercel/blob';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -31,6 +32,51 @@ interface UploadResult {
   size: number;
   status: 'uploaded' | 'exists' | 'skipped' | 'error';
   error?: string;
+}
+
+function normalizePublicPath(p: string): string {
+  // Inputs can be `/images/foo.png` or `images/foo.png`
+  return p.startsWith('/') ? p.slice(1) : p;
+}
+
+function toPublicUrlPath(publicPath: string): string {
+  const clean = normalizePublicPath(publicPath);
+  return `/${clean}`;
+}
+
+function isMediaFile(filename: string): boolean {
+  const ext = path.extname(filename).toLowerCase();
+  return (
+    ext === '.png' ||
+    ext === '.jpg' ||
+    ext === '.jpeg' ||
+    ext === '.webp' ||
+    ext === '.gif' ||
+    ext === '.mp4' ||
+    ext === '.webm'
+  );
+}
+
+function walkDir(dir: string): string[] {
+  if (!fs.existsSync(dir)) return [];
+  const out: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      out.push(...walkDir(full));
+    } else if (entry.isFile() && isMediaFile(entry.name)) {
+      out.push(full);
+    }
+  }
+  return out;
+}
+
+function discoverPublicImages(): string[] {
+  const imagesDir = path.join(PUBLIC_DIR, 'images');
+  const files = walkDir(imagesDir);
+  return files
+    .map((full) => path.relative(PUBLIC_DIR, full).replace(/\\/g, '/'))
+    .map((rel) => `/${rel}`);
 }
 
 /**
@@ -65,7 +111,8 @@ function formatFileSize(bytes: number): string {
  */
 async function fileExistsInBlob(pathname: string): Promise<boolean> {
   try {
-    const { blobs } = await list({ prefix: pathname });
+    const key = normalizePublicPath(pathname);
+    const { blobs } = await list({ prefix: key });
     return blobs.length > 0;
   } catch {
     return false;
@@ -78,9 +125,10 @@ async function fileExistsInBlob(pathname: string): Promise<boolean> {
 async function uploadFile(
   relativePath: string
 ): Promise<UploadResult> {
-  const fullPath = path.join(PUBLIC_DIR, relativePath);
+  const publicPath = normalizePublicPath(relativePath);
+  const fullPath = path.join(PUBLIC_DIR, publicPath);
   const result: UploadResult = {
-    file: relativePath,
+    file: toPublicUrlPath(publicPath),
     url: '',
     size: 0,
     status: 'skipped',
@@ -99,7 +147,7 @@ async function uploadFile(
 
   // Check if already uploaded (unless force flag)
   if (!FORCE) {
-    const exists = await fileExistsInBlob(relativePath);
+    const exists = await fileExistsInBlob(publicPath);
     if (exists) {
       result.status = 'exists';
       return result;
@@ -109,14 +157,15 @@ async function uploadFile(
   // Dry run - don't actually upload
   if (DRY_RUN) {
     result.status = 'uploaded';
-    result.url = `https://[blob-url]${relativePath}`;
+    const base = process.env.NEXT_PUBLIC_BLOB_BASE_URL || 'https://[blob-base-url]';
+    result.url = `${base.replace(/\/+$/, '')}/${publicPath}`;
     return result;
   }
 
   // Upload to Vercel Blob
   try {
     const fileBuffer = fs.readFileSync(fullPath);
-    const blob = await put(relativePath, fileBuffer, {
+    const blob = await put(publicPath, fileBuffer, {
       access: 'public',
       addRandomSuffix: false, // Keep original filename
     });
@@ -143,14 +192,17 @@ async function main() {
     checkBlobToken();
   }
 
-  // Get all files to upload
-  const filesToUpload = getAllCDNImagePaths();
+  // Get all files to upload (explicit list + auto-discovery under public/images)
+  const explicit = getAllCDNImagePaths();
+  const discovered = discoverPublicImages();
+  const filesToUpload = Array.from(new Set([...explicit, ...discovered]));
   console.log(`📦 Found ${filesToUpload.length} files to migrate\n`);
 
   // Upload files
   const results: UploadResult[] = [];
   let totalSize = 0;
   let uploadedSize = 0;
+  let detectedBaseUrl: string | null = null;
 
   for (let i = 0; i < filesToUpload.length; i++) {
     const file = filesToUpload[i];
@@ -165,6 +217,14 @@ async function main() {
     if (result.status === 'uploaded') {
       uploadedSize += result.size;
       console.log(`✅ ${formatFileSize(result.size)}`);
+
+      if (!DRY_RUN && !detectedBaseUrl && result.url) {
+        try {
+          detectedBaseUrl = new URL(result.url).origin;
+        } catch {
+          // ignore
+        }
+      }
     } else if (result.status === 'exists') {
       console.log(`⏭️  Already exists`);
     } else if (result.status === 'error') {
@@ -192,8 +252,14 @@ async function main() {
     console.log('\n💡 This was a dry run. Run without --dry-run to actually upload.');
   } else if (uploaded > 0) {
     console.log('\n✅ Upload complete!');
+
+    if (detectedBaseUrl) {
+      console.log('\nSet this in Vercel env (Public):');
+      console.log(`  NEXT_PUBLIC_BLOB_BASE_URL=${detectedBaseUrl}`);
+    }
+
     console.log('\nNext steps:');
-    console.log('  1. Add NEXT_PUBLIC_BLOB_READ_WRITE_TOKEN to Vercel environment');
+    console.log('  1. Add NEXT_PUBLIC_BLOB_BASE_URL to Vercel environment');
     console.log('  2. Update image paths in components to use getCDNUrl()');
     console.log('  3. Run: git rm --cached public/images/...');
     console.log('  4. Add large files to .gitignore');
