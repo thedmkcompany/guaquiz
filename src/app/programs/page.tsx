@@ -1,186 +1,201 @@
 import Link from "next/link";
-import { Check, ArrowRight, Crown, Calendar } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { getAllPrograms, formatPrice } from "@/lib/programs";
 import { Program } from "@/types";
-import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
-import { MobileLogoLoop } from "@/components/MobileLogoLoop";
-import { Header } from "@/components/ui/header";
+import { Footer } from "@/components/ui/footer";
+import { getPageMetadata, siteConfig } from "@/lib/seo-config";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { generateItemListSchema } from "@/lib/structured-data";
 
-export const metadata = {
-  title: "Our Programs | DMK",
-  description: "Explore all our transformation programs and find the one that's right for you.",
-};
+export const metadata = getPageMetadata({
+  title: "Our Programs - Find Your Perfect Transformation Path",
+  description:
+    "Explore Glow Up Academy's transformation programs for Indian women. From ₹499 webinar to ₹1,99,999 premium 1:1 coaching. Choose your path: Essentials, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
+  keywords: [
+    "transformation programs India",
+    "women fitness programs",
+    "online coaching India",
+    "holistic wellness programs",
+    "affordable transformation",
+    "premium coaching India",
+  ],
+  ogImage: "/api/og?page=programs",
+  canonical: `${siteConfig.url}/programs`,
+});
 
 export default function ProgramsPage() {
-  const programs = getAllPrograms();
+  const allPrograms = getAllPrograms();
+  const orderedPrograms = [
+    allPrograms.find(p => p.slug === 'webinar'),
+    allPrograms.find(p => p.slug === 'essentials'),
+    allPrograms.find(p => p.slug === 'circle'),
+    allPrograms.find(p => p.slug === 'transform'),
+  ].filter((p): p is Program => p !== undefined);
 
   return (
-    <div className="min-h-screen bg-gradient-pastel font-body">
-      {/* Header */}
-      <Header variant="back" position="fixed" />
+    <div className="min-h-screen bg-gradient-to-b from-ivory via-beige/10 to-ivory">
+      {/* Structured Data for SEO */}
+      <StructuredData data={generateItemListSchema(allPrograms)} />
 
-      {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative">
-        <DecorativeBlobs />
+      {/* Hero */}
+      <div className="px-6 py-20">
+        <div className="max-w-4xl mx-auto">
+          {/* Image - Enhanced */}
+          <div className="relative w-48 h-48 mx-auto mb-10">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-wine/30 via-gold/30 to-beige/40 rounded-full blur-2xl animate-pulse" />
 
-        <div className="max-w-6xl mx-auto relative z-10">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-4xl lg:text-5xl font-headline font-bold text-forest mb-6">
-              Choose Your Transformation
-            </h1>
-            <p className="text-lg text-forest/80 max-w-2xl mx-auto font-body">
-              Not sure which program is right for you?{" "}
-              <Link href="/quiz" className="text-wine font-semibold hover:text-wine-light hover:underline underline-offset-4">
-                Take our quiz
-              </Link>{" "}
-              to get a personalized recommendation.
-            </p>
-          </div>
-
-          {/* Mobile Logo Loop - Below Hero */}
-          <MobileLogoLoop className="mb-12 -mx-4 sm:-mx-6 lg:-mx-8" />
-
-          {/* Programs Grid */}
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-10">
-            {programs.map((program) => (
-              <ProgramCard key={program.id} program={program} />
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="mt-20 text-center">
-            <p className="text-forest/70 mb-6 font-subheader">
-              Still not sure? Let us help you decide.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/quiz"
-                className="inline-flex items-center justify-center gap-2 bg-wine text-white px-8 py-4 rounded-full font-semibold hover:bg-wine-dark transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
-              >
-                Take the Quiz
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 bg-white/50 backdrop-blur-md border border-white/40 text-forest px-8 py-4 rounded-full font-semibold hover:bg-white/80 transition-all shadow-md hover:shadow-lg hover:-translate-y-1"
-              >
-                Talk to Us
-              </Link>
+            {/* Image container */}
+            <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl ring-4 ring-wine/20">
+              <Image
+                src="/images/DMK/Essentials Hero Disha.png"
+                alt="Disha Methi Khandelwal"
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
+
+            {/* Decorative elements */}
+            <div className="absolute -top-2 -right-2 w-6 h-6 bg-gold rounded-full border-2 border-white shadow-lg" />
+            <div className="absolute -bottom-1 -left-1 w-4 h-4 bg-wine rounded-full border-2 border-white shadow-lg" />
+          </div>
+
+          {/* Text */}
+          <div className="text-center">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-headline font-bold text-forest mb-6 leading-tight">
+              Choose Your
+              <br />
+              <span className="bg-gradient-to-r from-wine via-wine-dark to-wine bg-clip-text text-transparent">
+                Transformation
+              </span>
+            </h1>
+
+            <p className="text-xl md:text-2xl text-forest/70 mb-10 leading-relaxed max-w-2xl mx-auto">
+              From your first step to complete sisterhood, we have a program for you.
+            </p>
+
+            <Link
+              href="/quiz"
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-wine to-wine-dark text-white px-10 py-5 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all shadow-xl"
+            >
+              Not sure? Take the quiz
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
-      </main>
+      </div>
+
+      {/* Divider */}
+      <div className="w-20 h-1 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-16" />
+
+      {/* Programs */}
+      <div className="px-6 pb-24">
+        <div className="max-w-3xl mx-auto space-y-8">
+          {orderedPrograms.map((program, index) => (
+            <ProgramCard key={program.id} program={program} index={index} />
+          ))}
+        </div>
+      </div>
+
+      <Footer />
     </div>
   );
 }
 
-function ProgramCard({ program }: { program: Program }) {
-  const isHighTicket = program.requiresCall;
+function ProgramCard({ program, index }: { program: Program; index: number }) {
+  const programLink = program.slug === 'circle'
+    ? '/circle'
+    : program.slug === 'transform'
+    ? '/transform'
+    : `/results/${program.slug}`;
+
+  const isTransform = program.slug === 'transform';
+  const isWebinar = program.slug === 'webinar';
 
   return (
-    <div className={`glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-2 transition-all duration-300 border border-white/50 group flex flex-col p-0 overflow-hidden ${
-      program.tier === "transform"
-        ? "ring-2 ring-gold/50 shadow-glow-gold"
-        : ""
+    <div className={`relative group bg-white rounded-3xl p-8 md:p-12 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${
+      isTransform
+        ? 'border-gold/40 hover:border-gold'
+        : isWebinar
+        ? 'border-wine/30 hover:border-wine'
+        : 'border-forest/10 hover:border-forest/30'
     }`}>
-      {/* Header */}
-      <div className={`px-8 py-8 ${getTierGradient(program.tier)}`}>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-headline font-bold text-white mb-2">{program.name}</h2>
-            {program.tagline && (
-              <p className="text-white/90 text-sm font-body">{program.tagline}</p>
-            )}
+      {/* Subtle gradient overlay */}
+      <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
+        isTransform
+          ? 'bg-gradient-to-br from-gold/5 to-transparent'
+          : isWebinar
+          ? 'bg-gradient-to-br from-wine/5 to-transparent'
+          : 'bg-gradient-to-br from-forest/5 to-transparent'
+      }`} />
+
+      <div className="relative">
+        {/* Name */}
+        <h2 className="text-3xl md:text-4xl font-headline font-bold text-forest uppercase tracking-tight mb-4">
+          {program.name}
+        </h2>
+
+        {/* Price */}
+        <div className={`text-4xl md:text-5xl font-headline font-bold mb-6 ${
+          isTransform ? 'text-gold' : 'text-forest'
+        }`}>
+          {formatPrice(program.price)}
+        </div>
+
+        {/* Tagline - Bold */}
+        <p className="text-xl md:text-2xl font-bold text-forest mb-6 leading-snug">
+          {program.tagline}
+        </p>
+
+        {/* Description */}
+        <p className="text-lg text-forest/80 leading-relaxed mb-10">
+          {program.description}
+        </p>
+
+        {/* Features */}
+        <div className="mb-10">
+          <div className="text-base font-bold text-forest/60 uppercase tracking-wider mb-5">
+            What you get:
           </div>
-          {program.tier === "transform" && (
-            <Crown className="w-8 h-8 text-gold drop-shadow-md" />
-          )}
+          <ul className="space-y-3">
+            {program.features.map((feature, idx) => (
+              <li key={idx} className="flex items-start gap-4 text-base md:text-lg text-forest/80">
+                <span className={`text-2xl leading-none mt-0.5 ${
+                  isTransform ? 'text-gold' : isWebinar ? 'text-wine' : 'text-forest'
+                }`}>
+                  •
+                </span>
+                <span className="flex-1">{feature}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
 
-      {/* Price */}
-      <div className="px-8 py-6 border-b border-gray-100/50 bg-white/40 backdrop-blur-sm">
-        <div className="flex items-baseline gap-3">
-          <span className="text-4xl font-headline font-bold text-forest">
-            {formatPrice(program.price)}
-          </span>
-          {program.originalPrice && (
-            <span className="text-forest/40 line-through text-lg">
-              {formatPrice(program.originalPrice)}
-            </span>
-          )}
-        </div>
-        {program.tier === "trial" && (
-          <p className="text-sm text-green-700 font-semibold mt-2 flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-green-500" />
-            Risk-free trial
-          </p>
+        {/* Strategy call note for Transform */}
+        {isTransform && (
+          <div className="mb-8 p-4 bg-gold/10 rounded-2xl border border-gold/30">
+            <p className="text-base font-bold text-forest">
+              Starts with: ₹9,999 strategy call
+            </p>
+          </div>
         )}
-      </div>
 
-      {/* Description */}
-      <div className="px-8 py-6">
-        <p className="text-forest/80 leading-relaxed font-body">{program.description}</p>
-      </div>
-
-      {/* Features */}
-      <div className="px-8 py-6 bg-white/30 backdrop-blur-sm flex-grow">
-        <ul className="space-y-4">
-          {program.features.slice(0, 4).map((feature, index) => (
-            <li key={index} className="flex items-start gap-3 text-sm sm:text-base">
-              <Check className="w-5 h-5 text-wine flex-shrink-0 mt-0.5" />
-              <span className="text-forest/80 font-body">{feature}</span>
-            </li>
-          ))}
-          {program.features.length > 4 && (
-            <li className="text-sm text-forest/50 pl-8 italic">
-              + {program.features.length - 4} more features
-            </li>
-          )}
-        </ul>
-      </div>
-
-      {/* CTA */}
-      <div className="px-8 py-8 bg-white/20">
-        {isHighTicket ? (
-          <Link
-            href={`/book-call?program=${program.slug}`}
-            className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 ${getTierButtonClass(program.tier)}`}
-          >
-            <Calendar className="w-4 h-4" />
-            Book a Call
-          </Link>
-        ) : (
-          <Link
-            href={`/results/${program.slug}`}
-            className={`w-full flex items-center justify-center gap-2 py-4 px-6 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 ${getTierButtonClass(program.tier)}`}
-          >
-            Learn More
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        )}
+        {/* CTA */}
+        <Link
+          href={programLink}
+          className={`block w-full text-center py-5 rounded-full font-bold text-lg transition-all duration-300 ${
+            isTransform
+              ? 'bg-gradient-to-r from-gold to-gold-light text-forest hover:shadow-xl hover:scale-105'
+              : isWebinar
+              ? 'bg-wine text-white hover:bg-wine-dark hover:shadow-xl'
+              : 'bg-forest text-white hover:bg-forest-light hover:shadow-xl'
+          }`}
+        >
+          Learn More →
+        </Link>
       </div>
     </div>
   );
-}
-
-function getTierGradient(tier: Program["tier"]): string {
-  const gradients = {
-    essentials: "bg-gradient-to-br from-forest-light to-forest",
-    trial: "bg-gradient-to-br from-forest-light to-forest",
-    circle: "bg-gradient-to-br from-wine-light to-wine",
-    transform: "bg-gradient-to-br from-forest to-forest-dark",
-  };
-  return gradients[tier] || "bg-gradient-to-br from-slate to-charcoal";
-}
-
-function getTierButtonClass(tier: Program["tier"]): string {
-  const classes = {
-    essentials: "bg-forest hover:bg-forest-light",
-    trial: "bg-forest-light hover:bg-forest",
-    circle: "bg-wine hover:bg-wine-light",
-    transform: "bg-gradient-to-r from-gold-dark to-gold hover:from-gold hover:to-gold-light text-forest",
-  };
-  return classes[tier] || "bg-slate hover:bg-charcoal";
 }

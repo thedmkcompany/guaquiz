@@ -1,12 +1,54 @@
 "use client";
 
+/**
+ * @fileoverview Main Quiz Component
+ *
+ * Interactive quiz flow that collects user responses and recommends
+ * a transformation program based on their answers.
+ *
+ * @module components/quiz
+ *
+ * ## Flow
+ *
+ * 1. **Intro Screen**: Welcome message and start button
+ * 2. **Questions (Q1-Q8)**: Single or multi-select options
+ * 3. **Transition Screen**: Appears after Q3 for engagement
+ * 4. **Loading Screen**: Animated analysis before results
+ * 5. **Lead Capture**: Name, email, WhatsApp collection
+ * 6. **Redirect**: Navigate to personalized results page
+ *
+ * ## State Management
+ *
+ * - Answers stored in component state during quiz
+ * - Final response saved to localStorage on completion
+ * - Lead data synced to API for CRM integration
+ *
+ * @example
+ * ```tsx
+ * // In a page component
+ * import { Quiz } from '@/components/quiz/quiz';
+ *
+ * export default function QuizPage() {
+ *   return (
+ *     <main className="min-h-screen">
+ *       <Quiz />
+ *     </main>
+ *   );
+ * }
+ * ```
+ */
+
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { QuizAnswer, QuizLead, QuizResponse } from "@/types";
 import { quizQuestions, calculateQuizResult } from "@/lib/quiz-data";
+import { storeQuizResponse, type StoredQuizResponse } from "@/lib/lead-storage";
 import { QuizOption } from "./quiz-option";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 
+/**
+ * Quiz screen states representing the current phase of the quiz flow.
+ */
 type QuizScreen =
   | "intro"
   | "question"
@@ -54,6 +96,9 @@ export function Quiz() {
   const quizStartTime = useRef<string>("");
   const quizResponseRef = useRef<QuizResponse | null>(null);
 
+  // Timeout ref for cleanup (prevents memory leaks on unmount)
+  const autoAdvanceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   // Memoized derived values
   const currentQuestion = useMemo(
     () => quizQuestions[currentQuestionIndex],
@@ -82,6 +127,15 @@ export function Quiz() {
     }
   }, [screen]);
 
+  // Cleanup auto-advance timeout on unmount (prevents memory leaks)
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Loading screen animation -> lead capture
   useEffect(() => {
     if (screen === "loading") {
@@ -109,7 +163,7 @@ export function Quiz() {
             answers: answersMap,
             scores: {
               essentials: result.allScores.essentials || 0,
-              trial: result.allScores.trial || 0,
+              webinar: result.allScores.webinar || 0,
               circle: result.allScores.circle || 0,
               transform: result.allScores.transform || 0,
             },
@@ -120,14 +174,9 @@ export function Quiz() {
 
           quizResponseRef.current = quizResponse;
 
-          // Store result in sessionStorage
-          sessionStorage.setItem("quizResult", JSON.stringify(result));
-
-          // Store Q1 answer for archetype personalization
-          const q1Answer = completeAnswers.find((a) => a.questionId === "q1");
-          if (q1Answer && q1Answer.selectedOptionIds.length > 0) {
-            sessionStorage.setItem("dmk_q1_answer", q1Answer.selectedOptionIds[0]);
-          }
+          // Store quiz response using unified storage (localStorage + sessionStorage)
+          // This ensures data persists even if browser tab is closed
+          storeQuizResponse(quizResponse as StoredQuizResponse);
 
           // Move to lead capture
           setScreen("lead-capture");
@@ -187,7 +236,11 @@ export function Quiz() {
 
     // Auto-advance for single-select questions after a brief delay
     if (!isMultiSelect) {
-      setTimeout(() => {
+      // Clear any existing timeout before setting a new one
+      if (autoAdvanceTimeoutRef.current) {
+        clearTimeout(autoAdvanceTimeoutRef.current);
+      }
+      autoAdvanceTimeoutRef.current = setTimeout(() => {
         if (currentQuestionIndex < TOTAL_QUESTIONS - 1) {
           const nextIndex = currentQuestionIndex + 1;
           // Show transition screen after Q3 (index 2)
@@ -269,42 +322,50 @@ export function Quiz() {
       if (quizResponseRef.current) {
         quizResponseRef.current.lead = leadData;
 
-        // Store complete response in sessionStorage
-        sessionStorage.setItem("quizResponse", JSON.stringify(quizResponseRef.current));
+        // Store complete response using unified storage (localStorage + sessionStorage)
+        // This ensures data persists across browser sessions
+        storeQuizResponse(quizResponseRef.current as StoredQuizResponse);
 
-        // Send to API for Wix CRM (fire and forget for better UX)
-        fetch("/api/quiz/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: leadData.name,
-            email: leadData.email,
-            whatsapp: leadData.whatsapp,
-            recommendation: resultProgram,
-            answers: quizResponseRef.current.answers,
-            deviceType: quizResponseRef.current.deviceType,
-            referralSource: quizResponseRef.current.referralSource,
-          }),
-        }).catch(console.error); // Log errors but don't block
+        // Send to API for Wix CRM sync (fire-and-forget pattern)
+        // Data is already saved to localStorage, so API failure won't lose user data
+        try {
+          const response = await fetch("/api/quiz/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: leadData.name,
+              email: leadData.email,
+              whatsapp: leadData.whatsapp,
+              recommendation: resultProgram,
+              answers: quizResponseRef.current.answers,
+              deviceType: quizResponseRef.current.deviceType,
+              referralSource: quizResponseRef.current.referralSource,
+            }),
+          });
+
+          if (!response.ok) {
+            // Log error but don't block user - data is saved locally
+            const errorText = await response.text().catch(() => 'Unknown error');
+            console.error("[Quiz] API sync failed:", response.status, errorText);
+          }
+        } catch (apiError) {
+          // Network error - log but don't block user
+          console.error("[Quiz] API sync network error:", apiError);
+        }
       }
 
-      // Redirect directly to results page
+      // Redirect to results page (after API call completes)
       router.push(`/results/${resultProgram}`);
     } catch (error) {
-      console.error("Failed to submit lead:", error);
+      if (process.env.NODE_ENV === "development") {
+        console.error("Failed to submit lead:", error);
+      }
       // Still proceed to results even if submission fails
       router.push(`/results/${resultProgram}`);
+    } finally {
+      setIsSubmittingLead(false);
     }
   }, [validateLead, leadData, resultProgram, router]);
-
-  // Skip lead capture (optional)
-  const handleSkipLead = useCallback(() => {
-    // Store response without lead data
-    if (quizResponseRef.current) {
-      sessionStorage.setItem("quizResponse", JSON.stringify(quizResponseRef.current));
-    }
-    router.push(`/results/${resultProgram}`);
-  }, [resultProgram, router]);
 
   // Intro Screen
   if (screen === "intro") {
@@ -318,7 +379,7 @@ export function Quiz() {
 
           {/* Subheadline */}
           <p className="text-ivory/90 font-body text-lg sm:text-xl mb-6">
-            Answer honestly. There are no wrong answers—just YOUR answers. Each response helps us design the perfect transformation path for you.
+            Answer honestly Babe! There are no wrong answers-just YOUR answers. Each response helps us design the perfect transformation path for you.
           </p>
 
           {/* Body Copy */}
@@ -400,11 +461,32 @@ export function Quiz() {
           {/* Header */}
           <div className="text-center mb-8">
             <h2 className="font-headline text-3xl sm:text-4xl text-ivory font-bold mb-3">
-              Your path is ready!
+              Your Transformation Path is Ready!
             </h2>
-            <p className="text-ivory/80 font-body text-base sm:text-lg">
-              Enter your details to see your personalized recommendation and receive your transformation roadmap.
+            <p className="text-ivory/80 font-body text-base sm:text-lg mb-4">
+              Based on your answers, we&apos;ve designed a personalized path just for you.
             </p>
+
+            {/* Why we need this info - Psychological Copy */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-5 mb-2 border border-white/20 text-left">
+              <p className="text-ivory/90 font-body text-sm leading-relaxed mb-3">
+                <span className="font-semibold text-gold">Why we need your details:</span>
+              </p>
+              <ul className="space-y-2 text-ivory/80 font-body text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-gold mt-0.5">✓</span>
+                  <span>Send your personalized program recommendation instantly</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-gold mt-0.5">✓</span>
+                  <span>Connect you with a transformation specialist for questions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-gold mt-0.5">✓</span>
+                  <span>Share exclusive tips and success stories from women like you</span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           {/* Form */}
@@ -489,18 +571,15 @@ export function Quiz() {
             </button>
           </form>
 
-          {/* Skip option */}
-          <button
-            onClick={handleSkipLead}
-            className="w-full mt-4 text-ivory/60 hover:text-ivory/80 font-body text-sm transition-colors"
-          >
-            Skip for now
-          </button>
-
-          {/* Privacy note */}
-          <p className="text-center text-ivory/50 font-body text-xs mt-6">
-            We respect your privacy. Your information is secure and will never be shared.
-          </p>
+          {/* Privacy note - Enhanced */}
+          <div className="mt-6 text-center">
+            <p className="text-ivory/70 font-body text-sm mb-2">
+              🔒 Your information is 100% secure
+            </p>
+            <p className="text-ivory/50 font-body text-xs leading-relaxed">
+              We respect your privacy. Your data is encrypted and will never be sold or shared with third parties. You can unsubscribe anytime.
+            </p>
+          </div>
         </div>
       </div>
     );

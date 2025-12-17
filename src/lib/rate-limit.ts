@@ -1,107 +1,205 @@
-// ============================================
-// RATE LIMITING
-// ============================================
-// In-memory rate limiter for API protection
-// For production with multiple instances, use Redis-based solution
-// ============================================
+/**
+ * @fileoverview Rate Limiting Utilities
+ *
+ * Redis-based rate limiter for API protection against abuse.
+ * Implements a sliding window algorithm with configurable limits.
+ *
+ * @module rate-limit
+ *
+ * ## Architecture
+ *
+ * Uses Upstash Redis for distributed rate limiting across serverless instances.
+ * Falls back to allowing requests if Redis is unavailable (fail-open strategy).
+ *
+ * ## Preset Configurations
+ *
+ * | Preset | Limit | Window | Use Case |
+ * |--------|-------|--------|----------|
+ * | PAYMENT_CREATE | 10 | 15 min | Order creation per IP |
+ * | PAYMENT_VERIFY | 20 | 15 min | Payment verification per IP |
+ * | PAYMENT_PER_EMAIL | 5 | 1 hour | Payment attempts per email |
+ * | WEBHOOK | 100 | 1 min | Webhook endpoints |
+ *
+ * @example
+ * ```typescript
+ * import { checkRateLimit, RATE_LIMITS, getClientIP } from '@/lib/rate-limit';
+ *
+ * export async function POST(request: Request) {
+ *   const ip = getClientIP(request);
+ *   const limit = await checkRateLimit(`payment_${ip}`, RATE_LIMITS.PAYMENT_CREATE);
+ *
+ *   if (!limit.allowed) {
+ *     return rateLimitResponse(limit.resetIn);
+ *   }
+ *
+ *   // Process request...
+ * }
+ * ```
+ */
 
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
+import { Redis } from '@upstash/redis';
+
+/**
+ * Configuration for rate limiting behavior.
+ */
+export interface RateLimitConfig {
+  /** Time window in milliseconds */
+  windowMs: number;
+  /** Maximum requests allowed per window */
+  maxRequests: number;
 }
 
-interface RateLimitConfig {
-  windowMs: number;    // Time window in milliseconds
-  maxRequests: number; // Max requests per window
-}
+/**
+ * Redis client for distributed rate limiting.
+ * @internal
+ */
+let redis: Redis | null = null;
 
-// In-memory store (per-instance)
-// For multi-instance deployments, replace with Redis
-const rateLimitStore = new Map<string, RateLimitEntry>();
+/**
+ * Get or create Redis client instance.
+ * @internal
+ */
+function getRedisClient(): Redis | null {
+  if (redis) return redis;
 
-// Cleanup old entries every 5 minutes
-const CLEANUP_INTERVAL = 5 * 60 * 1000;
-let lastCleanup = Date.now();
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-function cleanupExpiredEntries(): void {
-  const now = Date.now();
-  if (now - lastCleanup < CLEANUP_INTERVAL) return;
+  if (!url || !token) {
+    console.warn('[Rate Limit] Redis credentials not configured. Rate limiting disabled.');
+    return null;
+  }
 
-  lastCleanup = now;
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (entry.resetTime < now) {
-      rateLimitStore.delete(key);
-    }
+  try {
+    redis = new Redis({ url, token });
+    return redis;
+  } catch (error) {
+    console.error('[Rate Limit] Failed to initialize Redis:', error);
+    return null;
   }
 }
 
 /**
- * Check if a request should be rate limited
- * @param identifier - Unique identifier (IP, email, etc.)
- * @param config - Rate limit configuration
- * @returns Object with allowed status and remaining requests
+ * Checks if a request should be rate limited using Redis.
+ *
+ * Implements a fixed-window rate limiting algorithm. Each unique identifier
+ * (typically IP or email) is tracked independently across all serverless instances.
+ *
+ * @param identifier - Unique identifier for the rate limit bucket (e.g., IP, email)
+ * @param config - Rate limit configuration with windowMs and maxRequests
+ * @returns Object containing:
+ *   - `allowed`: Whether the request should proceed
+ *   - `remaining`: Number of requests left in window
+ *   - `resetIn`: Milliseconds until window resets
+ *
+ * @example
+ * ```typescript
+ * // Rate limit by IP
+ * const result = await checkRateLimit(`payment_${clientIP}`, {
+ *   windowMs: 15 * 60 * 1000, // 15 minutes
+ *   maxRequests: 10
+ * });
+ *
+ * if (!result.allowed) {
+ *   console.log(`Retry in ${result.resetIn}ms`);
+ * }
+ * ```
  */
-export function checkRateLimit(
+export async function checkRateLimit(
   identifier: string,
   config: RateLimitConfig
-): { allowed: boolean; remaining: number; resetIn: number } {
-  cleanupExpiredEntries();
+): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
+  const client = getRedisClient();
 
-  const now = Date.now();
-  const entry = rateLimitStore.get(identifier);
-
-  // No existing entry or window expired - allow and create new entry
-  if (!entry || entry.resetTime < now) {
-    rateLimitStore.set(identifier, {
-      count: 1,
-      resetTime: now + config.windowMs,
-    });
+  // Fail-open: If Redis unavailable, allow request
+  if (!client) {
     return {
       allowed: true,
-      remaining: config.maxRequests - 1,
+      remaining: config.maxRequests,
       resetIn: config.windowMs,
     };
   }
 
-  // Within window - check count
-  if (entry.count >= config.maxRequests) {
+  try {
+    const key = `ratelimit:${identifier}`;
+    const now = Date.now();
+    const windowStart = now - config.windowMs;
+
+    // Use Redis sorted set with timestamps as scores
+    // This allows for accurate sliding window rate limiting
+
+    // Remove old entries outside the window
+    await client.zremrangebyscore(key, 0, windowStart);
+
+    // Count requests in current window
+    const count = await client.zcount(key, windowStart, now);
+
+    // Check if limit exceeded
+    if (count >= config.maxRequests) {
+      // Get oldest entry to calculate resetIn
+      const oldest = await client.zrange(key, 0, 0, { withScores: true });
+      const oldestTimestamp = oldest.length > 0 ? (oldest[0] as { score: number }).score : now;
+      const resetIn = Math.max(0, oldestTimestamp + config.windowMs - now);
+
+      return {
+        allowed: false,
+        remaining: 0,
+        resetIn,
+      };
+    }
+
+    // Add current request with timestamp as both member and score
+    await client.zadd(key, { score: now, member: `${now}:${Math.random()}` });
+
+    // Set expiry on key (window + 1 minute buffer)
+    await client.expire(key, Math.ceil((config.windowMs + 60000) / 1000));
+
     return {
-      allowed: false,
-      remaining: 0,
-      resetIn: entry.resetTime - now,
+      allowed: true,
+      remaining: config.maxRequests - (count + 1),
+      resetIn: config.windowMs,
+    };
+  } catch (error) {
+    console.error('[Rate Limit] Redis error, allowing request (fail-open):', error);
+
+    // Fail-open: On Redis error, allow the request
+    return {
+      allowed: true,
+      remaining: config.maxRequests,
+      resetIn: config.windowMs,
     };
   }
-
-  // Increment count
-  entry.count++;
-  return {
-    allowed: true,
-    remaining: config.maxRequests - entry.count,
-    resetIn: entry.resetTime - now,
-  };
 }
 
-// ============================================
-// PRESET CONFIGURATIONS
-// ============================================
-
+/**
+ * Preset rate limit configurations for common use cases.
+ *
+ * @example
+ * ```typescript
+ * // Use preset for payment creation
+ * const limit = await checkRateLimit(key, RATE_LIMITS.PAYMENT_CREATE);
+ *
+ * // Or use with email-based limiting
+ * const emailLimit = await checkRateLimit(`email_${email}`, RATE_LIMITS.PAYMENT_PER_EMAIL);
+ * ```
+ */
 export const RATE_LIMITS = {
-  // Payment order creation: 10 requests per 15 minutes per IP
+  /** Payment order creation: 10 requests per 15 minutes per IP */
   PAYMENT_CREATE: {
     windowMs: 15 * 60 * 1000,
     maxRequests: 10,
   },
-  // Payment verification: 20 requests per 15 minutes per IP
+  /** Payment verification: 20 requests per 15 minutes per IP */
   PAYMENT_VERIFY: {
     windowMs: 15 * 60 * 1000,
     maxRequests: 20,
   },
-  // Webhook endpoints: 100 requests per minute (from payment gateways)
+  /** Webhook endpoints: 100 requests per minute (from payment gateways) */
   WEBHOOK: {
     windowMs: 60 * 1000,
     maxRequests: 100,
   },
-  // Per-email limit: 5 payment attempts per hour
+  /** Per-email limit: 5 payment attempts per hour */
   PAYMENT_PER_EMAIL: {
     windowMs: 60 * 60 * 1000,
     maxRequests: 5,
@@ -109,13 +207,26 @@ export const RATE_LIMITS = {
 } as const;
 
 /**
- * Get client IP from request headers
+ * Extracts the client IP address from request headers.
+ *
+ * Checks headers in order of preference:
+ * 1. `x-forwarded-for` (first IP in chain)
+ * 2. `x-real-ip`
+ * 3. Falls back to 'unknown'
+ *
+ * @param request - The incoming HTTP request
+ * @returns Client IP address or 'unknown' if not determinable
+ *
+ * @example
+ * ```typescript
+ * const ip = getClientIP(request);
+ * // Use for rate limiting
+ * const limit = await checkRateLimit(`payment_${ip}`, RATE_LIMITS.PAYMENT_CREATE);
+ * ```
  */
 export function getClientIP(request: Request): string {
-  // Check various headers (in order of preference)
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
-    // Take first IP in case of proxy chain
     return forwardedFor.split(',')[0].trim();
   }
 
@@ -124,12 +235,26 @@ export function getClientIP(request: Request): string {
     return realIP;
   }
 
-  // Fallback for development
   return 'unknown';
 }
 
 /**
- * Create rate limit response with headers
+ * Creates a standardized 429 Too Many Requests response.
+ *
+ * Includes proper headers for client retry handling:
+ * - `Retry-After`: Seconds until rate limit resets
+ * - `X-RateLimit-Remaining`: Always 0 (rate limited)
+ *
+ * @param resetIn - Milliseconds until the rate limit window resets
+ * @returns HTTP 429 Response with JSON body and rate limit headers
+ *
+ * @example
+ * ```typescript
+ * const limit = await checkRateLimit(key, config);
+ * if (!limit.allowed) {
+ *   return rateLimitResponse(limit.resetIn);
+ * }
+ * ```
  */
 export function rateLimitResponse(resetIn: number): Response {
   return new Response(

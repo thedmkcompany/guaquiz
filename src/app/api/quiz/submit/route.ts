@@ -1,98 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createQuizLead, type QuizLeadData } from '@/lib/wix-crm';
+import { createQuizLeadAsync, type QuizLeadData } from '@/lib/wix-crm';
+import {
+  storeQuizLead,
+  updateLeadSyncStatus,
+  findLeadByEmail,
+  updateExistingLead,
+  isSupabaseConfigured,
+} from '@/lib/supabase';
+import { sendQuizWelcome } from '@/lib/aisensy';
 
-// API route timeout (30 seconds max for Vercel)
-const API_TIMEOUT = 25000;
+// Email validation regex (compiled once, reused)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/**
- * Promise wrapper with timeout
- *
- * Races a promise against a timeout. Used to prevent API routes
- * from exceeding Vercel's 30-second serverless function limit.
- *
- * @template T - Return type of the promise
- * @param promise - Promise to race against timeout
- * @param ms - Timeout in milliseconds
- * @param operation - Operation name for error message
- * @returns Promise that resolves/rejects when first completes
- * @throws {Error} When timeout is reached before promise completes
- *
- * @example
- * ```typescript
- * const data = await withTimeout(
- *   fetchSlowAPI(),
- *   5000,
- *   'API fetch'
- * );
- * ```
- */
-function withTimeout<T>(promise: Promise<T>, ms: number, operation: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`${operation} timed out after ${ms}ms`)), ms)
-    ),
-  ]);
-}
+// Environment check
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 /**
  * POST /api/quiz/submit
  *
- * Submits quiz lead data to Wix CRM. Always returns success to prevent
- * blocking the user experience, even if CRM sync fails.
+ * Submits quiz lead data with reliable storage pattern:
+ * 1. Store in Supabase first (guaranteed persistence)
+ * 2. Fire-and-forget sync to Wix CRM
+ * 3. Update Supabase with sync result
+ *
+ * This ensures NO LEADS ARE LOST even if Wix CRM is temporarily unavailable.
+ * Failed syncs can be retried via the /api/quiz/retry-sync endpoint.
  *
  * @param request - Next.js request object with JSON body
- * @returns 200 with success:true, or 400 with validation error
- *
- * **Request Body:**
- * ```json
- * {
- *   "name": "John Doe",
- *   "email": "john@example.com",
- *   "whatsapp": "+1234567890",
- *   "recommendation": "trial",
- *   "answers": { "q1": ["option-a"] },
- *   "deviceType": "desktop",
- *   "referralSource": "google"
- * }
- * ```
- *
- * **Success Response (200):**
- * ```json
- * {
- *   "success": true,
- *   "contactId": "wix_contact_123"
- * }
- * ```
- *
- * **Graceful Degradation (200):**
- * ```json
- * {
- *   "success": true,
- *   "warning": "Lead saved locally, CRM sync pending"
- * }
- * ```
- *
- * **Error Response (400):**
- * ```json
- * {
- *   "error": "Missing required fields: name, email, whatsapp, recommendation"
- * }
- * ```
- *
- * @example
- * ```typescript
- * const response = await fetch('/api/quiz/submit', {
- *   method: 'POST',
- *   headers: { 'Content-Type': 'application/json' },
- *   body: JSON.stringify({
- *     name: 'John Doe',
- *     email: 'john@example.com',
- *     whatsapp: '+1234567890',
- *     recommendation: 'trial'
- *   })
- * });
- * ```
+ * @returns 200 with success:true (instant), or 400 for validation errors
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
@@ -100,7 +35,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate required fields
+    // Fast validation - fail fast on missing fields
     const { name, email, whatsapp, recommendation } = body;
 
     if (!name || !email || !whatsapp || !recommendation) {
@@ -111,58 +46,149 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate email format
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!EMAIL_REGEX.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
       );
     }
 
+    // Normalize data
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedName = name.trim();
+    const normalizedWhatsapp = whatsapp.trim();
+
     // Prepare lead data
     const leadData: QuizLeadData = {
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      whatsapp: whatsapp.trim(),
+      name: normalizedName,
+      email: normalizedEmail,
+      whatsapp: normalizedWhatsapp,
       recommendation,
       quizAnswers: body.answers,
       deviceType: body.deviceType,
       referralSource: body.referralSource,
     };
 
-    // Create lead in Wix CRM with timeout protection
-    const result = await withTimeout(
-      createQuizLead(leadData),
-      API_TIMEOUT,
-      'CRM lead creation'
-    ).catch((error) => {
-      console.error('CRM operation failed or timed out:', error);
-      return { success: false as const, error: error.message, contactId: undefined };
-    });
+    let leadId: string | undefined;
 
-    const duration = Date.now() - startTime;
-    console.log(`Quiz submit completed in ${duration}ms`);
+    // Step 1: Store in Supabase first (guaranteed persistence)
+    if (isSupabaseConfigured()) {
+      // Check for existing lead (deduplication)
+      const existingLead = await findLeadByEmail(normalizedEmail);
 
-    if (result.success && result.contactId) {
-      return NextResponse.json({
-        success: true,
-        contactId: result.contactId,
-      });
-    } else if (result.success) {
-      return NextResponse.json({
-        success: true,
-      });
-    } else {
-      // Log error but still return success to not block user
-      console.error('Wix CRM lead creation failed:', result.error);
-      return NextResponse.json({
-        success: true,
-        warning: 'Lead saved locally, CRM sync pending',
+      if (existingLead) {
+        // Update existing lead
+        await updateExistingLead(existingLead.id!, {
+          name: normalizedName,
+          whatsapp: normalizedWhatsapp,
+          recommendation,
+          quiz_answers: body.answers,
+          device_type: body.deviceType,
+          referral_source: body.referralSource,
+        });
+        leadId = existingLead.id;
+      } else {
+        // Create new lead
+        const storeResult = await storeQuizLead({
+          name: normalizedName,
+          email: normalizedEmail,
+          whatsapp: normalizedWhatsapp,
+          recommendation,
+          quiz_answers: body.answers,
+          device_type: body.deviceType,
+          referral_source: body.referralSource,
+        });
+
+        if (storeResult.success) {
+          leadId = storeResult.leadId;
+        } else {
+          console.error('Failed to store lead in Supabase:', storeResult.error);
+          // Continue anyway - try Wix directly as fallback
+        }
+      }
+    }
+
+    // Log in non-production or if explicitly enabled
+    if (!IS_PRODUCTION || process.env.DEBUG_QUIZ_SUBMIT) {
+      console.log('📥 Quiz submission received:', {
+        email: normalizedEmail,
+        recommendation,
+        leadId,
+        duration: `${Date.now() - startTime}ms`,
       });
     }
+
+    // Step 2: Fire-and-forget Wix sync with status updates
+    const syncToWixWithStatusUpdate = async () => {
+      try {
+        const result = await createQuizLeadAsync(leadData);
+
+        // AISensy welcome message disabled per user preference
+        // User wants WhatsApp messages only after payment, not after quiz
+        // To enable: uncomment the code below and set AISENSY_CAMPAIGN_WELCOME in .env
+        /*
+        try {
+          await sendQuizWelcome({
+            phone: normalizedWhatsapp,
+            name: normalizedName,
+            email: normalizedEmail,
+            quizResult: recommendation,
+          });
+        } catch (error) {
+          console.error('[Quiz Submit] AISensy welcome message failed:', error);
+        }
+        */
+
+        // Step 3: Update Supabase with sync result
+        if (leadId && isSupabaseConfigured()) {
+          if (result.success) {
+            await updateLeadSyncStatus(leadId, 'synced', result.contactId);
+          } else {
+            await updateLeadSyncStatus(leadId, 'failed', undefined, result.error);
+          }
+        }
+
+        return result;
+      } catch (error) {
+        // Update Supabase with failure
+        if (leadId && isSupabaseConfigured()) {
+          await updateLeadSyncStatus(
+            leadId,
+            'failed',
+            undefined,
+            error instanceof Error ? error.message : 'Unknown error'
+          );
+        }
+        throw error;
+      }
+    };
+
+    // Use waitUntil if available (Vercel Edge Runtime)
+    if (typeof globalThis !== 'undefined' && 'waitUntil' in globalThis) {
+      (globalThis as unknown as { waitUntil: (promise: Promise<unknown>) => void }).waitUntil(
+        syncToWixWithStatusUpdate().catch((err: unknown) => {
+          console.error('Background CRM sync failed:', err);
+        })
+      );
+    } else {
+      // Fallback: Let the promise run but don't await it
+      syncToWixWithStatusUpdate().catch((err: unknown) => {
+        console.error('Background CRM sync failed:', err);
+      });
+    }
+
+    // Return success immediately - lead is safely stored in Supabase
+    return NextResponse.json({
+      success: true,
+      message: 'Quiz submitted successfully',
+      leadId, // Return leadId for tracking (optional)
+    });
+
   } catch (error) {
-    const duration = Date.now() - startTime;
-    console.error(`Quiz submit error after ${duration}ms:`, error);
-    // Don't fail the user experience even if CRM fails
+    console.error('Quiz submit error:', error instanceof Error ? error.message : error);
+
+    // Return success to not block user experience
+    // Even if everything fails, the user can proceed to the results page
     return NextResponse.json({
       success: true,
       warning: 'Lead processing in background',

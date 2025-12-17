@@ -9,9 +9,9 @@ export interface QuizPersonalization {
   heroSubheadline: string;
   whyThisWorksReason: string;
   readyStatement: string;
-  // Trial-specific personalization
-  trialHeroSubheadline: string;
-  trialWhyThisWorksReason: string;
+  // Webinar-specific personalization
+  webinarHeroSubheadline: string;
+  webinarWhyThisWorksReason: string;
 }
 
 export interface QuizPersonalizationMap {
@@ -22,35 +22,35 @@ export const quizPersonalization: QuizPersonalizationMap = {
   "q1-a": {
     // Survival mode - needs to work around demanding schedule
     heroSubheadline:
-      "Based on your quiz answers, you're ready to move from survival to thriving—the perfect foundation for lasting transformation.",
+      "Based on your quiz answers, you're ready to move from survival to thriving - the perfect foundation for lasting transformation.",
     whyThisWorksReason: "you need to work around a demanding schedule",
     readyStatement: "move from surviving to thriving",
-    // Trial-specific
-    trialHeroSubheadline:
-      "You need to see results before committing—we get it.",
-    trialWhyThisWorksReason: "you need to see what works before fully committing",
+    // Webinar-specific
+    webinarHeroSubheadline:
+      "You need to see results before committing - we get it.",
+    webinarWhyThisWorksReason: "you need to see what works before fully committing",
   },
   "q1-b": {
     // Inconsistent - wants to start at own pace
     heroSubheadline:
-      "Based on your quiz answers, you're ready for structure with flexibility—the perfect foundation for lasting transformation.",
+      "Based on your quiz answers, you're ready for structure with flexibility - the perfect foundation for lasting transformation.",
     whyThisWorksReason: "you want to start at your own pace",
     readyStatement: "build consistency that lasts",
-    // Trial-specific
-    trialHeroSubheadline:
-      "You've started and stopped before—this time is different.",
-    trialWhyThisWorksReason: "you need to experience first before committing",
+    // Webinar-specific
+    webinarHeroSubheadline:
+      "You've started and stopped before - this time is different.",
+    webinarWhyThisWorksReason: "you need to experience first before committing",
   },
   "q1-c": {
     // Ready to go all in - values independence
     heroSubheadline:
-      "Based on your quiz answers, you're ready to go all in—this is the foundation that makes discipline feel luxurious.",
+      "Based on your quiz answers, you're ready to go all in - this is the foundation that makes discipline feel luxurious.",
     whyThisWorksReason: "you value independence",
     readyStatement: "transform at the highest level",
-    // Trial-specific
-    trialHeroSubheadline:
-      "You're ready to experience, not just believe—smart choice.",
-    trialWhyThisWorksReason: "you're looking for proof before you invest fully",
+    // Webinar-specific
+    webinarHeroSubheadline:
+      "You're ready to experience, not just believe - smart choice.",
+    webinarWhyThisWorksReason: "you're looking for proof before you invest fully",
   },
 };
 
@@ -58,12 +58,12 @@ export function getQuizPersonalization(q1OptionId: string): QuizPersonalization 
   return (
     quizPersonalization[q1OptionId] || {
       heroSubheadline:
-        "Based on your quiz answers, you're ready for structure with flexibility—the perfect foundation for lasting transformation.",
+        "Based on your quiz answers, you're ready for structure with flexibility - the perfect foundation for lasting transformation.",
       whyThisWorksReason: "you need to work around a demanding schedule",
       readyStatement: "build consistency",
-      trialHeroSubheadline:
-        "You've started and stopped before—this time is different.",
-      trialWhyThisWorksReason: "you need to experience first before committing",
+      webinarHeroSubheadline:
+        "You've started and stopped before - this time is different.",
+      webinarWhyThisWorksReason: "you need to experience first before committing",
     }
   );
 }
@@ -97,7 +97,7 @@ const q2Personalization: { [key: string]: string } = {
   "q2-a": "Your focus on feeling powerful in your body is exactly where transformation begins.",
   "q2-b": "Building unshakeable confidence is at the heart of what we do. When you trust yourself, everything changes.",
   "q2-c": "Creating sustainable, high-performing systems is how successful women operate.",
-  "q2-d": "You want complete transformation—body, confidence, and lifestyle. And you deserve it all.",
+  "q2-d": "You want complete transformation -body, confidence, and lifestyle. And you deserve it all.",
 };
 
 // Q3: Rise style personalization
@@ -116,7 +116,7 @@ const q4Personalization: { [key: string]: string } = {
 
 // Q6: History acknowledgment
 const q6Personalization: { [key: string]: string } = {
-  "q6-a": "This is your first real commitment—and you've chosen wisely.",
+  "q6-a": "This is your first real commitment -and you've chosen wisely.",
   "q6-b": "You've started and stopped before. This program is designed to break that cycle.",
   "q6-c": "You've hit a ceiling and need the next level. This is your breakthrough.",
 };
@@ -124,7 +124,7 @@ const q6Personalization: { [key: string]: string } = {
 // Q8: Urgency personalization
 const q8Personalization: { [key: string]: string } = {
   "q8-a": "You're ready to start this week. That energy? Channel it.",
-  "q8-b": "You want to prepare first—that's thoughtful. Use this time wisely.",
+  "q8-b": "You want to prepare first -that's thoughtful. Use this time wisely.",
   "q8-c": "You're exploring options. Take the next step when you're ready.",
 };
 
@@ -236,16 +236,16 @@ export interface ProgramContent {
 
 const essentialsContent: ProgramContent = {
   // Hero Section
-  badge: "Your Personalized Path",
-  heroHeadline: "Build Your Foundation—Become Unstoppable on Your Timeline",
+  badge: "Essentials",
+  heroHeadline: "Build Your Foundation - Become Unstoppable on Your Timeline",
   heroSubheadlineTemplate:
-    "{personalization} Essentials gives you everything you need to fall in love with working on yourself, at your own pace.",
+    "{personalization} <em>Essentials</em> gives you everything you need to fall in love with working on yourself, at your own pace.",
   heroImageAlt: "Woman working out at home, confident and empowered, morning light, peaceful energy",
 
   // Transformation Journey Section
   journeySectionHeadline: "This Is How You Become Unstoppable",
   journeyIntro:
-    "Essentials isn't a program. It's your personal transformation library—designed by Disha to help you build the body, confidence, and habits that make you feel powerful every single day.",
+    "<em>Essentials</em> isn't a program. It's your personal transformation library - designed by Disha to help you build the body, confidence, and habits that make you feel powerful every single day.",
 
   // 4 Pillars
   pillars: [
@@ -254,7 +254,7 @@ const essentialsContent: ProgramContent = {
       title: "PILLAR 1: BODY TRANSFORMATION",
       headline: "Build Strength That Shows",
       description:
-        "Transform your body with proven 30-day fitness programs you can do anytime, anywhere. No gym needed. No equipment required. Just you, your commitment, and a structured path to the body that makes you feel unstoppable.",
+        "Transform your body with proven 24-day fitness programs you can do anytime, anywhere. No gym needed. No equipment required. Just you, your commitment, and a structured path to the body that makes you feel unstoppable.",
       benefits: [
         "Wake up energized",
         "Move through your day with power",
@@ -267,7 +267,7 @@ const essentialsContent: ProgramContent = {
       title: "PILLAR 2: BEAUTY & RADIANCE",
       headline: "Look as Unstoppable as You Feel",
       description:
-        "Master the beauty routines and self-care rituals that make confidence visible. From skin that glows to habits that make you feel luxurious, this is how you become the woman who turns heads—not through filters, through radiance.",
+        "Master the beauty routines and self-care rituals that make confidence visible. From skin that glows to habits that make you feel luxurious, this is how you become the woman who turns heads -not through filters, through radiance.",
       benefits: [
         "Walk into any room and own it",
         "Feel beautiful without makeup",
@@ -279,7 +279,7 @@ const essentialsContent: ProgramContent = {
       title: "PILLAR 3: FINANCIAL POWER",
       headline: "Build Money Confidence",
       description:
-        "Transform your relationship with money through mindset shifts and wealth-building habits. Financial power isn't just about numbers—it's about the confidence to invest in yourself, set boundaries, and build the life you deserve.",
+        "Transform your relationship with money through mindset shifts and wealth-building habits. Financial power isn't just about numbers -it's about the confidence to invest in yourself, set boundaries, and build the life you deserve.",
       benefits: [
         "Make financial decisions with clarity",
         "Build wealth habits that compound",
@@ -291,7 +291,7 @@ const essentialsContent: ProgramContent = {
       title: "PILLAR 4: CONFIDENCE MASTERY",
       headline: "Become Unshakeable",
       description:
-        "Transform from the inside out with mindset practices, boundary-setting frameworks, and the inner work that makes external transformation last. This is where you become the woman who doesn't wait for permission—she acts.",
+        "Transform from the inside out with mindset practices, boundary-setting frameworks, and the inner work that makes external transformation last. This is where you become the woman who doesn't wait for permission -she acts.",
       benefits: [
         "Set boundaries without guilt",
         "Show up for yourself daily",
@@ -304,72 +304,70 @@ const essentialsContent: ProgramContent = {
   dishaHeadline: '"This Is the Foundation I Used"',
   dishaQuote: `When I left my CA studies to pursue transformation, I didn't have a fancy gym or expensive equipment.
 
-I built my foundation with the exact framework you're getting in Essentials: structured workouts you can do at home, holistic nutrition that feels sustainable, and daily habits that build discipline without pressure.
+I built my foundation with the exact framework you're getting in <em>Essentials</em>: structured workouts you can do at home, holistic nutrition that feels sustainable, and daily habits that build discipline without pressure.
 
 Over 5,000+ sessions later, this foundation has transformed 2,500+ women across India and around the world.
 
-It works. Because transformation isn't about perfection. It's about consistency. And Essentials gives you the structure to be consistent—on your timeline, in your space, at your pace.
-
-I'll guide you through every step.`,
+It works. Because transformation isn't about perfection. It's about consistency. And <em>Essentials</em> gives you the structure to be consistent - on your timeline, in your space, at your pace.`,
 
   // Investment Section
   investmentHeadline: "Your Investment in Becoming Unstoppable",
   pricePerDay: "₹83/day",
   priceComparison: "less than a meal delivery or salon visit",
   investmentDescription:
-    "Not just workouts. Complete transformation—body, beauty, finance, confidence. The woman you're becoming is worth far more than ₹83/day.",
+    "Not just workouts. Complete transformation - body, beauty, finance, confidence. The woman you're becoming is worth far more than ₹83/day.",
   ctaText: "Start Your Transformation",
   trustSignals: [
-    "Cancel anytime—no commitments, just results",
+    "Cancel anytime - no commitments, just results",
     "Secure checkout via Razorpay",
     "Start immediately after payment",
   ],
 
   // Why This Works Section
-  whyWorksHeadline: "Why Essentials Is Perfect for You",
+  whyWorksHeadline: "Why <em>Essentials</em> Is Perfect for You",
   whyWorksIntroTemplate: "You chose flexibility because {reason}.",
   whyWorksBenefits: [
     {
       headline: "START IMMEDIATELY, WORK AT YOUR PACE",
       description:
-        "No waiting for class times. No rigid schedules. You get instant access to everything—workouts, guides, rituals, frameworks. Start today. Work when it fits your life.",
+        "No waiting for class times. No rigid schedules. You get instant access to everything - workouts, guides, rituals, frameworks. Start today. Work when it fits your life.",
     },
     {
       headline: "STRUCTURE WITHOUT PRESSURE",
       description:
-        "You get the exact structure that creates results—workout progressions, nutrition frameworks, daily practices—but you control the pace. This is discipline that feels luxurious, not punishing.",
+        "You get the exact structure that creates results - workout progressions, nutrition frameworks, daily practices - but you control the pace. This is discipline that feels luxurious, not punishing.",
     },
     {
       headline: "COMPLETE TRANSFORMATION FRAMEWORK",
       description:
-        "This isn't just fitness. It's the 4-pillar system that creates lasting change: body, beauty, finance, confidence. You're not just getting in shape—you're becoming unstoppable.",
+        "This isn't just fitness. It's the 4-pillar system that creates lasting change: body, beauty, finance, confidence. You're not just getting in shape - you're becoming unstoppable.",
     },
   ],
 
   // Testimonials
   testimonialsHeadline: "This Is What Becoming Unstoppable Looks Like",
   testimonials: [
-    {
-      id: "ess-1",
-      name: "Ananya R.",
-      location: "Delhi",
+        {
+      id: "ess-3",
+      name: "Ishita G.",
+      location: "Mumbai",
       role: "Marketing Manager",
-      age: 28,
-      membershipDuration: "Essentials Member, 4 Months",
+      age: 22,
+      membershipDuration: "Essentials Member",
       quote:
-        "I finally found something I could stick to. Essentials gave me structure without pressure, and the confidence I built changed everything—not just my body, but my entire life. I show up for myself now.",
-      photoUrl: "/images/testimonials/ananya.jpg",
+        "At 22, I thought transformation was for later. Essentials showed me it's for now. The flexibility fits my crazy work schedule, and I'm building habits that will serve me for life. This is how you start your glow up era.",
+      photoUrl: "/images/misc/Ishita G.jpg",
     },
     {
-      id: "ess-2",
-      name: "Kavya M.",
-      location: "Hyderabad",
-      role: "Entrepreneur",
-      age: 32,
-      membershipDuration: "Essentials Member, 6 Months",
+      id: "ess-4",
+      name: "Roma N.",
+      location: "Dublin",
+      role: "Corporate Professional",
+      age: 25,
+      membershipDuration: "Essentials Member",
       quote:
-        "Working out at home felt 'less than' until Essentials. Now I realize consistency matters more than location. I'm stronger, more energized, and more confident than I've ever been—all on my own timeline.",
-      photoUrl: "/images/testimonials/kavya.jpg",
+        "Living in Dublin, I needed something that worked with my timezone and my life. Essentials gave me that - structure I could access anytime, anywhere. I'm transforming on my terms, and that's the most empowering part.",
+      photoUrl: "/images/misc/Roma N. .jpg",
     },
   ],
 
@@ -377,9 +375,14 @@ I'll guide you through every step.`,
   faqHeadline: "Everything You Need to Know",
   faqs: [
     {
+      question: "How will I get access to the program and classes?",
+      answer:
+        "Immediately after payment, you'll receive instant access to the complete program - all pre-recorded classes, structured content, and the full transformation framework. Start whenever you're ready and work at your own pace.",
+    },
+    {
       question: "What if I need extra support?",
       answer:
-        "Essentials includes weekly accountability check-ins and access to our community support. You're never alone—just working at your pace.",
+        "Essentials includes weekly accountability check-ins and access to our community support. You're never alone - just working at your pace.",
     },
     {
       question: "Can I upgrade later if I want more?",
@@ -389,12 +392,12 @@ I'll guide you through every step.`,
     {
       question: "Is this really enough to transform?",
       answer:
-        "Yes. This is the same foundation Disha built her transformation on—and the same framework that's helped 2,500+ women become unstoppable. It's not about more. It's about consistency.",
+        "Yes. This is the same foundation Disha built her transformation on - and the same framework that's helped 2,500+ women become unstoppable. It's not about more. It's about consistency.",
     },
     {
       question: "What if I've tried programs before and quit?",
       answer:
-        "That's exactly why Essentials works. It's designed for real life—not Instagram perfection. You work at your pace, with structure that supports you, not pressure that breaks you.",
+        "That's exactly why Essentials works. It's designed for real life - not Instagram perfection. You work at your pace, with structure that supports you, not pressure that breaks you.",
     },
     {
       question: "Do I need any equipment?",
@@ -412,32 +415,32 @@ I'll guide you through every step.`,
   upgradePath: {
     headline: "Want Live Community Support?",
     description:
-      "Many Essentials members add live workouts, group coaching, and sisterhood accountability when they're ready for that next level of transformation. If that sounds right for you now—or later—you can explore our live community program. Start with Essentials and upgrade anytime. No pressure. Just options.",
+      "Many Essentials members add live workouts, group coaching, and sisterhood accountability when they're ready for that next level of transformation. If that sounds right for you now - or later - you can explore our live community program. Start with Essentials and upgrade anytime. No pressure. Just options.",
     ctaText: "Explore Live Community Option",
     ctaHref: "/circle",
   },
 
   // Final CTA
   finalCtaHeadline: "Strong. Consistent. Unstoppable.",
-  finalCtaSubheadline: "That's who you're becoming. Starting today.",
+  finalCtaSubheadline: "Enter your Glow Up Era Today Babe!",
   finalCtaButtonText: "Join Essentials Now",
   trustReminder: "2,500+ women transformed. Cancel anytime. Start immediately.",
 };
 
 // ============================================
-// TRIAL PROGRAM CONTENT
+// WEBINAR PROGRAM CONTENT
 // ============================================
 
-const trialContent: ProgramContent = {
+const webinarContent: ProgramContent = {
   badge: "Your First Step",
-  heroHeadline: "Experience the Magic—Risk Free",
+  heroHeadline: "Experience the Magic -Risk Free",
   heroSubheadlineTemplate:
-    "{trialPersonalization} Trial gives you 7 days to experience our methodology before committing fully.",
+    "{webinarPersonalization} Webinar gives you 7 days to experience our methodology before committing fully.",
   heroImageAlt: "Woman discovering her potential, curious and excited energy",
 
   journeySectionHeadline: "7 Days to Discover Your Unstoppable Self",
   journeyIntro:
-    "Trial isn't a watered-down version—it's a concentrated taste of transformation. Experience our methodology, feel the difference, then decide if you're ready for more.",
+    "Webinar isn't a watered-down version -it's a concentrated taste of transformation. Experience our methodology, feel the difference, then decide if you're ready for more.",
 
   pillars: [
     {
@@ -481,7 +484,7 @@ const trialContent: ProgramContent = {
       title: "PILLAR 4: CONFIDENCE SPARK",
       headline: "Ignite Your Inner Power",
       description:
-        "Experience the mindset practices that help you show up differently—even in just 7 days.",
+        "Experience the mindset practices that help you show up differently -even in just 7 days.",
       benefits: [
         "Daily affirmation practice",
         "Boundary-setting introduction",
@@ -491,7 +494,7 @@ const trialContent: ProgramContent = {
   ],
 
   dishaHeadline: '"The Framework Behind 2,500+ Transformations"',
-  dishaQuote: `In this 90-minute experience, you'll get the complete Glow Up Academy framework—the same one I've perfected over 5,000+ fitness sessions with everyone from busy corporate professionals to international clients.
+  dishaQuote: `In this 90-minute experience, you'll get the complete Glow Up Academy framework -the same one I've perfected over 5,000+ fitness sessions with everyone from busy corporate professionals to international clients.
 
 This isn't theory. It's proven. It's what works.`,
   dishaSignature: "Disha",
@@ -504,13 +507,13 @@ This isn't theory. It's proven. It's what works.`,
     "7 days of full access to prove we're the real deal. No risk. No pressure. Just experience.",
   ctaText: "Try For ₹499",
   trustSignals: [
-    "No automatic billing after trial",
+    "No automatic billing after webinar",
     "You choose whether to continue",
     "Instant access",
   ],
 
-  whyWorksHeadline: "Why Trial Is Perfect for You",
-  whyWorksIntroTemplate: "You want to try before committing because {trialReason}.",
+  whyWorksHeadline: "Why Webinar Is Perfect for You",
+  whyWorksIntroTemplate: "You want to try before committing because {webinarReason}.",
   whyWorksBenefits: [
     {
       headline: "ZERO RISK, REAL EXPERIENCE",
@@ -525,37 +528,37 @@ This isn't theory. It's proven. It's what works.`,
     {
       headline: "CLEAR PATH FORWARD",
       description:
-        "After your trial, you'll know exactly which program fits your transformation goals. No guessing.",
+        "After your webinar, you'll know exactly which program fits your transformation goals. No guessing.",
     },
   ],
 
-  testimonialsHeadline: "They Started With Trial Too",
+  testimonialsHeadline: "They Started With Webinar Too",
   testimonials: [
     {
-      id: "trial-1",
+      id: "webinar-1",
       name: "Sneha R.",
       location: "Pune",
       role: "IT Professional",
       age: 26,
-      membershipDuration: "Started with Trial, Now Circle Member",
+      membershipDuration: "Started with Webinar, Now Circle Member",
       quote:
-        "I was skeptical of everything. Trial changed that. By day 4, I knew this was different. I signed up for Circle before my trial ended.",
+        "I was skeptical of everything. Webinar changed that. By day 4, I knew this was different. I signed up for Circle before my webinar ended.",
       photoUrl: "/images/testimonials/sneha.jpg",
     },
     {
-      id: "trial-2",
+      id: "webinar-2",
       name: "Priya K.",
       location: "Mumbai",
       role: "Teacher",
       age: 34,
-      membershipDuration: "Started with Trial, Now Essentials Member",
+      membershipDuration: "Started with Webinar, Now Essentials Member",
       quote:
-        "I needed proof before I could trust again. Trial gave me exactly that. Now I'm building consistency I never thought possible.",
+        "I needed proof before I could trust again. Webinar gave me exactly that. Now I'm building consistency I never thought possible.",
       photoUrl: "/images/testimonials/priya-k.jpg",
     },
   ],
 
-  faqHeadline: "Trial Questions Answered",
+  faqHeadline: "Webinar Questions Answered",
   faqs: [
     {
       question: "What exactly do I get in 7 days?",
@@ -563,25 +566,25 @@ This isn't theory. It's proven. It's what works.`,
         "Full access to sample modules from our core program, including workouts, beauty tips, and mindset content. Plus, you'll join one live session to experience the community energy firsthand.",
     },
     {
-      question: "What happens after the trial ends?",
+      question: "What happens after the webinar ends?",
       answer:
-        "You'll be invited to join Circle or Essentials at a special rate. There's no automatic billing—you choose if and when to continue. No pressure, no tricks.",
+        "You'll be invited to join Circle or Essentials at a special rate. There's no automatic billing -you choose if and when to continue. No pressure, no tricks.",
     },
     {
-      question: "Why is the trial so affordable?",
+      question: "Why is the webinar so affordable?",
       answer:
         "We want you to experience the DMK difference without risk. The ₹499 covers our operational costs while giving you genuine value. It's our way of saying 'try us, you'll love us.'",
     },
     {
-      question: "Can I do the trial if I'm a complete beginner?",
+      question: "Can I do the webinar if I'm a complete beginner?",
       answer:
-        "The trial is perfect for beginners! It's designed to give you quick wins and build momentum without overwhelming you.",
+        "The webinar is perfect for beginners! It's designed to give you quick wins and build momentum without overwhelming you.",
     },
   ],
 
   finalCtaHeadline: "7 Days. ₹499. Zero Risk.",
   finalCtaSubheadline: "Your transformation could start today.",
-  finalCtaButtonText: "Start Your Trial",
+  finalCtaButtonText: "Start Your Webinar",
   trustReminder: "No automatic billing. You decide what's next.",
 };
 
@@ -591,14 +594,14 @@ This isn't theory. It's proven. It's what works.`,
 
 const circleContent: ProgramContent = {
   badge: "Your Sisterhood Awaits",
-  heroHeadline: "Transform Together—Rise with Your Queens",
+  heroHeadline: "Transform Together -Rise with Your Queens",
   heroSubheadlineTemplate:
     "{personalization} Circle gives you live community support, accountability partners, and the sisterhood that makes transformation inevitable.",
   heroImageAlt: "Group of confident women supporting each other, powerful community energy",
 
   journeySectionHeadline: "This Is How Queens Rise Together",
   journeyIntro:
-    "Circle isn't just a program—it's a sisterhood. Live sessions, accountability partners, and a community of women who won't let you quit on yourself. This is where consistency becomes automatic.",
+    "Circle isn't just a program -it's a sisterhood. Live sessions, accountability partners, and a community of women who won't let you quit on yourself. This is where consistency becomes automatic.",
 
   pillars: [
     {
@@ -606,7 +609,7 @@ const circleContent: ProgramContent = {
       title: "PILLAR 1: LIVE FITNESS",
       headline: "Train with Your Tribe",
       description:
-        "Weekly live workout sessions with Disha and the community. Feel the energy of training together—even from home. Accountability that shows up in your body.",
+        "Weekly live workout sessions with Disha and the community. Feel the energy of training together -even from home. Accountability that shows up in your body.",
       benefits: [
         "Weekly live workout sessions",
         "Recorded sessions for catch-up",
@@ -656,9 +659,9 @@ const circleContent: ProgramContent = {
   ],
 
   dishaHeadline: '"Why I Created Circle"',
-  dishaQuote: `After 5,000+ fitness sessions, I learned transformation isn't about willpower—it's about sisterhood.
+  dishaQuote: `After 5,000+ fitness sessions, I learned transformation isn't about willpower -it's about sisterhood.
 
-I created Circle for women like you—ambitious, driven, ready for complete transformation but needing the right structure and support.
+I created Circle for women like you -ambitious, driven, ready for complete transformation but needing the right structure and support.
 
 You'll work with my expert team of coaches (personally trained by me), join 2,500+ women in our community, and follow the 4-pillar framework that took me from dropping CA to building multiple successful businesses.
 
@@ -672,7 +675,7 @@ This is where you stop doing it alone.`,
     "Live sessions, accountability partners, community support, and complete transformation. The sisterhood that changes everything.",
   ctaText: "Join The Circle",
   trustSignals: [
-    "Cancel anytime—no long-term commitments",
+    "Cancel anytime -no long-term commitments",
     "Live sessions recorded if you miss",
     "Accountability partner matching",
   ],
@@ -707,7 +710,7 @@ This is where you stop doing it alone.`,
       age: 30,
       membershipDuration: "Circle Member, 8 Months",
       quote:
-        "I walked into my reunion and owned the room. The community changed everything—I finally had women who understood my journey and wouldn't let me quit.",
+        "I walked into my reunion and owned the room. The community changed everything -I finally had women who understood my journey and wouldn't let me quit.",
       photoUrl: "/images/testimonials/roshni.jpg",
     },
     {
@@ -718,7 +721,7 @@ This is where you stop doing it alone.`,
       age: 35,
       membershipDuration: "Circle Member, 5 Months",
       quote:
-        "My accountability partner texted me every morning. I couldn't let her down—and I couldn't let myself down. Dropped 3 dress sizes and gained a sisterhood.",
+        "My accountability partner texted me every morning. I couldn't let her down -and I couldn't let myself down. Dropped 3 dress sizes and gained a sisterhood.",
       photoUrl: "/images/testimonials/aishwarya.jpg",
     },
   ],
@@ -743,7 +746,7 @@ This is where you stop doing it alone.`,
     {
       question: "Can I bring a friend?",
       answer:
-        "Yes! We offer a 'Sister Sign-Up' discount—you both get 10% off when you join together. Email us for the special link.",
+        "Yes! We offer a 'Sister Sign-Up' discount -you both get 10% off when you join together. Email us for the special link.",
     },
     {
       question: "How much time do I need weekly?",
@@ -769,14 +772,14 @@ This is where you stop doing it alone.`,
 
 const transformContent: ProgramContent = {
   badge: "The Ultimate Investment",
-  heroHeadline: "Complete Transformation—Personalized for You",
+  heroHeadline: "Complete Transformation -Personalized for You",
   heroSubheadlineTemplate:
     "{personalization} Transform gives you 1:1 coaching, custom plans, and VIP support for total life transformation.",
   heroImageAlt: "Powerful woman, completely transformed, executive presence",
 
   journeySectionHeadline: "This Is Total Transformation",
   journeyIntro:
-    "Transform isn't a program—it's a partnership. 3 months of 1:1 coaching, custom plans designed around YOUR life, and VIP support that makes transformation inevitable. For women ready to invest at the highest level.",
+    "Transform isn't a program -it's a partnership. 3 months of 1:1 coaching, custom plans designed around YOUR life, and VIP support that makes transformation inevitable. For women ready to invest at the highest level.",
 
   pillars: [
     {
@@ -836,7 +839,7 @@ const transformContent: ProgramContent = {
   dishaHeadline: '"From CA to Transformation Architect"',
   dishaQuote: `I understand high-achieving women because I am one.
 
-I have a Master's in Applied Finance. I was pursuing CA—the ultimate safe career in India. But I chose passion over prestige.
+I have a Master's in Applied Finance. I was pursuing CA -the ultimate safe career in India. But I chose passion over prestige.
 
 Since then, I've:
 • Conducted 5,000+ transformation sessions
@@ -849,7 +852,7 @@ Transform is where I personally architect your 6-month journey. My expert team d
 
 This is the highest level of transformation Glow Up Academy offers.
 
-And it starts with a 45-minute strategy call—just you and me.`,
+And it starts with a 45-minute strategy call -just you and me.`,
   dishaCredentials: "Master's in Applied Finance • Corporate Wellness Expert • Multi-Business Entrepreneur",
 
   investmentHeadline: "Your Investment in Complete Transformation",
@@ -905,7 +908,7 @@ And it starts with a 45-minute strategy call—just you and me.`,
       age: 42,
       membershipDuration: "Transform Graduate",
       quote:
-        "The investment scared me—until I calculated the ROI. Complete body transformation, doubled my business revenue, and built confidence that changes how I lead. Transform paid for itself 10x over.",
+        "The investment scared me -until I calculated the ROI. Complete body transformation, doubled my business revenue, and built confidence that changes how I lead. Transform paid for itself 10x over.",
       photoUrl: "/images/testimonials/sunita.jpg",
     },
   ],
@@ -915,7 +918,7 @@ And it starts with a 45-minute strategy call—just you and me.`,
     {
       question: "Why is Transform so expensive?",
       answer:
-        "Transform isn't expensive—it's an investment with proven ROI. You get 1:1 personal coaching, custom plans for your unique situation, weekly private calls, and VIP access. Our Transform members see results that justify the investment many times over.",
+        "Transform isn't expensive -it's an investment with proven ROI. You get 1:1 personal coaching, custom plans for your unique situation, weekly private calls, and VIP access. Our Transform members see results that justify the investment many times over.",
     },
     {
       question: "What if I've tried everything and nothing works?",
@@ -935,7 +938,7 @@ And it starts with a 45-minute strategy call—just you and me.`,
     {
       question: "What happens on the Discovery Call?",
       answer:
-        "It's a 20-minute conversation to understand your goals, challenges, and whether Transform is the right fit. There's no pressure—this call is about alignment. If Transform isn't right for you, we'll recommend the best alternative.",
+        "It's a 20-minute conversation to understand your goals, challenges, and whether Transform is the right fit. There's no pressure -this call is about alignment. If Transform isn't right for you, we'll recommend the best alternative.",
     },
     {
       question: "What's your guarantee?",
@@ -956,7 +959,7 @@ And it starts with a 45-minute strategy call—just you and me.`,
 
 const programContentMap: { [programId: string]: ProgramContent } = {
   essentials: essentialsContent,
-  trial: trialContent,
+  webinar: webinarContent,
   circle: circleContent,
   transform: transformContent,
 };
@@ -983,7 +986,7 @@ const archetypes: { [key: string]: TransformationArchetype } = {
     name: "Survivor to Thriver",
     title: "Survivor to Thriver",
     tagline: "From surviving to thriving",
-    description: "You've been pushing through—now it's time to build sustainable systems that support your growth.",
+    description: "You've been pushing through -now it's time to build sustainable systems that support your growth.",
   },
   "q1-b": {
     id: "consistency-seeker",

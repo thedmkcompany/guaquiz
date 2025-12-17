@@ -193,6 +193,8 @@ export interface WixCustomerData {
   amount: number;
   isSubscription: boolean;
   subscriptionId?: string;
+  programStartDate?: string;
+  startDateOption?: string;
 }
 
 export interface WixContact {

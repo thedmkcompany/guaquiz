@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
  * - glass: Glass card style with chevron up/down icons (default, used on results pages)
  * - card: White card with beige accents (used on circle page)
  * - minimal: Border-bottom only with gold accents (used on transform page)
- * - feminine: Gradient background with feminine styling (used on essentials/trial)
+ * - feminine: Gradient background with feminine styling (used on essentials/webinar)
  */
 
 export interface FAQData {

@@ -37,17 +37,17 @@ export interface RateLimitContext {
  * Check rate limits for a request
  * Returns null if allowed, or a 429 response if rate limited
  */
-export function checkRateLimits(
+export async function checkRateLimits(
   context: RateLimitContext,
   options: RateLimitOptions
-): Response | null {
+): Promise<Response | null> {
   const { ip, email } = context;
   const { ipLimit, emailLimit } = options;
 
   // Check IP rate limit
   if (ipLimit) {
     const ipKey = `${ipLimit}_${ip}`;
-    const ipCheck = checkRateLimit(ipKey, RATE_LIMITS[ipLimit]);
+    const ipCheck = await checkRateLimit(ipKey, RATE_LIMITS[ipLimit]);
 
     if (!ipCheck.allowed) {
       return rateLimitResponse(ipCheck.resetIn);
@@ -57,7 +57,7 @@ export function checkRateLimits(
   // Check email rate limit
   if (emailLimit && email) {
     const emailKey = `${emailLimit}_${email.toLowerCase()}`;
-    const emailCheck = checkRateLimit(emailKey, RATE_LIMITS[emailLimit]);
+    const emailCheck = await checkRateLimit(emailKey, RATE_LIMITS[emailLimit]);
 
     if (!emailCheck.allowed) {
       return rateLimitResponse(emailCheck.resetIn);
@@ -71,10 +71,10 @@ export function checkRateLimits(
  * Apply rate limits to a payment request
  * This is the main function to use in payment routes
  */
-export function applyPaymentRateLimits(
+export async function applyPaymentRateLimits(
   request: NextRequest,
   email?: string
-): Response | null {
+): Promise<Response | null> {
   const ip = getClientIP(request);
 
   return checkRateLimits(
@@ -89,7 +89,7 @@ export function applyPaymentRateLimits(
 /**
  * Apply rate limits for verification endpoints
  */
-export function applyVerifyRateLimits(request: NextRequest): Response | null {
+export async function applyVerifyRateLimits(request: NextRequest): Promise<Response | null> {
   const ip = getClientIP(request);
 
   return checkRateLimits(
@@ -101,7 +101,7 @@ export function applyVerifyRateLimits(request: NextRequest): Response | null {
 /**
  * Apply rate limits for webhook endpoints
  */
-export function applyWebhookRateLimits(request: NextRequest): Response | null {
+export async function applyWebhookRateLimits(request: NextRequest): Promise<Response | null> {
   const ip = getClientIP(request);
 
   return checkRateLimits(

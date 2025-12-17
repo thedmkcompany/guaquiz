@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { Footer } from "@/components/ui/footer";
-import { Header } from "@/components/ui/header";
 
 export const metadata = {
   title: "Terms and Conditions | The DMK",
@@ -11,11 +10,8 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-gradient-pastel font-body text-forest">
-      {/* Header */}
-      <Header variant="back" position="fixed" />
-
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <main className="pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <DecorativeBlobs />
 
         <article className="max-w-4xl mx-auto relative z-10">

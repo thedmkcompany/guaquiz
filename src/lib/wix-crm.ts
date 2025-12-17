@@ -1,18 +1,129 @@
+/**
+ * @fileoverview Wix CRM Integration
+ *
+ * Handles synchronization of leads and customers to Wix CRM, including:
+ * - Contact creation and updates
+ * - Member account creation with password setup emails
+ * - Pricing plan assignment
+ * - Label management
+ * - Automation webhook triggers
+ *
+ * @module wix-crm
+ *
+ * ## Architecture
+ *
+ * Uses a fire-and-forget pattern for quiz leads:
+ * 1. Store in Supabase immediately (guaranteed)
+ * 2. Async sync to Wix (background)
+ * 3. Cron job retries failures
+ *
+ * ## Resilience Features
+ *
+ * - **Retry with Backoff**: 3 attempts with exponential delays (1s, 2s, 4s)
+ * - **Timeout Protection**: 10-second request timeout
+ * - **Label Caching**: 5-minute cache for label lookups
+ * - **Duplicate Prevention**: Email-based contact deduplication
+ *
+ * ## Configuration
+ *
+ * Requires environment variables:
+ * - `WIX_API_KEY`: Wix API key with contacts/members permissions
+ * - `WIX_SITE_ID`: Wix site identifier
+ *
+ * @example
+ * ```typescript
+ * import { createQuizLeadAsync, syncToWixCRM } from '@/lib/wix-crm';
+ *
+ * // Fire-and-forget quiz lead (never throws)
+ * createQuizLeadAsync({
+ *   name: 'Jane Doe',
+ *   email: 'jane@example.com',
+ *   whatsapp: '+919876543210',
+ *   recommendation: 'circle'
+ * });
+ *
+ * // Full sync after payment
+ * const result = await syncToWixCRM({
+ *   email: 'jane@example.com',
+ *   firstName: 'Jane',
+ *   lastName: 'Doe',
+ *   programId: 'circle',
+ *   programName: 'Circle',
+ *   paymentId: 'pay_123',
+ *   amount: 4499,
+ *   isSubscription: false
+ * });
+ * ```
+ */
+
 import type { WixCustomerData } from '@/types/payment';
 import { getProgramById } from './programs';
 
-// ============================================
-// WIX CRM SYNC
-// ============================================
-
+/** Wix API key from environment */
 const WIX_API_KEY = process.env.WIX_API_KEY || '';
+/** Wix site identifier from environment */
 const WIX_SITE_ID = process.env.WIX_SITE_ID || '';
+/** Wix API base URL */
 const WIX_API_BASE = 'https://www.wixapis.com';
+
+// Validate environment variables at module load (warnings only, don't break)
+if (typeof window === 'undefined') {
+  if (!process.env.WIX_API_KEY) {
+    console.warn('[Wix CRM] WIX_API_KEY not configured - CRM sync will be skipped');
+  }
+  if (!process.env.WIX_SITE_ID) {
+    console.warn('[Wix CRM] WIX_SITE_ID not configured - CRM sync will be skipped');
+  }
+}
 
 // Retry configuration
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 const REQUEST_TIMEOUT = 10000; // 10 seconds
+
+// ============================================
+// LABEL CACHE (Performance optimization)
+// ============================================
+// Labels rarely change, so we cache them to avoid repeated API calls
+const LABEL_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const LABEL_CACHE_CLEANUP_INTERVAL = 10 * 60 * 1000; // 10 minutes
+const labelCache = new Map<string, { key: string; expires: number }>();
+let lastLabelCacheCleanup = Date.now();
+
+/**
+ * Remove expired entries from the label cache to prevent memory leaks.
+ */
+function cleanupLabelCache(): void {
+  const now = Date.now();
+  if (now - lastLabelCacheCleanup < LABEL_CACHE_CLEANUP_INTERVAL) return;
+
+  lastLabelCacheCleanup = now;
+  for (const [key, value] of labelCache.entries()) {
+    if (value.expires < now) {
+      labelCache.delete(key);
+    }
+  }
+}
+
+function getCachedLabel(displayName: string): string | null {
+  cleanupLabelCache(); // Cleanup on access
+  const cached = labelCache.get(displayName.toLowerCase());
+  if (cached && cached.expires > Date.now()) {
+    return cached.key;
+  }
+  // Remove expired entry if found
+  if (cached) {
+    labelCache.delete(displayName.toLowerCase());
+  }
+  return null;
+}
+
+function setCachedLabel(displayName: string, key: string): void {
+  labelCache.set(displayName.toLowerCase(), {
+    key,
+    expires: Date.now() + LABEL_CACHE_TTL,
+  });
+}
 
 /**
  * Fetch with timeout wrapper
@@ -146,12 +257,27 @@ function getWixHeaders(): HeadersInit {
  *
  * Wix requires labels to exist before they can be assigned to contacts.
  * This function ensures the label exists, creating it if necessary.
+ * Uses caching to avoid repeated API calls (labels rarely change).
  *
  * @param displayName - Human-readable label name (e.g., "Lead", "Essentials")
  * @returns The label key (e.g., "custom.lead") or null on failure
  */
 export async function findOrCreateLabel(displayName: string): Promise<string | null> {
+  // Check cache first (fast path)
+  const cached = getCachedLabel(displayName);
+  if (cached) {
+    return cached;
+  }
+
   try {
+    // First, try to find existing label by querying all labels
+    const existingKey = await findLabelByName(displayName);
+    if (existingKey) {
+      setCachedLabel(displayName, existingKey);
+      return existingKey;
+    }
+
+    // Label doesn't exist, create it
     const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/labels`, {
       method: 'POST',
       headers: getWixHeaders(),
@@ -160,6 +286,14 @@ export async function findOrCreateLabel(displayName: string): Promise<string | n
 
     if (!response.ok) {
       const error = await response.text();
+      // If label already exists (race condition), try to find it again
+      if (error.includes('already exists') || error.includes('ALREADY_EXISTS') || error.includes('DUPLICATE')) {
+        const retryKey = await findLabelByName(displayName);
+        if (retryKey) {
+          setCachedLabel(displayName, retryKey);
+          return retryKey;
+        }
+      }
       console.error('Wix findOrCreateLabel failed:', error);
       return null;
     }
@@ -167,8 +301,9 @@ export async function findOrCreateLabel(displayName: string): Promise<string | n
     const data = await response.json();
     const labelKey = data.label?.key;
 
-    if (data.newLabel) {
-      console.log(`Created new Wix label: ${displayName} -> ${labelKey}`);
+    if (labelKey) {
+      // Cache the label key for future requests
+      setCachedLabel(displayName, labelKey);
     }
 
     return labelKey;
@@ -179,20 +314,49 @@ export async function findOrCreateLabel(displayName: string): Promise<string | n
 }
 
 /**
- * Ensure multiple labels exist in Wix CRM
- * Creates any missing labels before returning their keys
+ * Find a label by its display name
+ * Used to check if label exists before creating
+ */
+async function findLabelByName(displayName: string): Promise<string | null> {
+  try {
+    const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/labels`, {
+      method: 'GET',
+      headers: getWixHeaders(),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    const labels = data.labels || [];
+
+    // Find label with matching display name (case-insensitive)
+    const label = labels.find(
+      (l: { displayName?: string }) =>
+        l.displayName?.toLowerCase() === displayName.toLowerCase()
+    );
+
+    return label?.key || null;
+  } catch (error) {
+    console.error('Error finding label by name:', error);
+    return null;
+  }
+}
+
+/**
+ * Ensure multiple labels exist in Wix CRM (PARALLEL execution)
+ * Creates any missing labels before returning their keys.
+ * Optimized to run all label lookups in parallel instead of sequentially.
  */
 async function ensureLabelsExist(labelDisplayNames: string[]): Promise<string[]> {
-  const labelKeys: string[] = [];
+  // Run all label lookups in parallel (major performance boost)
+  const results = await Promise.all(
+    labelDisplayNames.map((name) => findOrCreateLabel(name))
+  );
 
-  for (const displayName of labelDisplayNames) {
-    const key = await findOrCreateLabel(displayName);
-    if (key) {
-      labelKeys.push(key);
-    }
-  }
-
-  return labelKeys;
+  // Filter out nulls and return valid keys
+  return results.filter((key): key is string => key !== null);
 }
 
 // ============================================
@@ -211,7 +375,7 @@ export async function createOrUpdateContact(data: WixCustomerData): Promise<{
 
   if (existingContact) {
     // Update existing contact
-    await updateContact(existingContact._id, data);
+    await updateContact(existingContact._id, existingContact.revision, data);
     return { contactId: existingContact._id, isNew: false };
   }
 
@@ -223,7 +387,9 @@ export async function createOrUpdateContact(data: WixCustomerData): Promise<{
 /**
  * Find contact by email
  */
-export async function findContactByEmail(email: string): Promise<{ _id: string } | null> {
+export async function findContactByEmail(
+  email: string
+): Promise<{ _id: string; revision?: string | number } | null> {
   try {
     const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/query`, {
       method: 'POST',
@@ -243,7 +409,18 @@ export async function findContactByEmail(email: string): Promise<{ _id: string }
     }
 
     const data = await response.json();
-    return data.contacts?.[0] || null;
+    const contact = data.contacts?.[0];
+    if (!contact) return null;
+
+    const id: string | undefined = contact._id ?? contact.id ?? contact.contactId;
+    const revision: string | number | undefined = contact.revision ?? contact._revision ?? contact._rev;
+
+    if (!id) {
+      console.warn('Wix contact query returned contact without id. Keys:', Object.keys(contact));
+      return null;
+    }
+
+    return { _id: id, revision };
   } catch (error) {
     console.error('Error finding Wix contact:', error);
     return null;
@@ -252,6 +429,7 @@ export async function findContactByEmail(email: string): Promise<{ _id: string }
 
 /**
  * Create a new contact
+ * Handles race condition: if contact was created by concurrent request, falls back to update
  */
 async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
   // Ensure labels exist before creating contact
@@ -262,6 +440,8 @@ async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
     method: 'POST',
     headers: getWixHeaders(),
     body: JSON.stringify({
+      // Prevent duplicate contacts - Wix will reject if email already exists
+      allowDuplicates: false,
       info: {
         name: {
           first: data.firstName,
@@ -275,14 +455,26 @@ async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
         } : undefined,
         extendedFields: {
           items: {
-            'custom.lastPaymentId': data.paymentId,
-            'custom.lastPaymentAmount': data.amount.toString(),
-            'custom.lastProgramId': data.programId,
-            'custom.lastProgramName': data.programName,
-            'custom.isSubscriber': data.isSubscription ? 'Yes' : 'No',
+            // NOTE: Wix converts field keys to lowercase, so we must use lowercase here
+            'custom.lastpaymentid': data.paymentId,
+            'custom.lastpaymentamount': data.amount.toString(),
+            'custom.lastprogramid': data.programId,
+            'custom.lastprogramname': data.programName,
+            'custom.issubscriber': data.isSubscription ? 'Yes' : 'No',
             ...(data.subscriptionId && {
-              'custom.subscriptionId': data.subscriptionId,
+              'custom.subscriptionid': data.subscriptionId,
             }),
+            ...(data.programStartDate && {
+              'custom.programstartdate': data.programStartDate,
+            }),
+            ...(data.startDateOption && {
+              'custom.startdateoption': data.startDateOption,
+            }),
+            // Auto-subscribe to email campaigns
+            'emailSubscriptions.subscriptionStatus': 'SUBSCRIBED',
+            'emailSubscriptions.effectiveEmail': data.email,
+            // Auto-subscribe to phone/SMS campaigns
+            'custom.smsmarketingoptin': 'Yes',
           },
         },
         // Only include labelKeys if we have valid keys
@@ -297,6 +489,24 @@ async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
 
   if (!response.ok) {
     const error = await response.text();
+
+    // Handle race condition: contact was created by concurrent request
+    // Fall back to finding and updating the existing contact
+    if (error.includes('DUPLICATE') || error.includes('duplicate') ||
+        error.includes('already exists') || error.includes('ALREADY_EXISTS')) {
+      console.log('[Wix CRM] Contact already exists (race condition), falling back to update');
+
+      // Find the contact that was just created by the other request
+      const existingContact = await findContactByEmail(data.email);
+      if (existingContact) {
+        await updateContact(existingContact._id, existingContact.revision, data);
+        return { _id: existingContact._id };
+      }
+
+      // If we still can't find it, something is wrong
+      console.error('[Wix CRM] Contact exists but could not be found');
+    }
+
     console.error('Wix contact creation failed:', error);
     throw new Error(`Failed to create Wix contact: ${error}`);
   }
@@ -309,14 +519,11 @@ async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
  * Update an existing contact with payment data
  * Also adds "Customer" and program labels to existing contacts
  */
-async function updateContact(contactId: string, data: WixCustomerData): Promise<void> {
-  // Add Customer and program labels to the existing contact
-  const labelDisplayNames = ['Customer', data.programName || data.programId];
-  const labelKeys = await ensureLabelsExist(labelDisplayNames);
-  if (labelKeys.length > 0) {
-    await addLabelsToContact(contactId, labelKeys);
-  }
-
+async function updateContact(
+  contactId: string,
+  revision: string | number | undefined,
+  data: WixCustomerData
+): Promise<void> {
   // Build update payload - include phone if provided
   const updatePayload: {
     info: {
@@ -329,15 +536,27 @@ async function updateContact(contactId: string, data: WixCustomerData): Promise<
     info: {
       extendedFields: {
         items: {
-          'custom.lastPaymentId': data.paymentId,
-          'custom.lastPaymentAmount': data.amount.toString(),
-          'custom.lastProgramId': data.programId,
-          'custom.lastProgramName': data.programName,
-          'custom.isSubscriber': data.isSubscription ? 'Yes' : 'No',
-          'custom.lastPaymentAt': new Date().toISOString(),
+          // NOTE: Wix converts field keys to lowercase, so we must use lowercase here
+          'custom.lastpaymentid': data.paymentId,
+          'custom.lastpaymentamount': data.amount.toString(),
+          'custom.lastprogramid': data.programId,
+          'custom.lastprogramname': data.programName,
+          'custom.issubscriber': data.isSubscription ? 'Yes' : 'No',
+          'custom.lastpaymentat': new Date().toISOString(),
           ...(data.subscriptionId && {
-            'custom.subscriptionId': data.subscriptionId,
+            'custom.subscriptionid': data.subscriptionId,
           }),
+          ...(data.programStartDate && {
+            'custom.programstartdate': data.programStartDate,
+          }),
+          ...(data.startDateOption && {
+            'custom.startdateoption': data.startDateOption,
+          }),
+          // Auto-subscribe to email campaigns
+          'emailSubscriptions.subscriptionStatus': 'SUBSCRIBED',
+          'emailSubscriptions.effectiveEmail': data.email,
+          // Auto-subscribe to phone/SMS campaigns
+          'custom.smsmarketingoptin': 'Yes',
         },
       },
     },
@@ -348,16 +567,33 @@ async function updateContact(contactId: string, data: WixCustomerData): Promise<
     updatePayload.info.phones = { items: [{ phone: data.phone }] };
   }
 
+  // Build request body with revision (Wix API requires revision in body, not URL)
+  const requestBody: {
+    info: typeof updatePayload.info;
+    revision?: number;
+  } = { ...updatePayload };
+
+  if (revision !== undefined && revision !== null) {
+    requestBody.revision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
+  }
+
   const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
     method: 'PATCH',
     headers: getWixHeaders(),
-    body: JSON.stringify(updatePayload),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
     const error = await response.text();
     console.error('Wix contact update failed:', error);
     throw new Error(`Failed to update Wix contact: ${error}`);
+  }
+
+  // Add Customer and program labels to the existing contact AFTER updating (avoids revision mismatch).
+  const labelDisplayNames = ['Customer', data.programName || data.programId];
+  const labelKeys = await ensureLabelsExist(labelDisplayNames);
+  if (labelKeys.length > 0) {
+    await addLabelsToContact(contactId, labelKeys);
   }
 
   console.log(`Updated contact ${contactId} with payment data and Customer label`);
@@ -385,10 +621,23 @@ export async function createMember(contactId: string, email: string): Promise<st
 
     if (!response.ok) {
       const error = await response.text();
-      // Member might already exist
+      // Member might already exist - get the actual memberId
       if (error.includes('already exists') || error.includes('ALREADY_EXISTS')) {
         console.log('Member already exists for contact:', contactId);
-        return contactId; // Return contact ID as fallback
+        // Query for the existing member to get correct memberId
+        const existingMemberId = await findMemberByEmail(email);
+        if (existingMemberId) {
+          console.log('Found existing member:', existingMemberId);
+          return existingMemberId;
+        }
+        // Fallback: try by contactId
+        const memberByContact = await findMemberByContactId(contactId);
+        if (memberByContact) {
+          console.log('Found existing member by contactId:', memberByContact);
+          return memberByContact;
+        }
+        console.warn('Could not find existing member, returning null');
+        return null;
       }
       console.error('Wix member creation failed:', error);
       return null;
@@ -410,16 +659,87 @@ export async function createMember(contactId: string, email: string): Promise<st
 }
 
 /**
+ * Find member by email address
+ * Returns memberId if found, null otherwise
+ */
+async function findMemberByEmail(email: string): Promise<string | null> {
+  try {
+    const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
+      method: 'POST',
+      headers: getWixHeaders(),
+      body: JSON.stringify({
+        query: {
+          filter: {
+            loginEmail: { $eq: email },
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    const member = data.members?.[0];
+    return member?.id || null;
+  } catch (error) {
+    console.error('Error finding member by email:', error);
+    return null;
+  }
+}
+
+/**
+ * Find member by contactId
+ * Returns memberId if found, null otherwise
+ */
+async function findMemberByContactId(contactId: string): Promise<string | null> {
+  try {
+    const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
+      method: 'POST',
+      headers: getWixHeaders(),
+      body: JSON.stringify({
+        query: {
+          filter: {
+            contactId: { $eq: contactId },
+          },
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    const member = data.members?.[0];
+    return member?.id || null;
+  } catch (error) {
+    console.error('Error finding member by contactId:', error);
+    return null;
+  }
+}
+
+/**
  * Send password setup email to new member
+ * This enables the member to set their password and login to the Wix site/app
+ * The password setup link is valid for 3 hours and can only be used once
  */
 async function sendPasswordSetupEmail(email: string): Promise<void> {
   try {
-    await fetch(`${WIX_API_BASE}/members/v1/auth/send-set-password-email`, {
+    // Correct endpoint per Wix API docs for member password setup
+    const response = await fetch(`${WIX_API_BASE}/wix-sm/api/v1/auth/v1/auth/members/send-set-password-email`, {
       method: 'POST',
       headers: getWixHeaders(),
       body: JSON.stringify({ email }),
     });
-    console.log('Sent password setup email to:', email);
+
+    if (response.ok) {
+      console.log('Sent password setup email to:', email);
+    } else {
+      const error = await response.text();
+      console.error('Failed to send password setup email:', error);
+    }
   } catch (error) {
     console.error('Failed to send password email:', error);
   }
@@ -431,56 +751,233 @@ async function sendPasswordSetupEmail(email: string): Promise<void> {
 
 /**
  * Assign a pricing plan to a member (create offline order)
+ * Uses the Wix Pricing Plans V2 Checkout API for offline orders
+ *
+ * @throws {Error} If plan assignment fails (allows caller to handle/retry)
  */
 export async function assignPricingPlan(params: {
   memberId: string;
   planId: string;
   paid?: boolean;
-}): Promise<string | null> {
-  try {
-    const response = await fetch(`${WIX_API_BASE}/pricing-plans/v2/orders`, {
-      method: 'POST',
-      headers: getWixHeaders(),
-      body: JSON.stringify({
-        planId: params.planId,
-        memberId: params.memberId,
-        startDate: new Date().toISOString(),
-      }),
+  startDate?: string;
+}): Promise<string> {
+  // Correct endpoint: /pricing-plans/v2/checkout/orders/offline (per Wix API docs)
+  const response = await fetch(`${WIX_API_BASE}/pricing-plans/v2/checkout/orders/offline`, {
+    method: 'POST',
+    headers: getWixHeaders(),
+    body: JSON.stringify({
+      planId: params.planId,
+      memberId: params.memberId,
+      startDate: params.startDate || new Date().toISOString(),
+      paid: params.paid ?? false,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('Wix pricing plan assignment failed:', {
+      planId: params.planId,
+      memberId: params.memberId,
+      error: errorText,
     });
+    throw new Error(`Failed to assign pricing plan: ${errorText}`);
+  }
+
+  const data = await response.json();
+  const orderId = data.order?._id;
+
+  if (!orderId) {
+    throw new Error('Wix API returned success but no order ID');
+  }
+
+  return orderId;
+}
+
+// ============================================
+// SUBSCRIPTION LIFECYCLE (Cancel/Pause Orders)
+// ============================================
+
+/**
+ * Cancel a Wix pricing plan order
+ * Called when Razorpay subscription is cancelled
+ *
+ * @param orderId - The Wix pricing plan order ID
+ * @param effectiveAt - When to apply cancellation: 'IMMEDIATELY' or 'NEXT_PAYMENT_DATE'
+ * @returns true if successfully cancelled
+ */
+export async function cancelWixOrder(
+  orderId: string,
+  effectiveAt: 'IMMEDIATELY' | 'NEXT_PAYMENT_DATE' = 'IMMEDIATELY'
+): Promise<boolean> {
+  if (!isWixConfigured()) {
+    console.log('[Wix CRM] Not configured, cannot cancel order');
+    return false;
+  }
+
+  try {
+    const response = await fetchWithTimeout(
+      `${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}/cancel`,
+      {
+        method: 'POST',
+        headers: getWixHeaders(),
+        body: JSON.stringify({ effectiveAt }),
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('Wix pricing plan assignment failed:', error);
-      return null;
+      const errorText = await response.text();
+      // Check if already cancelled
+      if (errorText.includes('ALREADY_CANCELED') || errorText.includes('already canceled')) {
+        console.log(`[Wix CRM] Order ${orderId} already cancelled`);
+        return true;
+      }
+      console.error('[Wix CRM] Failed to cancel order:', errorText);
+      return false;
     }
 
-    const data = await response.json();
-    const orderId = data.order?._id;
-
-    // Mark as paid if requested
-    if (orderId && params.paid !== false) {
-      await markOrderAsPaid(orderId);
-    }
-
-    return orderId;
+    console.log(`[Wix CRM] Successfully cancelled order: ${orderId}`);
+    return true;
   } catch (error) {
-    console.error('Error assigning pricing plan:', error);
-    return null;
+    console.error('[Wix CRM] Error cancelling order:', error);
+    return false;
   }
 }
 
 /**
- * Mark a pricing plan order as paid
+ * Pause a Wix pricing plan order (suspend)
+ * Called when Razorpay subscription is halted due to payment failures
+ *
+ * @param orderId - The Wix pricing plan order ID
+ * @returns true if successfully paused
  */
-async function markOrderAsPaid(orderId: string): Promise<void> {
+export async function pauseWixOrder(orderId: string): Promise<boolean> {
+  if (!isWixConfigured()) {
+    console.log('[Wix CRM] Not configured, cannot pause order');
+    return false;
+  }
+
   try {
-    await fetch(`${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}/markAsPaid`, {
-      method: 'POST',
-      headers: getWixHeaders(),
-    });
-    console.log('Marked order as paid:', orderId);
+    // Wix uses "suspend" endpoint to pause orders
+    const response = await fetchWithTimeout(
+      `${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}/suspend`,
+      {
+        method: 'POST',
+        headers: getWixHeaders(),
+        body: JSON.stringify({}),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      // Check if already suspended
+      if (errorText.includes('ALREADY_SUSPENDED') || errorText.includes('already suspended')) {
+        console.log(`[Wix CRM] Order ${orderId} already suspended`);
+        return true;
+      }
+      console.error('[Wix CRM] Failed to pause order:', errorText);
+      return false;
+    }
+
+    console.log(`[Wix CRM] Successfully paused order: ${orderId}`);
+    return true;
   } catch (error) {
-    console.error('Failed to mark order as paid:', error);
+    console.error('[Wix CRM] Error pausing order:', error);
+    return false;
+  }
+}
+
+/**
+ * Resume a paused Wix pricing plan order
+ * Called when Razorpay subscription payment succeeds after being halted
+ *
+ * @param orderId - The Wix pricing plan order ID
+ * @returns true if successfully resumed
+ */
+export async function resumeWixOrder(orderId: string): Promise<boolean> {
+  if (!isWixConfigured()) {
+    console.log('[Wix CRM] Not configured, cannot resume order');
+    return false;
+  }
+
+  try {
+    const response = await fetchWithTimeout(
+      `${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}/resume`,
+      {
+        method: 'POST',
+        headers: getWixHeaders(),
+        body: JSON.stringify({}),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Wix CRM] Failed to resume order:', errorText);
+      return false;
+    }
+
+    console.log(`[Wix CRM] Successfully resumed order: ${orderId}`);
+    return true;
+  } catch (error) {
+    console.error('[Wix CRM] Error resuming order:', error);
+    return false;
+  }
+}
+
+/**
+ * Update contact's subscription status extended field
+ */
+export async function updateContactSubscriptionStatus(
+  email: string,
+  status: 'active' | 'halted' | 'cancelled' | 'completed',
+  additionalFields?: Record<string, string>
+): Promise<boolean> {
+  if (!isWixConfigured()) return false;
+
+  try {
+    const contact = await findContactByEmail(email);
+    if (!contact) {
+      console.warn('[Wix CRM] Contact not found for subscription status update:', email);
+      return false;
+    }
+
+    const extendedFields: Record<string, string> = {
+      'custom.subscriptionstatus': status,
+      'custom.subscriptionupdatedat': new Date().toISOString(),
+      ...additionalFields,
+    };
+
+    const requestBody: {
+      info: { extendedFields: { items: Record<string, string> } };
+      revision?: number;
+    } = {
+      info: {
+        extendedFields: { items: extendedFields },
+      },
+    };
+
+    if (contact.revision !== undefined) {
+      requestBody.revision = typeof contact.revision === 'string'
+        ? parseInt(contact.revision, 10)
+        : contact.revision;
+    }
+
+    const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contact._id}`, {
+      method: 'PATCH',
+      headers: getWixHeaders(),
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('[Wix CRM] Failed to update contact subscription status:', error);
+      return false;
+    }
+
+    console.log(`[Wix CRM] Updated contact ${contact._id} subscription status to: ${status}`);
+    return true;
+  } catch (error) {
+    console.error('[Wix CRM] Error updating contact subscription status:', error);
+    return false;
   }
 }
 
@@ -499,34 +996,63 @@ export async function triggerWixAutomation(data: WixCustomerData): Promise<void>
     return;
   }
 
+  const payload = {
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    phone: data.phone || '',
+    programId: data.programId,
+    programName: data.programName,
+    paymentId: data.paymentId,
+    amount: data.amount,
+    isSubscription: data.isSubscription,
+    subscriptionId: data.subscriptionId || '',
+    timestamp: new Date().toISOString(),
+  };
+
   try {
+    console.log('[Wix Automation] Sending webhook payload:', {
+      email: data.email,
+      programId: data.programId,
+      paymentId: data.paymentId,
+    });
+
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone || '',
-        programId: data.programId,
-        programName: data.programName,
-        paymentId: data.paymentId,
-        amount: data.amount,
-        isSubscription: data.isSubscription,
-        subscriptionId: data.subscriptionId || '',
-        timestamp: new Date().toISOString(),
-      }),
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(10000), // 10 second timeout
     });
 
+    const responseText = await response.text();
+
     if (response.ok) {
-      console.log('Triggered Wix automation webhook');
+      console.log('[Wix Automation] Webhook triggered successfully', {
+        status: response.status,
+        response: responseText,
+      });
     } else {
-      console.error('Wix automation webhook failed:', response.status);
+      console.error('[Wix Automation] Webhook failed', {
+        status: response.status,
+        statusText: response.statusText,
+        response: responseText,
+        payload: payload,
+      });
     }
   } catch (error) {
-    console.error('Failed to trigger Wix automation:', error);
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      console.error('[Wix Automation] Webhook timeout after 10s', {
+        error: error.message,
+        payload: payload,
+      });
+    } else {
+      console.error('[Wix Automation] Webhook error', {
+        error: error instanceof Error ? error.message : String(error),
+        payload: payload,
+      });
+    }
   }
 }
 
@@ -554,23 +1080,38 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
     const { contactId, isNew } = await createOrUpdateContact(data);
     console.log(`${isNew ? 'Created' : 'Updated'} contact:`, contactId);
 
-    // Step 2: Create member if new contact
-    let memberId: string | null = null;
-    if (isNew) {
-      memberId = await createMember(contactId, data.email);
-      console.log('Created member:', memberId);
-    }
+    // Step 2: Create member (required for pricing plan assignment)
+    // Always attempt to create member when payment is made
+    // createMember handles "already exists" case gracefully
+    const memberId = await createMember(contactId, data.email);
+    console.log(memberId ? `Member ready: ${memberId}` : 'Member creation skipped');
 
     // Step 3: Assign pricing plan if configured
     let orderId: string | null = null;
     const planId = getPlanIdForProgram(data.programId);
-    if (planId && (memberId || contactId)) {
-      orderId = await assignPricingPlan({
-        memberId: memberId || contactId,
-        planId,
-        paid: true,
-      });
-      console.log('Assigned pricing plan, order:', orderId);
+
+    if (!data.programId) {
+      console.warn('[Wix CRM] No programId provided - skipping plan assignment');
+    } else if (!planId) {
+      console.warn(`[Wix CRM] No Wix Plan ID configured for program: ${data.programId}`);
+      console.warn('[Wix CRM] Check WIX_PLAN_ID_* environment variables');
+    } else if (!memberId) {
+      console.warn('[Wix CRM] No memberId available - cannot assign pricing plan');
+      console.warn('[Wix CRM] Pricing plans require a member, not just a contact');
+    } else {
+      // All requirements met - assign the plan
+      try {
+        orderId = await assignPricingPlan({
+          memberId,
+          planId,
+          paid: true,
+          startDate: data.programStartDate || new Date().toISOString(),
+        });
+        console.log(`[Wix CRM] Pricing plan assigned successfully: ${orderId}`);
+      } catch (planError) {
+        // Log but don't fail the entire sync - contact/member were created
+        console.error('[Wix CRM] Pricing plan assignment failed:', planError);
+      }
     }
 
     // Step 4: Trigger automation for welcome email
@@ -617,6 +1158,36 @@ export interface QuizLeadData {
   referralSource?: string;
 }
 
+function isExtendedFieldsNotFoundError(errorText: string): boolean {
+  const lower = errorText.toLowerCase();
+  return lower.includes('extended fields not found') || errorText.includes('EXTENDED_FIELD_NOT_FOUND');
+}
+
+function extractMissingExtendedFields(errorText: string): string[] {
+  // Wix error payload usually contains a description like:
+  // 'Extended fields not found: custom.a,custom.b,custom.c.'
+  const marker = 'extended fields not found:';
+  const lower = errorText.toLowerCase();
+  const start = lower.indexOf(marker);
+  if (start === -1) return [];
+
+  const after = errorText.slice(start + marker.length);
+
+  // The list typically ends at the end of the sentence in the description: '."'
+  // Using '."' avoids being confused by dots inside field keys (custom.fooBar).
+  let end = after.indexOf('."');
+  if (end === -1) end = after.indexOf('",');
+  if (end === -1) end = after.length;
+
+  const listRaw = after.slice(0, end).trim();
+  const cleaned = listRaw.replace(/\.$/, '').trim();
+
+  return cleaned
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+}
+
 /**
  * Create a quiz lead in Wix CRM with 'Lead' label
  * Includes retry logic with exponential backoff
@@ -631,17 +1202,27 @@ export async function createQuizLead(data: QuizLeadData): Promise<{
     return { success: false, error: 'Wix not configured' };
   }
 
+  const findExistingByEmail = async (): Promise<{ _id: string; revision?: string | number } | null> => {
+    // Wix query can be eventually-consistent right after a create, and callers can double-submit.
+    // Do a few quick lookups before attempting another create to reduce duplicates.
+    const delaysMs = [0, 250, 750];
+    for (const delay of delaysMs) {
+      if (delay) await new Promise(resolve => setTimeout(resolve, delay));
+      const existing = await findContactByEmail(data.email);
+      if (existing?._id) return existing;
+    }
+    return null;
+  };
+
   // Parse name into first/last
   const nameParts = data.name.trim().split(' ');
   const firstName = nameParts[0] || data.name;
   const lastName = nameParts.slice(1).join(' ') || '';
 
-  // Get the program display name for the label (e.g., "Essentials", "Trial")
-  const programDisplayName = data.recommendation.charAt(0).toUpperCase() + data.recommendation.slice(1);
-
   try {
-    // Ensure labels exist before creating/updating contact
-    const labelKeys = await ensureLabelsExist(['Lead', programDisplayName]);
+    // Ensure "Lead" label exists before creating/updating contact
+    // Note: Program label is added ONLY after payment, not during quiz
+    const labelKeys = await ensureLabelsExist(['Lead']);
 
     // Check for existing contact with retry
     const existingContact = await withRetry(
@@ -652,59 +1233,125 @@ export async function createQuizLead(data: QuizLeadData): Promise<{
     if (existingContact) {
       // Update existing contact with quiz data and add labels
       await withRetry(
-        () => updateQuizLead(existingContact._id, data, labelKeys),
+        () => updateQuizLead(existingContact._id, data, labelKeys, existingContact.revision),
         'updateQuizLead'
       );
       return { success: true, contactId: existingContact._id };
     }
 
-    // Create new contact with Lead label and program label (with retry)
-    const result = await withRetry(async () => {
+    // Before creating, do a couple fast re-checks to reduce duplicates
+    // (common when user double-submits or Wix query lags right after creation).
+    const existingAfterDelay = await findExistingByEmail();
+    if (existingAfterDelay) {
+      await withRetry(
+        () => updateQuizLead(existingAfterDelay._id, data, labelKeys, existingAfterDelay.revision),
+        'updateQuizLead'
+      ).catch(() => undefined);
+      return { success: true, contactId: existingAfterDelay._id };
+    }
+
+    // Create new contact with Lead label only (program label added after payment).
+    // IMPORTANT: Do not wrap this POST in withRetry() because it is not idempotent and can create duplicates
+    // if the request succeeds but the response is lost/times out.
+    const baseInfo = {
+      name: {
+        first: firstName,
+        last: lastName,
+      },
+      emails: {
+        items: [{ email: data.email }],
+      },
+      phones: {
+        items: [{ phone: data.whatsapp }],
+      },
+      // Only include labelKeys if we have valid keys
+      ...(labelKeys.length > 0 && {
+        labelKeys: {
+          items: labelKeys,
+        },
+      }),
+    };
+
+    // NOTE: Wix converts field keys to lowercase, so we must use lowercase here
+    const extendedFieldsItems: Record<string, string> = {
+      'custom.quizrecommendation': data.recommendation,
+      'custom.quizcompletedat': new Date().toISOString(),
+      'custom.devicetype': data.deviceType || 'unknown',
+      ...(data.referralSource && { 'custom.referralsource': data.referralSource }),
+      // Auto-subscribe to email campaigns
+      'emailSubscriptions.subscriptionStatus': 'SUBSCRIBED',
+      'emailSubscriptions.effectiveEmail': data.email,
+      // Auto-subscribe to phone/SMS campaigns
+      'custom.smsmarketingoptin': 'Yes',
+    };
+
+    const createContact = async (includeExtendedFields: boolean) => {
+      const payload = {
+        // Prevent duplicate contacts - Wix will reject if email already exists
+        allowDuplicates: false,
+        info: {
+          ...baseInfo,
+          ...(includeExtendedFields && {
+            extendedFields: {
+              items: extendedFieldsItems,
+            },
+          }),
+        },
+      };
+
       const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/contacts`, {
         method: 'POST',
         headers: getWixHeaders(),
-        body: JSON.stringify({
-          info: {
-            name: {
-              first: firstName,
-              last: lastName,
-            },
-            emails: {
-              items: [{ email: data.email }],
-            },
-            phones: {
-              items: [{ phone: data.whatsapp }],
-            },
-            extendedFields: {
-              items: {
-                'custom.quizRecommendation': data.recommendation,
-                'custom.quizCompletedAt': new Date().toISOString(),
-                'custom.deviceType': data.deviceType || 'unknown',
-                ...(data.referralSource && {
-                  'custom.referralSource': data.referralSource,
-                }),
-              },
-            },
-            // Only include labelKeys if we have valid keys
-            ...(labelKeys.length > 0 && {
-              labelKeys: {
-                items: labelKeys,
-              },
-            }),
-          },
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(`Wix API error: ${error}`);
+        const errorText = await response.text();
+        throw new Error(`Wix API error: ${errorText}`);
       }
 
-      return response.json();
-    }, 'createQuizLead');
+      const result = await response.json();
+      const createdContactId: string | undefined =
+        result?.contact?._id ??
+        result?.contact?.id ??
+        result?.contactId ??
+        result?.id ??
+        result?._id;
 
-    console.log('Created quiz lead:', result.contact._id, 'with labels:', labelKeys);
-    return { success: true, contactId: result.contact._id };
+      if (!createdContactId) {
+        throw new Error('Wix API error: contact ID not returned from create contact response');
+      }
+
+      return { createdContactId, raw: result };
+    };
+
+    try {
+      const { createdContactId } = await createContact(true);
+      console.log('Created quiz lead:', createdContactId, 'with labels:', labelKeys);
+      return { success: true, contactId: createdContactId };
+    } catch (error) {
+      // If the Wix site doesn't have these custom fields configured yet, retry ONCE without them.
+      if (error instanceof Error && isExtendedFieldsNotFoundError(error.message)) {
+        const missing = extractMissingExtendedFields(error.message);
+        console.warn(
+          'Wix extended fields missing for quiz lead; retrying contact creation without extendedFields.',
+          missing.length ? { missing } : undefined
+        );
+        const { createdContactId } = await createContact(false);
+        console.log('Created quiz lead:', createdContactId, 'with labels:', labelKeys);
+        return { success: true, contactId: createdContactId };
+      }
+
+      // If we got a timeout/network-ish failure, the create may have actually succeeded.
+      // Do a lookup by email and treat that as success to prevent duplicate creates.
+      const maybeCreated = await findExistingByEmail();
+      if (maybeCreated) {
+        console.warn('Create contact failed but contact exists by email; treating as success:', maybeCreated._id);
+        return { success: true, contactId: maybeCreated._id };
+      }
+
+      throw error;
+    }
   } catch (error) {
     console.error('Error creating quiz lead after retries:', error);
     return {
@@ -715,38 +1362,99 @@ export async function createQuizLead(data: QuizLeadData): Promise<{
 }
 
 /**
+ * Async wrapper for createQuizLead (fire-and-forget pattern)
+ *
+ * This function never throws - it catches all errors internally.
+ * Designed for background processing where we don't need to wait for results.
+ *
+ * Performance benefit: Allows API to return immediately while CRM sync
+ * happens in background, reducing response time from 3-8s to ~50ms.
+ *
+ * @param data - Quiz lead data to create/update
+ * @returns Promise that always resolves (never rejects)
+ */
+export async function createQuizLeadAsync(data: QuizLeadData): Promise<{
+  success: boolean;
+  contactId?: string;
+  error?: string;
+}> {
+  try {
+    return await createQuizLead(data);
+  } catch (error) {
+    // Never throw - this is fire-and-forget
+    console.error('createQuizLeadAsync error:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Update existing contact with quiz lead data
  */
-async function updateQuizLead(contactId: string, data: QuizLeadData, labelKeys: string[]): Promise<void> {
-  // Add labels to existing contact (labels already ensured to exist)
-  if (labelKeys.length > 0) {
-    await addLabelsToContact(contactId, labelKeys);
+async function updateQuizLead(
+  contactId: string,
+  data: QuizLeadData,
+  labelKeys: string[],
+  revision?: string | number
+): Promise<void> {
+  // Build request body with revision (Wix API requires revision in body, not URL)
+  const requestBody: {
+    info: {
+      extendedFields: {
+        items: Record<string, string>;
+      };
+    };
+    revision?: number;
+  } = {
+    info: {
+      extendedFields: {
+        items: {
+          // NOTE: Wix converts field keys to lowercase, so we must use lowercase here
+          'custom.quizrecommendation': data.recommendation,
+          'custom.quizcompletedat': new Date().toISOString(),
+          'custom.devicetype': data.deviceType || 'unknown',
+          ...(data.referralSource && {
+            'custom.referralsource': data.referralSource,
+          }),
+          // Auto-subscribe to email campaigns
+          'emailSubscriptions.subscriptionStatus': 'SUBSCRIBED',
+          'emailSubscriptions.effectiveEmail': data.email,
+          // Auto-subscribe to phone/SMS campaigns
+          'custom.smsmarketingoptin': 'Yes',
+        },
+      },
+    },
+  };
+
+  if (revision !== undefined && revision !== null) {
+    requestBody.revision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
   }
 
-  // Then update extended fields
   const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
     method: 'PATCH',
     headers: getWixHeaders(),
-    body: JSON.stringify({
-      info: {
-        extendedFields: {
-          items: {
-            'custom.quizRecommendation': data.recommendation,
-            'custom.quizCompletedAt': new Date().toISOString(),
-            'custom.deviceType': data.deviceType || 'unknown',
-            ...(data.referralSource && {
-              'custom.referralSource': data.referralSource,
-            }),
-          },
-        },
-      },
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
-    const error = await response.text();
-    console.error('Wix quiz lead update failed:', error);
+    const errorText = await response.text();
+    if (isExtendedFieldsNotFoundError(errorText)) {
+      console.warn(
+        'Wix extended fields missing for quiz lead; skipping extendedFields update for contact:',
+        contactId
+      );
+      // Still try to add labels
+    } else {
+      console.error('Wix quiz lead update failed:', errorText);
+    }
   }
+
+  // Add labels to existing contact (labels already ensured to exist)
+  if (labelKeys.length > 0) {
+    await addLabelsToContact(contactId, labelKeys);
+    }
 }
 
 /**

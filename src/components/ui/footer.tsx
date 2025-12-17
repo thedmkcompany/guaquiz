@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Instagram } from "lucide-react";
 
 interface FooterProps {
@@ -43,6 +44,29 @@ export function Footer({ variant = "default", className = "" }: FooterProps) {
   return (
     <footer className={`px-4 sm:px-6 lg:px-8 py-10 sm:py-12 bg-forest text-ivory rounded-t-[3rem] sm:rounded-t-[4rem] relative z-10 -mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.2)] ${className}`}>
       <div className="max-w-5xl mx-auto text-center">
+        {/* Logos */}
+        <div className="flex items-center justify-center gap-8 mb-8">
+          <Link href="/" className="hover:opacity-80 transition-opacity">
+            <Image
+              src="/images/GUA Logo.png"
+              alt="Glow Up Academy"
+              width={150}
+              height={50}
+              className="h-10 sm:h-12 w-auto brightness-0 invert"
+            />
+          </Link>
+          <Link href="/" className="hover:opacity-80 transition-opacity relative">
+            <div className="absolute inset-0 bg-wine/60 mix-blend-multiply rounded-lg" />
+            <Image
+              src="/images/the DMK Logo.png"
+              alt="TheDMK"
+              width={120}
+              height={50}
+              className="h-10 sm:h-12 w-auto relative z-10"
+            />
+          </Link>
+        </div>
+
         {/* Instagram Link */}
         <a
           href="https://instagram.com/_thedmk_"

@@ -1,15 +1,57 @@
+/**
+ * @fileoverview DMK Quiz Data and Scoring Algorithm
+ *
+ * This module contains the quiz questions and the algorithm that calculates
+ * which transformation program to recommend based on user responses.
+ *
+ * @module quiz-data
+ *
+ * ## Scoring System
+ *
+ * Each quiz option has weighted scores for four programs:
+ * - **essentials**: Budget-conscious, self-paced, flexibility
+ * - **webinar**: First-timers, commitment-hesitant, want to try first
+ * - **circle**: Community-oriented, ready to commit, group accountability
+ * - **transform**: High-ticket, personal guidance, all-in transformation
+ *
+ * ## Algorithm Overview
+ *
+ * 1. Sum scores for each program based on selected options
+ * 2. Apply edge case logic (budget/time mismatch, history-based adjustments)
+ * 3. Cap negative scores at 0
+ * 4. Return highest-scoring program with tie-breaker priority
+ *
+ * @example
+ * ```typescript
+ * import { quizQuestions, calculateQuizResult } from '@/lib/quiz-data';
+ *
+ * // Display questions
+ * quizQuestions.forEach(q => console.log(q.question));
+ *
+ * // Calculate result
+ * const answers = [
+ *   { questionId: 'q1', selectedOptionIds: ['q1-a'] },
+ *   // ... more answers
+ * ];
+ * const result = calculateQuizResult(answers);
+ * console.log(result.programId); // 'circle', 'transform', etc.
+ * ```
+ */
+
 import { QuizQuestion, QuizAnswer, QuizResult } from "@/types";
 
-// ============================================
-// DMK QUIZ - 8 QUESTIONS
-// ============================================
-// Scoring weights determine which program is recommended:
-// - essentials: Budget-conscious, self-paced, flexibility
-// - trial: First-timers, commitment-hesitant, want to try first
-// - circle: Community-oriented, ready to commit, group accountability
-// - transform: High-ticket, personal guidance, all-in transformation
-// ============================================
-
+/**
+ * Quiz questions array containing all 8 questions with their options and scoring weights.
+ *
+ * Each question includes:
+ * - `id`: Unique identifier (q1-q8)
+ * - `question`: The main question text
+ * - `subtext`: Supporting context shown below the question
+ * - `options`: Array of selectable options with scores
+ *
+ * @constant
+ * @type {QuizQuestion[]}
+ */
 export const quizQuestions: QuizQuestion[] = [
   {
     id: "q1",
@@ -18,52 +60,52 @@ export const quizQuestions: QuizQuestion[] = [
     options: [
       {
         id: "q1-a",
-        text: "Survival mode — I'm getting by, but not thriving",
+        text: "Survival mode  - I'm getting by, but not thriving",
         description: "I'm exhausted. I'm inconsistent. I need to start somewhere simple and build up.",
-        scores: { essentials: 10, trial: 0, circle: 0, transform: 0 },
+        scores: { essentials: 10, webinar: 0, circle: 0, transform: 0 },
       },
       {
         id: "q1-b",
-        text: "Inconsistent — I start strong but can't stay consistent",
+        text: "Inconsistent  - I start strong but can't stay consistent",
         description: "I have motivation in bursts, but it never lasts. I need to figure out what I'm missing.",
-        scores: { essentials: 0, trial: 10, circle: 0, transform: 0 },
+        scores: { essentials: 0, webinar: 10, circle: 0, transform: 0 },
       },
       {
         id: "q1-c",
-        text: "Ready to go all in — discipline is my next luxury",
+        text: "Ready to go all in  - discipline is my next luxury",
         description: "I'm done with half-measures. I'm ready to fully commit and transform everything.",
-        scores: { essentials: 0, trial: 0, circle: 10, transform: 5 },
+        scores: { essentials: 0, webinar: 0, circle: 10, transform: 5 },
       },
     ],
   },
   {
     id: "q2",
     question: "What does becoming \"hot and unstoppable\" mean to you?",
-    subtext: "There's no wrong answer—just your truth. What do YOU want most?",
+    subtext: "There's no wrong answer -just your truth. What do YOU want most?",
     options: [
       {
         id: "q2-a",
         text: "Feeling powerful in my body again",
         description: "I want to feel strong, confident, and energized when I move through my day.",
-        scores: { essentials: 5, trial: 0, circle: 0, transform: 0 },
+        scores: { essentials: 5, webinar: 0, circle: 0, transform: 0 },
       },
       {
         id: "q2-b",
         text: "Building unshakeable confidence",
         description: "I want to trust myself, set boundaries, and show up without second-guessing.",
-        scores: { essentials: 0, trial: 0, circle: 5, transform: 0 },
+        scores: { essentials: 0, webinar: 0, circle: 5, transform: 0 },
       },
       {
         id: "q2-c",
         text: "Creating a sustainable, high-performing lifestyle",
         description: "I want structure, systems, and habits that make success inevitable.",
-        scores: { essentials: 0, trial: 0, circle: 5, transform: 0 },
+        scores: { essentials: 0, webinar: 0, circle: 5, transform: 0 },
       },
       {
         id: "q2-d",
-        text: "All of the above — I want the complete transformation",
+        text: "All of the above  - I want the complete transformation",
         description: "I don't want to choose. I want body, confidence, lifestyle... everything.",
-        scores: { essentials: 0, trial: 0, circle: 10, transform: 10 },
+        scores: { essentials: 0, webinar: 0, circle: 10, transform: 10 },
       },
     ],
   },
@@ -76,19 +118,19 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q3-a",
         text: "On my own time. I need flexibility to fit my life",
         description: "Rigid schedules don't work for me. I need to work at my own pace, on my timeline.",
-        scores: { essentials: 25, trial: 0, circle: 0, transform: 0 },
+        scores: { essentials: 25, webinar: 0, circle: 0, transform: 0 },
       },
       {
         id: "q3-b",
         text: "With a community. I thrive with my queens around me",
         description: "I'm more consistent when I have sisters holding me accountable and rising with me.",
-        scores: { essentials: 0, trial: 10, circle: 25, transform: 0 },
+        scores: { essentials: 0, webinar: 10, circle: 25, transform: 0 },
       },
       {
         id: "q3-c",
         text: "With personal guidance. I want a transformation architect",
         description: "I want personalized, bespoke coaching designed specifically for me. Nothing generic.",
-        scores: { essentials: 0, trial: 0, circle: 0, transform: 30 },
+        scores: { essentials: 0, webinar: 0, circle: 0, transform: 30 },
       },
     ],
   },
@@ -101,19 +143,19 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q4-a",
         text: "2-3 hours per week",
         description: "I have limited time but I'm ready to make the most of what I have.",
-        scores: { essentials: 5, trial: 0, circle: 0, transform: 0 },
+        scores: { essentials: 5, webinar: 0, circle: 0, transform: 0 },
       },
       {
         id: "q4-b",
         text: "4-6 hours per week",
         description: "I can carve out meaningful time if the structure and support are right.",
-        scores: { essentials: 0, trial: 5, circle: 5, transform: 0 },
+        scores: { essentials: 0, webinar: 5, circle: 5, transform: 0 },
       },
       {
         id: "q4-c",
         text: "7+ hours per week",
         description: "I'm going all in. Time isn't the constraint. Commitment is.",
-        scores: { essentials: 0, trial: 0, circle: 0, transform: 10 },
+        scores: { essentials: 0, webinar: 0, circle: 0, transform: 10 },
       },
     ],
   },
@@ -126,19 +168,19 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q5-a",
         text: "Structure without pressure. Discipline that feels luxurious",
         description: "I want clear guidance, but I need to move at my own pace. No rigidity.",
-        scores: { essentials: 0, trial: 0, circle: 10, transform: 0 },
+        scores: { essentials: 0, webinar: 0, circle: 10, transform: 0 },
       },
       {
         id: "q5-b",
         text: "Accountability and community. I want my tribe",
         description: "I want to show up with sisters who get it, celebrate wins, and keep me consistent.",
-        scores: { essentials: 0, trial: 5, circle: 15, transform: 0 },
+        scores: { essentials: 0, webinar: 5, circle: 15, transform: 0 },
       },
       {
         id: "q5-c",
         text: "High-touch personalization. Custom everything",
         description: "I want every element designed for ME. Bespoke workouts, personal coaching, white-glove service.",
-        scores: { essentials: 0, trial: 0, circle: 0, transform: 15 },
+        scores: { essentials: 0, webinar: 0, circle: 0, transform: 15 },
       },
     ],
   },
@@ -151,19 +193,19 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q6-a",
         text: "This is my first real commitment",
         description: "I've thought about it, but I've never fully committed. This time feels different.",
-        scores: { essentials: 0, trial: 15, circle: 0, transform: 0 },
+        scores: { essentials: 0, webinar: 15, circle: 0, transform: 0 },
       },
       {
         id: "q6-b",
         text: "I've started and stopped. I need something different",
         description: "I've tried programs before. They worked temporarily, then I quit. I need what I've been missing.",
-        scores: { essentials: 0, trial: 15, circle: 0, transform: 0 },
+        scores: { essentials: 0, webinar: 35, circle: 0, transform: 0 },
       },
       {
         id: "q6-c",
         text: "I've seen results but hit a ceiling.",
         description: "I've had success with programs, but I've plateaued. I'm ready for the next level.",
-        scores: { essentials: 0, trial: 0, circle: 5, transform: 5 },
+        scores: { essentials: 0, webinar: 0, circle: 5, transform: 5 },
       },
     ],
   },
@@ -176,25 +218,25 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q7-a",
         text: "Foundation level: ₹2,000-3,000/month",
         description: "I'm ready to start, but I need to keep investment accessible while I build momentum.",
-        scores: { essentials: 50, trial: 10, circle: -999, transform: -999 },
+        scores: { essentials: 50, webinar: 10, circle: -999, transform: -999 },
       },
       {
         id: "q7-b",
         text: "Community level: ₹4,000-6,000/month",
         description: "I'm ready to invest meaningfully in transformation with structure and support.",
-        scores: { essentials: 0, trial: 15, circle: 25, transform: -999 },
+        scores: { essentials: 0, webinar: 25, circle: 25, transform: -999 },
       },
       {
         id: "q7-c",
         text: "Immersive level: ₹10,000+/month",
-        description: "I'm ready for personalized, high-touch transformation. Investment isn't the barrier—results are.",
-        scores: { essentials: 0, trial: 0, circle: 10, transform: 20 },
+        description: "I'm ready for personalized, high-touch transformation. Investment isn't the barrier -results are.",
+        scores: { essentials: 0, webinar: 0, circle: 10, transform: 20 },
       },
       {
         id: "q7-d",
         text: "Full transformation: ₹1,00,000+",
         description: "I'm ready to go all in. This is the most important investment I'll make this year.",
-        scores: { essentials: 0, trial: 0, circle: 0, transform: 40 },
+        scores: { essentials: 0, webinar: 0, circle: 0, transform: 40 },
       },
     ],
   },
@@ -207,33 +249,76 @@ export const quizQuestions: QuizQuestion[] = [
         id: "q8-a",
         text: "This week. I'm ready now",
         description: "I'm done waiting. I'm done preparing. I'm ready to start immediately.",
-        scores: { essentials: 0, trial: -5, circle: 15, transform: 15 },
+        scores: { essentials: 0, webinar: -5, circle: 15, transform: 15 },
       },
       {
         id: "q8-b",
         text: "Within the month. I need to prepare",
         description: "I'm committed, but I need a few weeks to get things in order first.",
-        scores: { essentials: 0, trial: 5, circle: 0, transform: 0 },
+        scores: { essentials: 0, webinar: 5, circle: 0, transform: 0 },
       },
       {
         id: "q8-c",
         text: "I'm still exploring my options",
         description: "I'm interested, but I'm not ready to commit yet. I want to see what's available.",
-        scores: { essentials: 0, trial: 10, circle: 0, transform: 0 },
+        scores: { essentials: 0, webinar: 22, circle: 0, transform: 0 },
       },
     ],
   },
 ];
 
-// ============================================
-// SCORING ALGORITHM
-// ============================================
-
+/**
+ * Calculates the recommended program based on quiz answers.
+ *
+ * This function implements the scoring algorithm that analyzes user responses
+ * and determines which transformation program best fits their needs.
+ *
+ * ## Algorithm Steps
+ *
+ * 1. **Score Accumulation**: Sum weighted scores from each selected option
+ * 2. **Edge Case Handling**:
+ *    - High budget (q7-c/d) + low time (q4-a) → disqualify Transform
+ *    - Circle/Webinar within 10 pts + commitment-hesitant (q6-b OR q8-c) → boost Webinar +15
+ * 3. **Score Normalization**: Cap negative scores at 0
+ * 4. **Winner Selection**: Highest score wins, with tie-breaker priority:
+ *    transform > webinar > circle > essentials
+ *
+ * ## Webinar Optimization (Target: 35-40% routing)
+ * - Q6-b (started/stopped): +35 webinar weight
+ * - Q7-b (₹4-6K budget): +25 webinar weight (matches Circle)
+ * - Q8-c (exploring): +22 webinar weight
+ * - Tie-breaker boost: +15 when commitment-hesitant
+ *
+ * @param answers - Array of user's quiz answers
+ * @returns Quiz result with recommended program and all scores
+ *
+ * @example
+ * ```typescript
+ * const answers: QuizAnswer[] = [
+ *   { questionId: 'q1', selectedOptionIds: ['q1-c'] },
+ *   { questionId: 'q2', selectedOptionIds: ['q2-d'] },
+ *   { questionId: 'q3', selectedOptionIds: ['q3-b'] },
+ *   { questionId: 'q4', selectedOptionIds: ['q4-b'] },
+ *   { questionId: 'q5', selectedOptionIds: ['q5-b'] },
+ *   { questionId: 'q6', selectedOptionIds: ['q6-c'] },
+ *   { questionId: 'q7', selectedOptionIds: ['q7-b'] },
+ *   { questionId: 'q8', selectedOptionIds: ['q8-a'] },
+ * ];
+ *
+ * const result = calculateQuizResult(answers);
+ * // result: {
+ * //   programId: 'circle',
+ * //   programSlug: 'circle',
+ * //   score: 65,
+ * //   allScores: { essentials: 0, webinar: 25, circle: 65, transform: 15 }
+ * // }
+ * ```
+ */
 export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
   // Initialize scores for each program
   const scores: { [programId: string]: number } = {
     essentials: 0,
-    trial: 0,
+    webinar: 0,
     circle: 0,
     transform: 0,
   };
@@ -265,9 +350,11 @@ export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
     scores.transform = 0;
   }
 
-  // EDGE CASE: If Circle and Trial are within 10 points AND q6 = "started/stopped" → favor Trial
-  if (Math.abs(scores.circle - scores.trial) <= 10 && answerMap["q6"] === "q6-b") {
-    scores.trial += 5; // Slight boost to trial
+  // EDGE CASE: If Circle and Webinar are within 10 points AND commitment-hesitant signals → favor Webinar
+  // Commitment-hesitant signals: Q6=B (started/stopped) or Q8=C (still exploring)
+  const isCommitmentHesitant = answerMap["q6"] === "q6-b" || answerMap["q8"] === "q8-c";
+  if (Math.abs(scores.circle - scores.webinar) <= 10 && isCommitmentHesitant) {
+    scores.webinar += 15; // Boost webinar for commitment-hesitant users
   }
 
   // Ensure no negative scores
@@ -276,8 +363,8 @@ export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
   });
 
   // Find the program with the highest score using tie-breaker priority
-  // Priority: transform > trial > circle > essentials (per spec)
-  const priority = ["transform", "trial", "circle", "essentials"];
+  // Priority: transform > webinar > circle > essentials (per spec)
+  const priority = ["transform", "webinar", "circle", "essentials"];
   const maxScore = Math.max(...Object.values(scores));
 
   let recommendedProgramId = "essentials"; // Default fallback
@@ -297,7 +384,21 @@ export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
   };
 }
 
-// Get total number of questions
+/**
+ * Returns the total number of quiz questions.
+ *
+ * Used by the quiz UI to display progress indicators and validate
+ * that all questions have been answered before submission.
+ *
+ * @returns The count of questions in the quiz (currently 8)
+ *
+ * @example
+ * ```typescript
+ * const total = getTotalQuestions();
+ * const progress = (currentQuestion / total) * 100;
+ * console.log(`Progress: ${progress}%`);
+ * ```
+ */
 export function getTotalQuestions(): number {
   return quizQuestions.length;
 }

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { Footer } from "@/components/ui/footer";
 import { RazorpayCheckout } from "@/components/checkout/RazorpayCheckout";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Play } from "lucide-react";
+import { getCheckoutPrefill, migrateLegacyStorage } from "@/lib/lead-storage";
+import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
+import { getComingMondayIST, getFollowingMondayIST, calculateCircleStartDate, getCurrentISTDate } from "@/lib/date-utils";
+import type { CircleStartDateOption } from "@/types";
 
 // ============================================
 // DATA CONSTANTS
@@ -15,11 +17,11 @@ import { ChevronDown, Play } from "lucide-react";
 
 const pillars = [
   {
-    emoji: "🔥",
+    emoji: "◆",
     title: "FITNESS",
     headline: "Build the Body That Makes You Feel Powerful",
     description:
-      "Live workouts 5x/week designed to make you strong, toned, and energized—not exhausted. Progressive training that meets you where you are and takes you where you want to be.",
+      "Structured LIVE & App workouts designed to make you strong, toned, and energized-not exhausted. Progressive training that meets you where you are and takes you where you want to be.",
     features: [
       "Strength training",
       "HIIT sessions",
@@ -29,11 +31,11 @@ const pillars = [
     ],
   },
   {
-    emoji: "✨",
+    emoji: "✧",
     title: "BEAUTY",
     headline: "Glow From the Inside, Radiate on the Outside",
     description:
-      "Skincare routines that fit your life. Hair care that actually works. Habits that make you feel magnetic every single day—not just for special occasions.",
+      "Skincare routines that fit your life. Hair care that actually works. Habits that make you feel magnetic every single day-not just for special occasions.",
     features: [
       "Weekly skincare guidance",
       "Product recommendations (budget-friendly)",
@@ -43,21 +45,20 @@ const pillars = [
     ],
   },
   {
-    emoji: "💰",
+    emoji: "◈",
     title: "FINANCE",
     headline: "Master Your Money, Build Your Freedom",
     description:
-      "Financial clarity sessions, budget systems, and investment basics. Because unstoppable women don't just earn more—they keep more, invest smarter, and build wealth.",
+      "Financial clarity sessions, budget systems, and investment basics. Because unstoppable women don't just earn more-they keep more, invest smarter, and build wealth.",
     features: [
       "Monthly financial clarity workshops",
       "Budget templates",
       "Savings & investment guidance",
-      "Salary negotiation coaching",
       "Money mindset shifts",
     ],
   },
   {
-    emoji: "👑",
+    emoji: "◇",
     title: "CONFIDENCE",
     headline: "Command Respect, Trust Yourself, Own Every Room",
     description:
@@ -72,61 +73,6 @@ const pillars = [
   },
 ];
 
-interface ScheduleSession {
-  time: string;
-  title: string;
-  evening?: string;
-}
-
-interface ScheduleDay {
-  day: string;
-  sessions: ScheduleSession[];
-}
-
-const weeklySchedule: ScheduleDay[] = [
-  {
-    day: "MONDAY",
-    sessions: [
-      { time: "7:00 AM IST", title: "Strength Training (Live)", evening: "8:00 PM IST — Evening HIIT Option (Live)" },
-    ],
-  },
-  {
-    day: "TUESDAY",
-    sessions: [
-      { time: "7:00 AM IST", title: "Dance Cardio (Live)", evening: "8:00 PM IST — Beauty & Skincare Workshop" },
-    ],
-  },
-  {
-    day: "WEDNESDAY",
-    sessions: [
-      { time: "7:00 AM IST", title: "Yoga & Mobility (Live)" },
-    ],
-  },
-  {
-    day: "THURSDAY",
-    sessions: [
-      { time: "7:00 AM IST", title: "Full Body Strength (Live)", evening: "8:00 PM IST — Finance Clarity Session" },
-    ],
-  },
-  {
-    day: "FRIDAY",
-    sessions: [
-      { time: "7:00 AM IST", title: "Power HIIT (Live)" },
-    ],
-  },
-  {
-    day: "SATURDAY",
-    sessions: [
-      { time: "9:00 AM IST", title: "Community Workout (Extended)", evening: "10:00 AM IST — Confidence Circle (Group Coaching)" },
-    ],
-  },
-  {
-    day: "SUNDAY",
-    sessions: [
-      { time: "Rest Day", title: "Weekly Challenge Check-In (WhatsApp)" },
-    ],
-  },
-];
 
 const whatElseIncluded = [
   "WhatsApp community (24/7 sister support)",
@@ -140,36 +86,36 @@ const whatElseIncluded = [
 
 const transformations = [
   {
-    name: "Priya M.",
-    location: "HR Manager, Delhi",
+    name: "Apoorva",
+    location: "Dentist, Hyderabad",
+    duration: "9 months in Circle",
+    results: "Lost 9 kg • Runs 5K now • Never misses workouts",
+    quote:
+      "The WhatsApp group keeps me going. When I don't feel like showing up, my girlies remind me why I started. That's the power of Circle.",
+  },
+  {
+    name: "Dhvani",
+    location: "Sound Engineer, Mumbai",
     duration: "6 months in Circle",
-    results: "Lost 9 kg • Runs 5K now • Never misses Monday workouts",
+    results: "Found a new passion • Lost 19 kg • Found work-life balance",
     quote:
-      "The WhatsApp group keeps me going. When I don't feel like showing up, my sisters remind me why I started. That's the power of Circle.",
+      "Circle taught me that taking care of myself ISN'T selfish. My passion in dance grew because I grew. Best investment I've made.",
   },
   {
-    name: "Anjali K.",
-    location: "Entrepreneur, Bangalore",
-    duration: "4 months in Circle",
-    results: "Built business to ₹15L revenue • Lost 7 kg • Found work-life balance",
+    name: "Padmavati",
+    location: "CA, Hyderabad",
+    duration: "3 months in Circle",
+    results: "Lost 11 kg • Negotiated ₹6L raise • Became accountability pod leader",
     quote:
-      "Circle taught me that taking care of myself ISN'T selfish. My business grew because I grew. Best investment I've made.",
+      "I joined for fitness. I stayed for the sisterhood. Circle changed how I show up-not just in workouts, but in life.",
   },
   {
-    name: "Meera S.",
-    location: "Teacher, Chennai",
-    duration: "8 months in Circle",
-    results: "Lost 11 kg • Negotiated ₹3L raise • Became accountability pod leader",
-    quote:
-      "I joined for fitness. I stayed for the sisterhood. Circle changed how I show up—not just in workouts, but in life.",
-  },
-  {
-    name: "Simran G.",
-    location: "Consultant, London",
+    name: "Pratyancha G.",
+    location: "Doctor Student, Delhi",
     duration: "5 months in Circle",
-    results: "Lost 6 kg • Found community abroad • Consistent through wedding season",
+    results: "Lost 6 kg • Found community • Consistent through wedding season",
     quote:
-      "Living in London, I felt disconnected from Indian community. Circle gave me my sisters back. The early morning IST classes are worth waking up for.",
+      "Living in a new city, I felt alone. Circle gave me the best community. The early morning classes are worth waking up for.",
   },
 ];
 
@@ -177,27 +123,27 @@ const faqs = [
   {
     question: "What if I can't make the live sessions?",
     answer:
-      "All live sessions are recorded for 48 hours. Watch on your time. But we recommend joining live when possible—the community energy is unmatched.",
+      "All live sessions are recorded for 48 hours. Watch on your time. But we recommend joining live when possible-the community energy is unmatched.",
   },
   {
-    question: "How is Circle different from Essentials?",
+    question: "How is CIRCLE different from ESSENTIALS?",
     answer:
-      "Circle has LIVE workouts and community accountability. Essentials is self-paced. If you thrive with sisters around you, Circle is your home.",
+      "CIRCLE has LIVE workouts and community accountability. ESSENTIALS is self-paced. If you thrive with girlies around you, CIRCLE is your home.",
   },
   {
     question: "Can I cancel anytime?",
     answer:
-      "Yes. Circle is month-to-month. Cancel anytime with 7 days notice. No contracts, no penalties. But most women stay because the sisterhood is everything.",
+      "Yes. CIRCLE is month-to-month. Cancel anytime with 7 days notice. No contracts, no penalties. But most women stay because the sisterhood is everything.",
   },
   {
     question: "I'm an NRI in a different time zone. Will this work?",
     answer:
-      "Yes! We have sisters in London, Toronto, Dubai, Singapore. Sessions are at 7 AM and 8 PM IST. Pick what works. Recordings available for 48 hours.",
+      "Yes! We have girlies in London, Toronto, Dubai, Singapore. Sessions are at 7 AM and 8 PM IST. Pick what works. Recordings available for 48 hours.",
   },
   {
-    question: "I have zero fitness experience. Is Circle too advanced?",
+    question: "I have zero fitness experience. Is CIRCLE too advanced?",
     answer:
-      "Circle welcomes all levels. Our coaches modify every move. You'll have beginners, intermediates, and advanced—all in the same class, all supported.",
+      "CIRCLE welcomes all levels. Our coaches modify every move. You'll have beginners, intermediates, and advanced-all in the same class, all supported.",
   },
 ];
 
@@ -209,6 +155,8 @@ function DecorativeBlob({ className = "" }: { className?: string }) {
   return (
     <div
       className={`absolute pointer-events-none ${className}`}
+      aria-hidden="true"
+      role="presentation"
       style={{
         background: "radial-gradient(ellipse at center, rgba(212, 175, 55, 0.12) 0%, transparent 70%)",
         filter: "blur(40px)",
@@ -219,7 +167,7 @@ function DecorativeBlob({ className = "" }: { className?: string }) {
 
 function FloralDivider() {
   return (
-    <div className="flex items-center justify-center gap-3 my-8">
+    <div className="flex items-center justify-center gap-3 my-8" aria-hidden="true" role="presentation">
       <div className="h-px w-12 bg-gradient-to-r from-transparent via-gold/40 to-gold/40" />
       <span className="text-gold/60 text-lg">✿</span>
       <div className="h-px w-12 bg-gradient-to-l from-transparent via-gold/40 to-gold/40" />
@@ -227,27 +175,15 @@ function FloralDivider() {
   );
 }
 
-function GoldAccentLine() {
-  return (
-    <div className="w-16 h-[2px] bg-gradient-to-r from-gold via-gold-light to-gold mx-auto my-6 rounded-full" />
-  );
-}
 
 // ============================================
 // COMPONENTS
 // ============================================
 
-function StickyCTABar({ visible }: { visible: boolean }) {
-  const scrollToPayment = () => {
-    const paymentSection = document.getElementById("payment-section");
-    if (paymentSection) {
-      paymentSection.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
+function StickyCTABar({ visible, onScrollToPayment }: { visible: boolean; onScrollToPayment: () => void }) {
   return (
     <div
-      className={`fixed bottom-0 left-0 right-0 z-[9999] transition-all duration-500 ${
+      className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-500 ${
         visible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
@@ -255,12 +191,12 @@ function StickyCTABar({ visible }: { visible: boolean }) {
       <div className="bg-gradient-to-r from-forest via-forest to-forest-light h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
         <div className="flex-1">
           <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
-            Circle Membership
+            CIRCLE Membership
           </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹4,499<span className="text-sm font-body font-normal text-ivory/70">/mo</span></p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹150<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
         </div>
         <button
-          onClick={scrollToPayment}
+          onClick={onScrollToPayment}
           className="flex-shrink-0 h-12 px-7 bg-gradient-to-r from-gold to-gold-light text-forest font-semibold text-base rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.4)] active:scale-[0.96] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.5)]"
         >
           Join Now →
@@ -274,10 +210,10 @@ function StickyCTABar({ visible }: { visible: boolean }) {
 
 // Pillar images mapping
 const pillarImages: Record<string, string> = {
-  FITNESS: "/images/circle/Fitness Geetika Transformation.jpg.png",
-  BEAUTY: "/images/circle/Beautfy transformation_2.jpg.png",
-  FINANCE: "/images/circle/Circle Finance Transformation.png",
-  CONFIDENCE: "/images/circle/Confidence Aurvi Before & After.jpg",
+  FITNESS: "/images/circle/Build the Body That Makes You Feel Powerful.jpg",
+  BEAUTY: "/images/circle/Glow From the Inside, Radiate on the Outside.jpg",
+  FINANCE: "/images/circle/Master Your Money, Build Your Freedom.jpg",
+  CONFIDENCE: "/images/circle/Command Respect, Trust Yourself, Own Every Room.jpg",
 };
 
 function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
@@ -289,7 +225,7 @@ function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: numbe
 
       <div className="relative z-10">
         {/* Icon with elegant container */}
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center mb-4 shadow-[0_4px_16px_rgba(212,175,55,0.2)]">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center mb-4 shadow-[0_4px_16px_rgba(212,175,55,0.2)]" aria-hidden="true">
           <span className="text-4xl">{pillar.emoji}</span>
         </div>
 
@@ -334,6 +270,8 @@ function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: numbe
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
+              loading="lazy"
+              quality={75}
             />
           </div>
           {/* Overlay for blend */}
@@ -377,6 +315,8 @@ function TransformationCard({ transformation, index }: { transformation: typeof 
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 768px) 100vw, 50vw"
+            loading="lazy"
+            quality={75}
           />
         </div>
         {/* Overlay */}
@@ -453,9 +393,42 @@ export default function CircleLandingPage() {
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [showCalendly, setShowCalendly] = useState(false);
+  const [startDateOption, setStartDateOption] = useState<CircleStartDateOption>('coming-monday');
+  const [comingMonday, setComingMonday] = useState<Date>(new Date());
+  const [followingMonday, setFollowingMonday] = useState<Date>(new Date());
+  const [isTodayMonday, setIsTodayMonday] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
+  const paymentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Pre-fill form from quiz data (unified storage)
+  useEffect(() => {
+    try {
+      // Migrate any legacy sessionStorage data
+      migrateLegacyStorage();
+
+      // Get pre-filled data from unified storage
+      const prefill = getCheckoutPrefill();
+      if (prefill) {
+        // Only set values if they're not already filled (user might have started typing)
+        if (!customerName && prefill.name) {
+          setCustomerName(prefill.name);
+        }
+        if (!customerEmail && prefill.email) {
+          setCustomerEmail(prefill.email);
+        }
+        if (!customerPhone && prefill.phone) {
+          setCustomerPhone(prefill.phone);
+        }
+      }
+    } catch (error) {
+      // Silent fail - user can still fill form manually
+      if (process.env.NODE_ENV === "development") {
+        console.error("Error loading quiz data for pre-fill:", error);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
   // Handle sticky bar visibility
   useEffect(() => {
@@ -470,24 +443,40 @@ export default function CircleLandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Calculate Circle start date options (coming Monday and following Monday)
+  useEffect(() => {
+    const coming = getComingMondayIST();
+    const following = getFollowingMondayIST();
+    const today = getCurrentISTDate();
+    setComingMonday(coming);
+    setFollowingMonday(following);
+    setIsTodayMonday(today.getDay() === 1 && today.getHours() < 6);
+  }, []);
+
   const scrollToPayment = () => {
-    const paymentSection = document.getElementById("payment-section");
-    if (paymentSection) {
-      paymentSection.scrollIntoView({ behavior: "smooth" });
+    if (paymentRef.current) {
+      // Respect reduced motion preference
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      paymentRef.current.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth'
+      });
     }
   };
 
   const handlePaymentSuccess = (data: { paymentId: string; subscriptionId?: string }) => {
-    router.push(`/checkout/success?program=circle&payment_id=${data.paymentId}${data.subscriptionId ? `&subscription_id=${data.subscriptionId}` : ""}`);
+    const startDateSelection = calculateCircleStartDate(startDateOption);
+    router.push(`/checkout/success?program=circle&payment_id=${data.paymentId}${data.subscriptionId ? `&subscription_id=${data.subscriptionId}` : ""}&start_date=${encodeURIComponent(startDateSelection.isoString)}`);
   };
 
   const handlePaymentError = (error: string) => {
-    console.error("Payment error:", error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error("Payment error:", error);
+    }
     router.push(`/checkout/failed?error=${encodeURIComponent(error)}`);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-ivory via-beige-light/30 to-ivory font-body text-forest overflow-x-hidden">
+    <main className="min-h-screen bg-gradient-to-b from-ivory via-beige-light/30 to-ivory font-body text-forest overflow-x-hidden">
       {/* ============================================
           SWIPE 1: HERO SECTION
           ============================================ */}
@@ -497,15 +486,19 @@ export default function CircleLandingPage() {
         <DecorativeBlob className="w-48 h-48 top-40 -left-24 opacity-60" />
 
         <div className="relative z-10">
-          {/* Personalized Badge */}
-          <div className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-wine/10 to-wine/5 rounded-full mb-5 border border-wine/15 shadow-[0_2px_12px_rgba(128,0,0,0.08)]">
-            <span className="text-wine text-xs font-semibold uppercase tracking-[0.15em]">
-              ✨ Your Personalized Path
-            </span>
+          {/* Badge */}
+          <div className="flex justify-center mb-5">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-wine/15 via-wine/10 to-gold/10 rounded-full border border-wine/20 shadow-[0_4px_20px_rgba(128,0,0,0.12)] backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-wine to-gold animate-pulse" aria-hidden="true"></span>
+              <span className="text-wine text-sm font-bold uppercase tracking-[0.2em]">
+                CIRCLE
+              </span>
+              <span className="w-2 h-2 rounded-full bg-gradient-to-r from-gold to-wine animate-pulse" aria-hidden="true"></span>
+            </div>
           </div>
 
           {/* Hero Headline */}
-          <h1 className="font-headline text-[32px] leading-[1.15] text-forest mb-5 md:text-5xl">
+          <h1 className="font-headline text-[32px] leading-[1.15] text-forest mb-5 md:text-5xl text-center">
             Your Sisterhood to
             <span className="block text-gold-dark">Unstoppable</span>
           </h1>
@@ -513,21 +506,32 @@ export default function CircleLandingPage() {
           {/* Hero Subheadline */}
           <p className="text-base leading-[1.7] text-forest/75 mb-5 md:text-lg">
             You&apos;re ready for community, accountability, and complete transformation.
-            Based on your quiz, <span className="font-semibold text-forest">Circle</span> is where you stop doing this alone and start
-            becoming unstoppable with your sisters.
+            Based on your quiz, <span className="font-semibold text-forest">CIRCLE</span> is where you stop doing this alone and start
+            becoming unstoppable with your girlies.
           </p>
 
           {/* Social Proof Line */}
           <div className="flex items-center gap-3 mb-8">
-            <div className="flex -space-x-2">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-beige to-beige-dark border-2 border-ivory flex items-center justify-center text-xs">
-                  👩🏻
+            <div className="flex -space-x-2" aria-label="Community members" role="img">
+              {[
+                "/images/circle/1 mini image.jpg",
+                "/images/circle/2 mini image.jpg",
+                "/images/circle/3 mini image.jpg",
+                "/images/circle/4 mini image.jpg",
+              ].map((src, i) => (
+                <div key={`avatar-${i}`} className="w-8 h-8 rounded-full border-2 border-ivory overflow-hidden relative">
+                  <Image
+                    src={src}
+                    alt={`Circle member ${i + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="32px"
+                  />
                 </div>
               ))}
             </div>
             <p className="text-sm text-forest/70">
-              <span className="font-semibold text-wine">2,500+</span> women rising together
+              <span className="font-semibold text-wine">100+</span> women rising together
             </p>
           </div>
 
@@ -545,10 +549,12 @@ export default function CircleLandingPage() {
                 loop
                 muted
                 playsInline
+                preload="auto"
                 className="absolute inset-0 w-full h-full object-cover"
                 poster="/images/circle/Circle community - women supporting women in transformation.jpg"
               >
-                <source src="/images/circle/Circle live workout session with community members 2.mp4" type="video/mp4" />
+                <source src="/images/circle/Circle live workout session with community members.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
               </video>
             </div>
             {/* Elegant overlay */}
@@ -567,30 +573,156 @@ export default function CircleLandingPage() {
 
           {/* Primary CTA */}
           <ElegantButton onClick={scrollToPayment}>
-            Join Circle — ₹4,499/Month →
+            Join CIRCLE →
           </ElegantButton>
 
           {/* Micro trust text */}
           <p className="text-center text-xs text-forest/50 mt-4">
-            Cancel anytime • Start this week • Founded by Disha Methi Khandelwal
+            Start this week • Founded by Disha Methi Khandelwal
           </p>
         </div>
       </section>
 
       {/* ============================================
-          SWIPE 2: TRUST + PRICE
+          SWIPE 2: TRUST + INCLUDED
           ============================================ */}
       <section className="pb-12">
+        <div className="px-5">
+          <p className="text-base leading-[1.7] text-forest/75 mb-6 text-center">
+            Your complete transformation toolkit. Live workouts, expert coaching,
+            community support, and holistic guidance across fitness, beauty, finance,
+            and confidence.
+          </p>
+        </div>
+
+        <div className="px-5">
+
+          {/* What You'll Experience - Feminine, Benefit-Focused */}
+          <div className="relative rounded-3xl overflow-hidden mb-8">
+            {/* Animated gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-beige-light via-ivory to-white" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-bl from-gold/15 to-transparent rounded-full blur-2xl animate-pulse" style={{ animationDuration: '4s' }} />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-wine/10 to-transparent rounded-full blur-xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+
+            <div className="relative z-10 p-6 border border-beige/50 rounded-3xl backdrop-blur-sm">
+              {/* Header with floral accent */}
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <div className="h-px w-6 bg-gradient-to-r from-transparent to-gold/40" />
+                  <span className="text-gold/70 text-xs">✿</span>
+                  <div className="h-px w-6 bg-gradient-to-l from-transparent to-gold/40" />
+                </div>
+                <h3 className="font-headline text-xl text-forest">
+                  What You&apos;ll <span className="text-gold-dark italic font-accent">Experience</span>
+                </h3>
+              </div>
+
+              {/* Benefit Cards - 2x2 Grid */}
+              <div className="grid grid-cols-2 gap-3 mb-5">
+                {/* Benefit 1 */}
+                <div className="group bg-white/70 rounded-2xl p-4 border border-beige/30 hover:border-wine/20 transition-all duration-500 hover:shadow-[0_4px_20px_rgba(128,0,0,0.08)]">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-wine/10 to-wine/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl text-wine">◆</span>
+                  </div>
+                  <p className="font-semibold text-forest text-sm mb-1">Wake up excited</p>
+                  <p className="text-xs text-forest/60 leading-relaxed">4 LIVE sessions that make mornings worth it</p>
+                </div>
+
+                {/* Benefit 2 */}
+                <div className="group bg-white/70 rounded-2xl p-4 border border-beige/30 hover:border-gold/30 transition-all duration-500 hover:shadow-[0_4px_20px_rgba(212,175,55,0.1)]">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl text-gold-dark">✧</span>
+                  </div>
+                  <p className="font-semibold text-forest text-sm mb-1">Never feel alone</p>
+                  <p className="text-xs text-forest/60 leading-relaxed">WhatsApp girlies cheering you on daily</p>
+                </div>
+
+                {/* Benefit 3 */}
+                <div className="group bg-white/70 rounded-2xl p-4 border border-beige/30 hover:border-gold/30 transition-all duration-500 hover:shadow-[0_4px_20px_rgba(212,175,55,0.1)]">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl text-gold-dark">◈</span>
+                  </div>
+                  <p className="font-semibold text-forest text-sm mb-1">Get real answers</p>
+                  <p className="text-xs text-forest/60 leading-relaxed">Expert sessions on nutrition, finance & mindset</p>
+                </div>
+
+                {/* Benefit 4 */}
+                <div className="group bg-white/70 rounded-2xl p-4 border border-beige/30 hover:border-wine/20 transition-all duration-500 hover:shadow-[0_4px_20px_rgba(128,0,0,0.08)]">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-wine/10 to-wine/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
+                    <span className="text-2xl text-wine">◇</span>
+                  </div>
+                  <p className="font-semibold text-forest text-sm mb-1">Fits YOUR life</p>
+                  <p className="text-xs text-forest/60 leading-relaxed">App workouts + 48hr replays for busy days</p>
+                </div>
+              </div>
+
+              {/* 4 Pillars Row */}
+              <div className="py-4 border-t border-beige/30">
+                <p className="text-[10px] uppercase tracking-wider text-forest/50 text-center mb-3">Transform in</p>
+                <div className="flex justify-center items-center gap-3">
+                  {[
+                    { emoji: "◆", label: "Body", color: "wine" },
+                    { emoji: "✧", label: "Beauty", color: "gold-dark" },
+                    { emoji: "◈", label: "Wealth", color: "wine" },
+                    { emoji: "◇", label: "Mind", color: "gold-dark" },
+                  ].map((pillar) => (
+                    <div key={pillar.label} className="flex items-center gap-1">
+                      <span className={`text-base text-${pillar.color}`} aria-hidden="true">{pillar.emoji}</span>
+                      <span className="text-xs text-forest/70">{pillar.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Testimonial Quote Card */}
+          <div className="relative bg-white rounded-3xl p-7 mb-8 shadow-[0_4px_24px_rgba(0,0,0,0.05)] border border-beige/30 overflow-hidden">
+            {/* Decorative accent */}
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-wine via-wine to-wine-light rounded-l-3xl" />
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-gold/10 to-transparent" />
+
+            <div className="relative pl-4">
+              <span className="text-4xl text-beige font-accent absolute -top-1 -left-1">&ldquo;</span>
+              <p className="text-base italic text-forest/80 leading-[1.7] mb-4 font-accent pt-4">
+                I&apos;ve tried every fitness app and YouTube program. Nothing stuck
+                until CIRCLE. The community accountability is everything. I don&apos;t
+                work out alone anymore-I work out with my besties.
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-beige relative">
+                  <Image
+                    src="/images/circle/Dhreeti.jpg"
+                    alt="Dhreeti V."
+                    fill
+                    className="object-cover"
+                    sizes="40px"
+                    loading="lazy"
+                    quality={80}
+                  />
+                </div>
+                <div>
+                  <p className="font-semibold text-forest text-sm">Dhreeti V.</p>
+                  <p className="text-xs text-forest/60">London</p>
+                </div>
+              </div>
+              <p className="text-gold-dark text-xs mt-3 font-medium">
+                Lost 8 kg • Consistent for 6 months • Found her tribe
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Community Photo Collage */}
-        <div className="grid grid-cols-2 gap-1 mb-10">
+        <div className="grid grid-cols-2 gap-1 mb-8">
           {[
-            { src: "/images/circle/Fitness Geetika Transformation.jpg.png", alt: "Fitness transformation - Geetika" },
-            { src: "/images/circle/Beautfy transformation_2.jpg.png", alt: "Beauty transformation" },
-            { src: "/images/circle/Confidence Aurvi Before & After.jpg", alt: "Confidence transformation - Aurvi" },
-            { src: "/images/circle/Circle community - women supporting women in transformation.jpg", alt: "Circle community" },
+            { src: "/images/circle/Fitness Geetika Transformation.jpg.png", alt: "Fitness transformation - Geetika", priority: true },
+            { src: "/images/circle/Beautfy transformation_2.jpg.png", alt: "Beauty transformation", priority: true },
+            { src: "/images/circle/Confidence Aurvi Before & After.jpg", alt: "Confidence transformation - Aurvi", priority: false },
+            { src: "/images/circle/Circle community - women supporting women in transformation.jpg", alt: "Circle community", priority: false },
           ].map((img, i) => (
             <div
-              key={i}
+              key={`collage-${i}`}
               className="aspect-square relative overflow-hidden group"
             >
               <div
@@ -605,6 +737,8 @@ export default function CircleLandingPage() {
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                   sizes="50vw"
+                  priority={img.priority}
+                  loading={img.priority ? undefined : "lazy"}
                 />
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-forest/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -613,78 +747,9 @@ export default function CircleLandingPage() {
         </div>
 
         <div className="px-5">
-          {/* Price Transparency */}
-          <div className="text-center mb-8">
-            <p className="text-[10px] uppercase text-wine tracking-[0.2em] mb-2">
-              Your Investment
-            </p>
-            <h2 className="font-headline text-[36px] text-forest mb-2 md:text-5xl">
-              ₹4,499<span className="text-lg font-body text-forest/50">/month</span>
-            </h2>
-            <p className="text-sm text-forest/60">
-              That&apos;s just ₹149/day for complete transformation
-            </p>
-          </div>
-
-          <GoldAccentLine />
-
-          <p className="text-base leading-[1.7] text-forest/75 mb-8 text-center">
-            Your complete transformation toolkit. Live workouts, expert coaching,
-            community support, and holistic guidance across fitness, beauty, finance,
-            and confidence.
-          </p>
-
-          {/* What's Included Card */}
-          <div className="bg-gradient-to-br from-beige-light/80 to-beige/60 backdrop-blur-sm rounded-3xl p-6 mb-8 border border-beige shadow-[0_4px_20px_rgba(0,0,0,0.04)]">
-            <p className="text-xs uppercase tracking-[0.15em] text-forest/60 mb-4 text-center">Everything Included</p>
-            <ul className="space-y-3">
-              {[
-                "5 live workouts/week (Zoom)",
-                "4-pillar transformation",
-                "WhatsApp community access",
-                "Monthly challenges & accountability",
-                "Expert coach guidance",
-                "Recorded sessions (48hr access)",
-              ].map((item, idx) => (
-                <li key={idx} className="text-sm text-forest/80 flex items-center gap-3">
-                  <span className="w-5 h-5 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-forest text-xs shadow-sm">✓</span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Testimonial Quote Card */}
-          <div className="relative bg-white rounded-3xl p-7 mb-8 shadow-[0_4px_24px_rgba(0,0,0,0.05)] border border-beige/30 overflow-hidden">
-            {/* Decorative accent */}
-            <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-wine via-wine to-wine-light rounded-l-3xl" />
-            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-gold/10 to-transparent" />
-
-            <div className="relative pl-4">
-              <span className="text-4xl text-beige font-accent absolute -top-1 -left-1">&ldquo;</span>
-              <p className="text-base italic text-forest/80 leading-[1.7] mb-4 font-accent pt-4">
-                I&apos;ve tried every fitness app and YouTube program. Nothing stuck
-                until Circle. The community accountability is everything. I don&apos;t
-                work out alone anymore—I work out with my sisters.
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-beige to-beige-dark flex items-center justify-center text-lg border border-beige">
-                  👩🏻
-                </div>
-                <div>
-                  <p className="font-semibold text-forest text-sm">Sneha R.</p>
-                  <p className="text-xs text-forest/60">Marketing Manager, Mumbai</p>
-                </div>
-              </div>
-              <p className="text-gold-dark text-xs mt-3 font-medium">
-                Lost 8 kg • Consistent for 6 months • Found her tribe
-              </p>
-            </div>
-          </div>
-
           {/* Secondary CTA */}
           <ElegantButton onClick={scrollToPayment}>
-            Claim My Spot in Circle
+            Claim My Spot in CIRCLE
           </ElegantButton>
         </div>
       </section>
@@ -704,14 +769,13 @@ export default function CircleLandingPage() {
             }}
           >
             <video
-              autoPlay
-              loop
-              muted
               playsInline
+              controls
+              preload="metadata"
               className="absolute inset-0 w-full h-full object-cover"
-              poster="/images/circle/Circle community - women supporting women in transformation.jpg"
             >
               <source src="/images/circle/Barsa Client Circle Transformation .mp4" type="video/mp4" />
+              Your browser does not support the video tag.
             </video>
           </div>
           {/* Elegant overlay */}
@@ -735,17 +799,25 @@ export default function CircleLandingPage() {
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center border border-gold/30">
-                  <span className="text-2xl">👩🏻</span>
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gold/30 relative">
+                  <Image
+                    src="/images/circle/Niharika .jpg"
+                    alt="Niharika"
+                    fill
+                    className="object-cover object-top"
+                    sizes="48px"
+                    loading="lazy"
+                    quality={80}
+                  />
                 </div>
                 <div>
-                  <p className="font-headline font-semibold text-lg">Ananya P.</p>
-                  <p className="text-ivory/60 text-sm">Software Engineer, Bangalore</p>
+                  <p className="font-headline font-semibold text-lg">Niharika</p>
+                  <p className="text-ivory/60 text-sm">Fashion Designer, Chicago</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 mb-4 flex-wrap">
-                {["Lost 10 kg", "Built consistent habits", "Never misses Monday"].map((result, idx) => (
+                {["Lost 8 kgs", "Best All Round Performance", "Never misses Monday"].map((result, idx) => (
                   <span key={idx} className="text-xs bg-gold/20 text-gold px-3 py-1 rounded-full border border-gold/30">
                     {result}
                   </span>
@@ -753,7 +825,7 @@ export default function CircleLandingPage() {
               </div>
 
               <blockquote className="text-base italic text-ivory/90 leading-[1.7] font-accent">
-                &ldquo;Circle gave me what I was missing: accountability that doesn&apos;t
+                &ldquo;CIRCLE gave me what I was missing: accountability that doesn&apos;t
                 feel like pressure. These women GET IT. We rise together.&rdquo;
               </blockquote>
             </div>
@@ -762,13 +834,13 @@ export default function CircleLandingPage() {
           {/* Prompt */}
           <div className="text-center mb-6">
             <p className="font-accent text-xl text-wine italic mb-2">
-              Your sisters are waiting.
+              Your girlies are waiting.
             </p>
             <p className="text-forest/70">Ready to join?</p>
           </div>
 
           <ElegantButton onClick={scrollToPayment}>
-            Yes, I&apos;m Ready for Circle
+            Yes, I&apos;m Ready for CIRCLE
           </ElegantButton>
         </div>
       </section>
@@ -788,13 +860,13 @@ export default function CircleLandingPage() {
           </h2>
 
           <p className="text-base leading-[1.7] text-forest/75 mb-4">
-            Circle isn&apos;t a fitness program. It&apos;s your <span className="font-semibold text-forest">transformation
-            sisterhood</span>—where you work on ALL of you (body, beauty, finance, confidence)
+            CIRCLE isn&apos;t a fitness program. It&apos;s your <span className="font-semibold text-forest">transformation
+            sisterhood</span>-where you work on ALL of you (body, beauty, finance, confidence)
             with women who refuse to wait.
           </p>
 
           <p className="text-base leading-[1.7] text-forest/75 mb-8">
-            Founded by Disha. Led by expert coaches. Powered by <span className="font-semibold text-wine">2,500+ Indian women</span> who show up for themselves—and for each other—every single day.
+            Founded by Disha. Led by expert coaches. Powered by <span className="font-semibold text-wine">1,000+ Indian women</span> who show up for themselves-and for each other-every single day.
           </p>
 
           {/* Community Photo */}
@@ -811,6 +883,8 @@ export default function CircleLandingPage() {
                 fill
                 className="object-cover"
                 sizes="100vw"
+                loading="lazy"
+                quality={75}
               />
             </div>
             {/* Elegant overlay */}
@@ -832,9 +906,9 @@ export default function CircleLandingPage() {
             <p className="font-headline text-lg text-forest mb-5">This is for you if...</p>
             <div className="space-y-4">
               {[
-                "You thrive with community—you want accountability that feels like sisterhood, not surveillance",
+                "You thrive with community-you want accountability that feels like sisterhood, not surveillance",
                 "You're ready for 4-6 hours/week commitment across fitness, beauty, finance, and confidence",
-                "You want structure without pressure—discipline that feels luxurious, not punishing",
+                "You want structure without pressure-discipline that feels luxurious, not punishing",
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-4">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
@@ -849,7 +923,7 @@ export default function CircleLandingPage() {
           {/* CTA */}
           <div className="mt-8">
             <ElegantButton onClick={scrollToPayment}>
-              This Is What I Need—Join Circle
+              This Is What I Need-Join CIRCLE
             </ElegantButton>
           </div>
         </div>
@@ -868,7 +942,7 @@ export default function CircleLandingPage() {
           <div className="text-center mb-10">
             <p className="text-[10px] uppercase tracking-[0.2em] text-wine mb-3">The 4-Pillar System</p>
             <h2 className="font-headline text-[24px] text-forest mb-3 md:text-4xl leading-tight">
-              Why Circle Works When
+              Why CIRCLE Works When
             </h2>
             <h2 className="font-headline text-[24px] text-gold-dark md:text-4xl">
               Everything Else Doesn&apos;t
@@ -876,8 +950,8 @@ export default function CircleLandingPage() {
           </div>
 
           <p className="text-base leading-[1.7] text-forest/75 mb-10 text-center max-w-md mx-auto">
-            Most programs only transform your body. Then life happens—stress, burnout,
-            self-doubt—and the results evaporate. <span className="font-semibold text-forest">Circle transforms ALL of you.</span>
+            Most programs only transform your body. Then life happens-stress, burnout,
+            self-doubt-and the results evaporate. <span className="font-semibold text-forest">CIRCLE transforms ALL of you.</span>
           </p>
 
           {/* Pillar Cards */}
@@ -888,7 +962,7 @@ export default function CircleLandingPage() {
               {(index === 1 || index === 3) && (
                 <div className="mb-8">
                   <ElegantButton onClick={scrollToPayment}>
-                    Join the Sisterhood—₹4,499/Month
+                    Join the Sisterhood
                   </ElegantButton>
                 </div>
               )}
@@ -898,50 +972,165 @@ export default function CircleLandingPage() {
       </section>
 
       {/* ============================================
-          SWIPE 9: HOW CIRCLE WORKS
+          SWIPE 9: YOUR WEEKLY RHYTHM - Feminine & Benefit-Focused
           ============================================ */}
-      <section className="px-5 py-12 relative">
-        <div className="text-center mb-8">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-wine mb-3">Your Weekly Rhythm</p>
-          <h2 className="font-headline text-[24px] text-forest md:text-4xl">
-            Here&apos;s What Happens
-          </h2>
-        </div>
+      <section className="px-5 py-16 relative overflow-hidden">
+        {/* Floating decorative elements */}
+        <div className="absolute top-10 right-0 w-64 h-64 bg-gradient-to-br from-gold/10 to-wine/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute bottom-20 -left-20 w-48 h-48 bg-gradient-to-tr from-beige/30 to-gold/10 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
 
-        {/* Weekly Schedule Card */}
-        <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-6 mb-8 border border-beige/30 shadow-[0_4px_24px_rgba(0,0,0,0.05)] overflow-hidden relative">
-          {/* Decorative accent */}
-          <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-wine via-wine to-wine-light rounded-l-3xl" />
+        <div className="relative z-10">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 mb-4">
+              <div className="h-px w-8 bg-gradient-to-r from-transparent to-gold/50" />
+              <span className="text-gold text-sm">✿</span>
+              <div className="h-px w-8 bg-gradient-to-l from-transparent to-gold/50" />
+            </div>
+            <p className="text-[10px] uppercase tracking-[0.25em] text-wine mb-3 font-medium">Your Weekly Rhythm</p>
+            <h2 className="font-headline text-[26px] text-forest md:text-4xl leading-tight">
+              Every Day, A Reason to<br />
+              <span className="text-gold-dark italic font-accent">Show Up For Yourself</span>
+            </h2>
+          </div>
 
-          <div className="pl-4">
-            {weeklySchedule.map((day, idx) => (
-              <div key={day.day} className={idx !== weeklySchedule.length - 1 ? "mb-5 pb-5 border-b border-beige/50" : ""}>
-                <p className="text-wine text-xs font-semibold uppercase tracking-wider mb-2">{day.day}</p>
-                {day.sessions.map((session, sIdx) => (
-                  <div key={sIdx}>
-                    <p className="text-forest text-base">
-                      <span className="font-semibold">{session.time}</span>
-                      <span className="text-forest/50 mx-2">—</span>
-                      {session.title}
-                    </p>
-                    {session.evening && (
-                      <p className="text-forest/60 text-sm mt-1 pl-4 border-l-2 border-beige">{session.evening}</p>
-                    )}
+          {/* Benefit-focused weekly cards */}
+          <div className="space-y-4 mb-8">
+            {/* Monday */}
+            <div className="group bg-gradient-to-r from-white via-white to-beige-light/50 rounded-2xl p-5 border border-beige/40 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(128,0,0,0.08)] transition-all duration-500 hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-wine animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-wine">Monday • LIVE</span>
                   </div>
-                ))}
+                  <p className="font-headline text-lg text-forest mb-1">Start Your Week Feeling Powerful</p>
+                  <p className="text-sm text-forest/60">Cardio & Core that wakes up your body and sets the tone</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-wine/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-wine">◆</span>
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Tuesday */}
+            <div className="group bg-gradient-to-r from-white via-white to-gold/10 rounded-2xl p-5 border border-beige/40 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(212,175,55,0.1)] transition-all duration-500 hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-gold" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gold-dark">Tuesday • APP + Expert Session</span>
+                  </div>
+                  <p className="font-headline text-lg text-forest mb-1">Move Your Body, Nourish Your Soul</p>
+                  <p className="text-sm text-forest/60">Dance cardio on your time + Nutrition QnA at 6pm IST</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-gold-dark">✧</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Wednesday */}
+            <div className="group bg-gradient-to-r from-white via-white to-beige-light/50 rounded-2xl p-5 border border-beige/40 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(128,0,0,0.08)] transition-all duration-500 hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-wine animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-wine">Wednesday • LIVE</span>
+                  </div>
+                  <p className="font-headline text-lg text-forest mb-1">Build Strength That Lasts</p>
+                  <p className="text-sm text-forest/60">Mobility & Strength to feel capable in your own skin</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-wine/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-wine">◈</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Thursday */}
+            <div className="group bg-gradient-to-r from-white via-white to-gold/10 rounded-2xl p-5 border border-beige/40 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(212,175,55,0.1)] transition-all duration-500 hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-gold" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gold-dark">Thursday • APP + Expert Session</span>
+                  </div>
+                  <p className="font-headline text-lg text-forest mb-1">Sculpt Your Body, Master Your Money</p>
+                  <p className="text-sm text-forest/60">Full Body Strength + Finance Clarity at 8pm IST</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-gold/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-gold-dark">◈</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Friday */}
+            <div className="group bg-gradient-to-r from-white via-white to-beige-light/50 rounded-2xl p-5 border border-beige/40 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgba(128,0,0,0.08)] transition-all duration-500 hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-wine animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-wine">Friday • LIVE</span>
+                  </div>
+                  <p className="font-headline text-lg text-forest mb-1">Push Your Limits, See Results</p>
+                  <p className="text-sm text-forest/60">Power HIIT to end the week feeling unstoppable</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-wine/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-wine">◆</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Saturday */}
+            <div className="group bg-gradient-to-br from-forest via-forest to-forest-dark rounded-2xl p-5 shadow-[0_8px_30px_rgba(1,45,38,0.2)] hover:shadow-[0_12px_40px_rgba(1,45,38,0.25)] transition-all duration-500 hover:-translate-y-0.5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-gold/10 rounded-full blur-2xl" />
+              <div className="relative z-10 flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-gold animate-pulse" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gold">Saturday • Community Day</span>
+                  </div>
+                  <p className="font-headline text-lg text-ivory mb-1">Sweat With Your Sisters</p>
+                  <p className="text-sm text-ivory/70">Extended workout + Confidence Circle (Beauty, Skincare & Mindset)</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-gold/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <span className="text-2xl text-gold">◇</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Sunday */}
+            <div className="group bg-gradient-to-r from-beige-light/80 via-ivory to-white rounded-2xl p-5 border border-beige/30 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-500">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-2 h-2 rounded-full bg-beige-dark" />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-forest/50">Sunday • Rest & Reflect</span>
+                  </div>
+                  <p className="font-headline text-lg text-forest mb-1">Rest Is Part of the Journey</p>
+                  <p className="text-sm text-forest/60">Weekly challenge check-in on WhatsApp • Celebrate your wins</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-beige/50 flex items-center justify-center">
+                  <span className="text-gold">✿</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-beige/50">
-            <p className="text-sm italic text-forest/60 text-center">
-              All sessions recorded for 48 hours. Can&apos;t make it live? Watch on your time.
-            </p>
+          {/* Reassurance note */}
+          <div className="text-center">
+            <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-5 py-3 rounded-full border border-beige/40 shadow-soft">
+              <span className="text-gold">✧</span>
+              <p className="text-sm text-forest/70 italic">
+                Missed a session? All classes recorded for 48 hours.
+              </p>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* What Else Is Included Card */}
-        <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-7 mb-10 overflow-hidden shadow-[0_8px_32px_rgba(1,45,38,0.25)]">
+      {/* What Else Is Included Section */}
+      <section className="px-5 py-8">
+        <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-7 mb-8 overflow-hidden shadow-[0_8px_32px_rgba(1,45,38,0.25)]">
           <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
           <div className="relative z-10">
@@ -977,7 +1166,7 @@ export default function CircleLandingPage() {
           <div className="text-center mb-10">
             <p className="text-[10px] uppercase tracking-[0.2em] text-wine mb-3">Real Transformations</p>
             <h2 className="font-headline text-[24px] text-forest md:text-4xl">
-              Real Sisters. Real Results.
+              Real girlies. Real Results.
             </h2>
             <p className="font-accent text-lg text-gold-dark italic mt-2">Real Community.</p>
           </div>
@@ -1009,6 +1198,8 @@ export default function CircleLandingPage() {
                     fill
                     className="object-cover"
                     sizes="50vw"
+                    loading="lazy"
+                    quality={75}
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-forest/20 to-transparent" />
@@ -1018,7 +1209,7 @@ export default function CircleLandingPage() {
 
           {/* CTA */}
           <ElegantButton onClick={scrollToPayment}>
-            Join Your Sisters in Circle
+            Join Your girlies in CIRCLE
           </ElegantButton>
         </div>
       </section>
@@ -1065,11 +1256,11 @@ export default function CircleLandingPage() {
               <div className="pt-6 space-y-4">
                 <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
                   Here&apos;s what I know: Transformation isn&apos;t a solo journey.
-                  Every woman who&apos;s risen has had her sisters beside her.
+                  Every woman who&apos;s risen has had her girlies beside her.
                 </p>
                 <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
-                  Circle is where you stop doing this alone. Where discipline feels like
-                  love. Where your sisters show up for you—and you show up for them.
+                  CIRCLE is where you stop doing this alone. Where discipline feels like
+                  love. Where your girlies show up for you-and you show up for them.
                 </p>
                 <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
                   Your tribe is waiting. Let&apos;s rise together.
@@ -1077,8 +1268,16 @@ export default function CircleLandingPage() {
               </div>
 
               <div className="mt-8 pt-6 border-t border-ivory/20 flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/40 to-gold/20 border-2 border-gold/50 flex items-center justify-center shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-                  <span className="text-3xl">👩🏻</span>
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.3)] relative">
+                  <Image
+                    src="/images/DMK/Disha Close Up Face.png"
+                    alt="Disha Methi Khandelwal"
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                    loading="lazy"
+                    quality={80}
+                  />
                 </div>
                 <div>
                   <p className="font-headline font-semibold text-lg">Disha Methi Khandelwal</p>
@@ -1089,111 +1288,126 @@ export default function CircleLandingPage() {
           </div>
 
           {/* Final CTA Container */}
-          <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-10 text-center mb-10 overflow-hidden shadow-[0_8px_40px_rgba(1,45,38,0.35)]">
+          <div ref={paymentRef} className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-6 md:p-10 text-center mb-10 overflow-hidden shadow-[0_8px_40px_rgba(1,45,38,0.35)]">
             {/* Decorative elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gold/10 rounded-full blur-3xl -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-40 h-40 bg-wine/10 rounded-full blur-2xl translate-y-1/2 translate-x-1/2" />
 
             <div className="relative z-10">
-              <p className="text-xs uppercase tracking-[0.2em] text-gold/80 mb-3">Join Us</p>
-              <h2 className="font-headline text-[28px] mb-3">Your Queens Are Waiting</h2>
-              <p className="text-base text-ivory/80 mb-6">
-                The Circle starts this week. Your transformation starts today.
+              <p className="text-xs uppercase tracking-[0.2em] text-gold/80 mb-2 md:mb-3">Join Us</p>
+              <h2 className="font-headline text-[22px] md:text-[28px] mb-2 md:mb-3">Your Queens Are Waiting</h2>
+              <p className="text-sm md:text-base text-ivory/80 mb-4 md:mb-6">
+                CIRCLE starts this Monday. Your transformation starts today.
               </p>
 
-              <div className="mb-8">
-                <p className="text-4xl font-headline font-bold text-gold mb-1">₹4,499</p>
-                <p className="text-sm text-ivory/60">per month • Cancel anytime</p>
+              <div className="mb-5 md:mb-8">
+                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹4,499</p>
+                <p className="text-xs md:text-sm text-ivory/60">per month • Cancel anytime</p>
               </div>
 
               {/* Payment Form */}
-              <div className="space-y-3 mb-8 text-left max-w-sm mx-auto">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  className="w-full h-14 px-5 rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
-                />
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  value={customerEmail}
-                  onChange={(e) => setCustomerEmail(e.target.value)}
-                  className="w-full h-14 px-5 rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
-                />
-                <input
-                  type="tel"
-                  placeholder="Phone Number (Optional)"
-                  value={customerPhone}
-                  onChange={(e) => setCustomerPhone(e.target.value)}
-                  className="w-full h-14 px-5 rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
-                />
+              <div className="space-y-2.5 md:space-y-3 mb-5 md:mb-8 text-left max-w-sm mx-auto">
+                <div>
+                  <label htmlFor="circle-name" className="sr-only">Your Name</label>
+                  <input
+                    id="circle-name"
+                    type="text"
+                    placeholder="Your Name *"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    required
+                    aria-required="true"
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="circle-email" className="sr-only">Your Email</label>
+                  <input
+                    id="circle-email"
+                    type="email"
+                    placeholder="Your Email *"
+                    value={customerEmail}
+                    onChange={(e) => setCustomerEmail(e.target.value)}
+                    required
+                    aria-required="true"
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="circle-phone" className="sr-only">Phone Number with Country Code</label>
+                  <input
+                    id="circle-phone"
+                    type="tel"
+                    placeholder="WA Number (+919876543210) *"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    required
+                    aria-required="true"
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                  />
+                </div>
+                {/* Validation message */}
+                {(!customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) && (
+                  <p className="text-ivory/60 text-xs text-center">* All fields are required</p>
+                )}
               </div>
 
-              {/* Razorpay Checkout */}
-              <RazorpayCheckout
-                amount={4499}
-                programId="circle"
-                programName="Circle - Monthly Membership"
-                customerEmail={customerEmail}
-                customerName={customerName}
-                customerPhone={customerPhone}
-                isSubscription={true}
-                razorpayPlanId={process.env.NEXT_PUBLIC_RAZORPAY_CIRCLE_PLAN_ID}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-                buttonText="Join Circle Now — ₹4,499/Month"
-                className="w-full h-14 bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-semibold text-lg rounded-2xl shadow-[0_4px_24px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_32px_rgba(212,175,55,0.5)] transition-all duration-300"
+              {/* Circle Start Date Selector */}
+              <CircleStartDateSelector
+                value={startDateOption}
+                onChange={setStartDateOption}
+                comingMondayDate={comingMonday}
+                followingMondayDate={followingMonday}
+                isTodayMonday={isTodayMonday}
+                className="mb-5 md:mb-6"
               />
+
+              {/* Razorpay Checkout */}
+              {customerName.trim() && customerEmail.trim() && customerEmail.includes('@') && customerPhone.trim() ? (
+                <RazorpayCheckout
+                  amount={4499}
+                  programId="circle"
+                  programName="Circle - Monthly Membership"
+                  customerEmail={customerEmail.trim()}
+                  customerName={customerName.trim()}
+                  customerPhone={customerPhone.trim()}
+                  isSubscription={true}
+                  razorpayPlanId={process.env.NEXT_PUBLIC_RAZORPAY_CIRCLE_PLAN_ID}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                  buttonText="Join CIRCLE Now"
+                  className="w-full h-12 md:h-14 bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-semibold text-base md:text-lg rounded-xl md:rounded-2xl shadow-[0_4px_24px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_32px_rgba(212,175,55,0.5)] transition-all duration-300"
+                  programStartDate={calculateCircleStartDate(startDateOption)}
+                />
+              ) : (
+                <button
+                  disabled
+                  className="w-full h-12 md:h-14 bg-ivory/20 text-ivory/50 font-semibold text-base md:text-lg rounded-xl md:rounded-2xl cursor-not-allowed transition-all duration-300"
+                  aria-disabled="true"
+                >
+                  Enter your details to continue
+                </button>
+              )}
 
               {/* Trust signals */}
               <div className="flex items-center justify-center gap-4 mt-6 text-ivory/50 text-xs">
-                <span>🔒 Secure payment</span>
+                <span>◈ Secure payment</span>
                 <span>•</span>
                 <span>Cancel anytime</span>
               </div>
             </div>
           </div>
 
-          {/* Alternative CTA Link */}
-          <div className="text-center">
-            <button
-              onClick={() => setShowCalendly(!showCalendly)}
-              className="text-wine hover:text-wine-dark text-sm font-medium underline underline-offset-4 decoration-wine/30 hover:decoration-wine transition-all"
-            >
-              Want to talk first? Book a free 20-min call
-            </button>
-          </div>
-
-          {/* Calendly Embed (Hidden by default) */}
-          {showCalendly && (
-            <div className="mt-8 bg-white/90 backdrop-blur-sm rounded-3xl p-6 border border-beige/30 shadow-[0_4px_24px_rgba(0,0,0,0.05)]">
-              <p className="text-center text-forest font-headline text-lg mb-4">
-                Schedule a free call with our team
-              </p>
-              {/* Calendly widget would go here */}
-              <div className="aspect-video bg-beige-light rounded-2xl flex items-center justify-center mb-4">
-                <p className="text-forest/50 text-sm">[Calendly Widget]</p>
-              </div>
-              <Link
-                href="/book-call"
-                className="block w-full h-14 bg-gradient-to-r from-wine to-wine-light text-ivory font-semibold text-lg rounded-2xl flex items-center justify-center shadow-[0_4px_20px_rgba(128,0,0,0.25)] hover:shadow-[0_6px_28px_rgba(128,0,0,0.35)] transition-all"
-              >
-                Book Your Free Call
-              </Link>
-            </div>
-          )}
         </div>
       </section>
 
       {/* Sticky CTA Bar */}
-      <StickyCTABar visible={showStickyBar} />
+      <StickyCTABar visible={showStickyBar} onScrollToPayment={scrollToPayment} />
 
       {/* Add padding at bottom for sticky bar */}
       <div className="h-20 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
 
       <Footer />
-    </div>
+    </main>
   );
 }

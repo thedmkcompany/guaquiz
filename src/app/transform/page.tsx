@@ -14,96 +14,132 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // =============================================================================
-// DATA CONSTANTS - EXACT COPY FROM SPECIFICATIONS
+// DATA CONSTANTS
 // =============================================================================
 
-const pillars = [
+const comparisonItems = [
   {
-    icon: Flame,
-    emoji: "🔥",
-    title: "Build the Body That Commands Rooms",
-    description:
-      "Not just weight loss. Body recomposition. Strength that shows. Energy that radiates. You'll train with Disha's custom protocols—designed for YOUR body, YOUR goals, YOUR lifestyle. No generic plans. No plateau. Just results that reflect the power you feel inside.",
-    label: "FITNESS",
+    item: "Your last international vacation",
+    cost: "₹2.5L",
+    result: "beautiful memories, back to normal in 2 weeks",
   },
   {
-    icon: Sparkles,
-    emoji: "✨",
-    title: "Glow From the Inside, Radiate on the Outside",
-    description:
-      "Skincare that works. Routines that fit your life. Hair, nails, posture, presence. We address the beauty habits that make you feel magnetic every single day—not just for special occasions. Because confidence isn't makeup. It's how you treat yourself when no one's watching.",
-    label: "BEAUTY",
+    item: "Your designer handbag",
+    cost: "₹2-3L",
+    result: "elevates your outfit, not your life",
   },
   {
-    icon: Wallet,
-    emoji: "💰",
-    title: "Master Your Money, Master Your Freedom",
-    description:
-      "Disha has a Master's in Applied Finance. She's coached women to raise their salaries by ₹12L+. You'll build financial clarity, confidence, and systems. Because unstoppable women don't just earn more—they keep more, invest smarter, and build wealth that compounds.",
-    label: "FINANCE",
+    item: "Your haute couture lehenga",
+    cost: "₹4L+",
+    result: "makes you feel like a million bucks for a day",
   },
   {
-    icon: Crown,
-    emoji: "👑",
-    title: "Command Respect, Trust Yourself, Own Every Room",
-    description:
-      "Confidence isn't affirmations. It's evidence. You'll build it through discipline, through wins, through showing up for yourself daily. Disha will coach you on self-talk, boundaries, presence, and leadership. Because hot isn't a look. It's how you carry yourself.",
-    label: "CONFIDENCE",
+    item: "Your cosmetic treatments",
+    cost: "₹5L+",
+    result: "give you a glow for a few days",
   },
 ];
 
-const timelinePhases = [
+const separateServicesBreakdown = [
   {
-    phase: 1,
-    title: "Strategy Session with Disha",
-    duration: "60 minutes (Week 0)",
-    description:
-      "You and Disha meet 1:1 for a deep-dive assessment. She'll evaluate your current state across fitness, beauty, finance, and confidence. You'll walk out with a complete transformation roadmap—personalized to your body, your goals, your life.",
-    investment: "₹9,999 (credited back if you enroll in full program)",
+    service: "Personal Trainer",
+    cost: "₹25K/month × 6",
+    total: "₹1,50,000",
+    what: "Workouts only, no nutrition, no accountability beyond sessions",
   },
   {
-    phase: 2,
-    title: "Custom Program Build",
-    duration: "1 week (Week 1)",
-    description:
-      "Disha and her team build your custom Transform protocol. Your workout plan. Your meal strategy. Your beauty and skincare routine. Your financial clarity roadmap. Your confidence-building practices. Everything tailored to YOU.",
-    deliverable: "Complete Transform playbook (digital + PDF)",
+    service: "Nutritionist",
+    cost: "₹15K/month × 6",
+    total: "₹90,000",
+    what: "Meal plans, but no training, no mindset work",
   },
   {
-    phase: 3,
-    title: "Personal Coaching (THE TRANSFORMATION)",
-    duration: "6 months of dedicated transformation",
-    description: "",
-    bullets: [
-      "Weekly 1:1 coaching sessions with Disha (30 minutes each)",
-      "Daily accountability via WhatsApp (Disha or senior coach)",
-      "Custom adjustments as you progress (workouts, nutrition, beauty, mindset)",
-      "Access to Transform portal (meal plans, workout videos, resources)",
-      "Monthly progress assessments (photos, measurements, energy, confidence)",
-    ],
-    result:
-      "You don't just finish a program. You become a different woman.",
+    service: "Financial Coach",
+    cost: "₹30K/month × 6",
+    total: "₹1,80,000",
+    what: "Wealth planning, but no fitness, no beauty protocols",
+  },
+  {
+    service: "Mindset Coach",
+    cost: "₹30K/month × 6",
+    total: "₹1,80,000",
+    what: "Confidence work, but no body transformation",
+  },
+  {
+    service: "Beauty/Hormone Specialist",
+    cost: "₹50K/month × 6",
+    total: "₹3,00,000",
+    what: "Skin & wellness, but disconnected from everything else",
   },
 ];
 
-const transformationShowcase = [
+const testimonials = [
   {
-    name: "Priya S.",
-    profession: "Corporate Lawyer",
-    city: "Bangalore",
+    name: "Priya M.",
+    location: "Mumbai",
+    profession: "Strategy Consultant",
     quote:
-      "I didn't just lose 14 kg. I negotiated a ₹22L raise, started saying no to toxic people, and became the woman I always knew I could be. Transform didn't change my life. It gave me the tools to redesign it myself.",
-    results: [
-      "Lost 14 kg",
-      "Gained muscle definition",
-      "Raised salary ₹22L",
-      "Built ₹18L investment portfolio",
-    ],
+      "My husband asked me if I'd changed my skincare routine. I hadn't. I'd changed my entire system—fitness, sleep, nutrition, confidence. TRANSFORM gave me the structure I'd been missing. Within 8 weeks, people at work started asking what was different. By month 6, I'd been promoted.",
+    image: "/images/transform/Akancha Sharma.jpg",
   },
+  {
+    name: "Anjali R.",
+    location: "Bangalore",
+    profession: "Tech Executive",
+    quote:
+      "I spent ₹2.5L on a Chanel bag last year without hesitation. When I told my husband I was investing ₹2L in TRANSFORM, I expected pushback. Instead, he said: 'Finally, you're prioritizing yourself the way you prioritize everyone else.' Three months in, he notices how much more present I am with our kids.",
+    image: "/images/transform/Jinal in 3 Months.jpg",
+  },
+  {
+    name: "Kavya S.",
+    location: "London",
+    profession: "Finance Manager - NRI",
+    quote:
+      "I'd see women at events who just had that energy—that presence. I wanted to be her. Circle gave me community, but TRANSFORM gave me the personal blueprint. Now I'm the woman other women ask about. Worth every single pound I invested.",
+    image: "/images/transform/Akancha Sharma.jpg",
+  },
+];
+
+const annualSpendingBreakdown = [
+  {
+    category: "Dining out & weekend brunches",
+    monthly: "₹15-20K/month",
+    annual: "₹1.8L-₹2.4L/year",
+  },
+  {
+    category: "Skincare, makeup, beauty treatments",
+    monthly: "₹12-15K/month",
+    annual: "₹1.44L-₹1.8L/year",
+  },
+  {
+    category: "Gym membership you barely use",
+    monthly: "₹10-15K/month",
+    annual: "₹1.2L-₹1.8L/year",
+  },
+  {
+    category: "Online shopping (clothes, accessories)",
+    monthly: "₹20-25K/month",
+    annual: "₹2.4L-₹3L/year",
+  },
+  {
+    category: "Subscriptions (Netflix, Spotify, apps)",
+    monthly: "₹5-8K/month",
+    annual: "₹60K-₹96K/year",
+  },
+];
+
+const transformClients = [
+  "Senior Vice President, Financial Services (Mumbai)",
+  "Founder, D2C Beauty Brand (Bangalore)",
+  "Investment Banker, NRI (Singapore)",
+  "Marketing Director, Tech Unicorn (Gurgaon)",
+  "Chartered Accountant, Private Practice (Hyderabad)",
+  "Healthcare Executive, NRI (Toronto)",
 ];
 
 const faqs = [
@@ -115,64 +151,28 @@ const faqs = [
   {
     question: "How is this different from Circle or Essentials?",
     answer:
-      "Transform is 1:1 personal coaching with Disha. Circle is group-based community coaching. Essentials is self-paced. If you want direct access to Disha, custom protocols, and personal accountability, Transform is your path.",
+      "TRANSFORM is 1:1 personal coaching with only 14 clients per year. Circle is group-based community coaching. Essentials is self-paced. If you want direct access to Disha, custom protocols, and personal accountability, TRANSFORM is your path.",
   },
   {
     question: "What if I'm not based in India?",
     answer:
-      "Transform works globally. All sessions are virtual (Zoom). Meal plans adapt to your location. Workouts are equipment-flexible. Our NRI clients in London, Toronto, Dubai, and Singapore get the same experience.",
+      "TRANSFORM works globally. All sessions are virtual (Zoom). Meal plans adapt to your location. Workouts are equipment-flexible. Our NRI clients in London, Toronto, Dubai, and Singapore get the same experience.",
   },
   {
     question:
-      "I have medical conditions (PCOS, thyroid, injuries). Can Transform help?",
+      "I have medical conditions (PCOS, thyroid, injuries). Can TRANSFORM help?",
     answer:
       "Yes. Disha has worked with clients with PCOS, thyroid issues, joint injuries, and chronic conditions. Your strategy call includes a full health assessment, and all protocols are adapted to your specific needs.",
   },
   {
     question: "What happens after the 6 months?",
     answer:
-      "Most Transform clients continue with monthly coaching (₹25,000/month) to maintain and elevate results. But the 6-month intensive gives you the systems, habits, and identity shift to thrive independently if you choose.",
+      "Most TRANSFORM clients continue with monthly coaching (₹25,000/month) to maintain and elevate results. But the 6-month program gives you the systems, habits, and identity shift to thrive independently if you choose.",
   },
   {
     question: "Can I get a refund if it doesn't work?",
     answer:
-      "Transform requires full commitment—7+ hours/week, adherence to protocols, showing up for sessions. If you do the work and don't see results, we'll extend your program at no cost. But refunds are only available if you complete less than 2 weeks (medical emergencies only).",
-  },
-];
-
-const thisIsForYouChecklist = [
-  "You're ready to invest ₹1,99,999 in yourself (and view it as ROI, not expense)",
-  "You have 7+ hours per week for workouts, planning, and transformation work",
-  "You've tried programs before and hit a ceiling—you need custom, not cookie-cutter",
-  "You want personal guidance from Disha, not just access to her program",
-  "You're building a life, career, or identity shift that requires your most powerful self",
-  "You're willing to be coached—this isn't a \"tell me what to do\" relationship, it's a partnership",
-];
-
-const transformationImages = [
-  {
-    src: "/images/circle/Fitness Geetika Transformation.jpg.png",
-    alt: "Geetika's Fitness Transformation",
-    category: "FITNESS",
-    name: "Geetika",
-  },
-  {
-    src: "/images/circle/Beautfy transformation_2.jpg.png",
-    alt: "Beauty Transformation Journey",
-    category: "BEAUTY",
-    name: "Beauty Journey",
-  },
-  {
-    src: "/images/circle/Confidence Aurvi Before & After.jpg",
-    alt: "Aurvi's Confidence Transformation",
-    category: "CONFIDENCE",
-    name: "Aurvi",
-  },
-  {
-    src: "/images/circle/Circle community - women supporting women in transformation.jpg",
-    alt: "Circle Community - Women Supporting Women",
-    category: "COMMUNITY",
-    name: "Our Sisterhood",
+      "TRANSFORM requires full commitment. If you do the work and don't see results, we'll extend your program at no cost. Refunds are only available if you complete less than 2 weeks (medical emergencies only).",
   },
 ];
 
@@ -192,7 +192,7 @@ function FloralDivider({ className = "" }: { className?: string }) {
 
 function DecorativeBlob({
   className = "",
-  color = "gold"
+  color = "gold",
 }: {
   className?: string;
   color?: "gold" | "wine" | "beige";
@@ -210,289 +210,30 @@ function DecorativeBlob({
   );
 }
 
-// =============================================================================
-// TRANSFORMATION GALLERY COMPONENT
-// =============================================================================
-
-function TransformationGallery() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const minSwipeDistance = 50;
-
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe && currentIndex < transformationImages.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-    if (isRightSwipe && currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : transformationImages.length - 1));
-  };
-
-  const goToNext = () => {
-    setCurrentIndex((prev) => (prev < transformationImages.length - 1 ? prev + 1 : 0));
-  };
-
-  return (
-    <div className="relative">
-      {/* Section Header */}
-      <div className="text-center mb-8">
-        <p className="text-xs uppercase tracking-[2px] text-wine font-body mb-3">
-          Real Results
-        </p>
-        <h3 className="font-headline text-2xl md:text-3xl font-bold text-forest mb-2">
-          Transformations That Speak for Themselves
-        </h3>
-        <p className="font-body text-forest/60 text-sm">
-          Swipe to see more journeys
-        </p>
-      </div>
-
-      {/* Gallery Container */}
-      <div
-        ref={containerRef}
-        className="relative overflow-hidden rounded-[2rem]"
-        onTouchStart={onTouchStart}
-        onTouchMove={onTouchMove}
-        onTouchEnd={onTouchEnd}
-      >
-        {/* Slides */}
-        <div
-          className="flex transition-transform duration-500 ease-out"
-          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-        >
-          {transformationImages.map((image, idx) => (
-            <div key={idx} className="w-full flex-shrink-0">
-              <div className="relative aspect-[4/3] md:aspect-[16/9] bg-gradient-to-br from-beige to-beige-dark overflow-hidden rounded-[2rem]">
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 80vw"
-                  priority={idx === 0}
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/80 via-forest/20 to-transparent" />
-
-                {/* Content overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                  <span className="inline-block bg-gold/90 text-forest text-xs font-body font-semibold px-3 py-1 rounded-full mb-2">
-                    {image.category}
-                  </span>
-                  <h4 className="font-headline text-xl md:text-2xl text-ivory">
-                    {image.name}
-                  </h4>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Navigation Arrows - Desktop */}
-        <button
-          onClick={goToPrevious}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors hidden md:flex z-10"
-          aria-label="Previous image"
-        >
-          <ChevronLeft className="w-6 h-6 text-forest" />
-        </button>
-        <button
-          onClick={goToNext}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:bg-white transition-colors hidden md:flex z-10"
-          aria-label="Next image"
-        >
-          <ChevronRight className="w-6 h-6 text-forest" />
-        </button>
-      </div>
-
-      {/* Dots Navigation */}
-      <div className="flex justify-center gap-2 mt-6">
-        {transformationImages.map((_, idx) => (
-          <button
-            key={idx}
-            onClick={() => goToSlide(idx)}
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-              idx === currentIndex
-                ? "bg-gold w-8"
-                : "bg-forest/20 hover:bg-forest/40"
-            }`}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
-      </div>
-
-      {/* Thumbnail Grid - Desktop */}
-      <div className="hidden md:grid grid-cols-4 gap-3 mt-6">
-        {transformationImages.map((image, idx) => (
-          <button
-            key={idx}
-            onClick={() => goToSlide(idx)}
-            className={`relative aspect-video rounded-xl overflow-hidden transition-all duration-300 ${
-              idx === currentIndex
-                ? "ring-2 ring-gold ring-offset-2 ring-offset-ivory"
-                : "opacity-60 hover:opacity-100"
-            }`}
-          >
-            <Image
-              src={image.src}
-              alt={image.alt}
-              fill
-              className="object-cover"
-              sizes="20vw"
-            />
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-// COMPONENTS
-// =============================================================================
-
-// FAQAccordion imported from @/components/ui/faq-accordion
-
-function PillarCard({
-  pillar,
-  index,
+// Styled brand name component for "TRANSFORM"
+function TransformBrand({
+  className = "",
+  variant = "default",
 }: {
-  pillar: (typeof pillars)[0];
-  index: number;
+  className?: string;
+  variant?: "default" | "light" | "dark";
 }) {
+  const variants = {
+    default: "text-wine",
+    light: "text-gold",
+    dark: "text-wine",
+  };
+
   return (
-    <div className="group relative">
-      {/* Decorative frame */}
-      <div className="absolute -inset-1 bg-gradient-to-br from-gold/20 via-transparent to-wine/20 rounded-[2rem] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      <div className="relative bg-gradient-to-br from-forest via-forest to-forest-light rounded-[1.75rem] p-8 text-ivory overflow-hidden transition-all duration-500 group-hover:shadow-2xl group-hover:-translate-y-1">
-        {/* Subtle inner glow */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-2xl" />
-        <div className="absolute bottom-0 left-0 w-24 h-24 bg-wine/10 rounded-full blur-2xl" />
-
-        <div className="relative z-10">
-          {/* Icon with elegant circle */}
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center mb-5 ring-1 ring-gold/20">
-            <span className="text-3xl">{pillar.emoji}</span>
-          </div>
-
-          <h3 className="font-headline text-xl md:text-2xl mb-4 leading-tight">{pillar.title}</h3>
-          <p className="font-body text-base text-ivory/75 leading-relaxed">
-            {pillar.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function TimelinePhase({
-  phase,
-  isLast,
-}: {
-  phase: (typeof timelinePhases)[0];
-  isLast: boolean;
-}) {
-  return (
-    <div className="flex gap-5 md:gap-8">
-      {/* Timeline indicator */}
-      <div className="flex flex-col items-center">
-        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-forest font-headline font-bold text-lg md:text-xl flex-shrink-0 shadow-lg ring-4 ring-gold/20">
-          {phase.phase}
-        </div>
-        {!isLast && (
-          <div className="w-px flex-1 bg-gradient-to-b from-gold/40 to-gold/10 my-3" />
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="pb-12 pt-1">
-        <h3 className="font-headline text-xl md:text-2xl text-forest mb-1">
-          {phase.title}
-        </h3>
-        <p className="text-sm text-wine font-accent mb-4">
-          {phase.duration}
-        </p>
-
-        {phase.description && (
-          <p className="font-body text-base text-forest/80 leading-relaxed mb-4">
-            {phase.description}
-          </p>
-        )}
-
-        {phase.bullets && (
-          <ul className="space-y-3 mb-4">
-            {phase.bullets.map((bullet, idx) => (
-              <li
-                key={idx}
-                className="flex items-start gap-3 font-body text-sm md:text-base text-forest/80"
-              >
-                <div className="w-5 h-5 rounded-full bg-gold/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gold" />
-                </div>
-                {bullet}
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {phase.investment && (
-          <div className="bg-gradient-to-r from-gold/10 to-gold/5 rounded-2xl p-4 border border-gold/20">
-            <p className="text-sm font-body text-forest">
-              <span className="font-semibold">Investment:</span> {phase.investment}
-            </p>
-          </div>
-        )}
-
-        {phase.deliverable && (
-          <div className="bg-beige/30 rounded-2xl p-4 border border-beige">
-            <p className="text-sm font-body text-forest">
-              <span className="font-semibold">Deliverable:</span> {phase.deliverable}
-            </p>
-          </div>
-        )}
-
-        {phase.result && (
-          <p className="font-accent text-lg text-wine mt-5">
-            {phase.result}
-          </p>
-        )}
-      </div>
-    </div>
+    <span
+      className={`font-headline font-semibold tracking-[0.08em] italic ${variants[variant]} ${className}`}
+    >
+      TRANSFORM
+    </span>
   );
 }
 
 function MobileStickyCTA({ visible }: { visible: boolean }) {
-  const scrollToCalendar = () => {
-    const element = document.getElementById("final-cta");
-    element?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div
       className={`fixed bottom-0 left-0 right-0 bg-gradient-to-r from-forest via-forest to-forest-light z-[1000] md:hidden transition-transform duration-300 ${
@@ -508,15 +249,19 @@ function MobileStickyCTA({ visible }: { visible: boolean }) {
 
       <div className="flex items-center justify-between h-full px-5">
         <div>
-          <p className="text-gold/80 text-xs font-body uppercase tracking-wider">Strategy Call</p>
-          <p className="text-ivory text-xl font-headline">₹9,999</p>
+          <p className="text-gold/80 text-xs font-body uppercase tracking-wider">
+            TRANSFORM Program
+          </p>
+          <p className="text-ivory text-lg font-headline">
+            Book Strategy Session
+          </p>
         </div>
-        <Button
-          onClick={scrollToCalendar}
-          className="bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-body font-semibold text-base px-6 py-3 rounded-full h-auto shadow-lg"
+        <Link
+          href="/checkout?program=transform-strategy-call"
+          className="bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-body font-semibold text-base px-6 py-3 rounded-full h-auto shadow-lg inline-flex items-center gap-1"
         >
           Book Now →
-        </Button>
+        </Link>
       </div>
     </div>
   );
@@ -540,200 +285,214 @@ export default function TransformLandingPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToCalendar = () => {
-    const element = document.getElementById("final-cta");
-    element?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-ivory via-beige-light/30 to-ivory font-body text-charcoal overflow-x-hidden">
       {/* =========================================================================
-          SECTION 1: HERO (SCREEN 1)
+          SECTION 1: HERO (ABOVE FOLD)
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 pt-12 pb-16 md:pt-20 md:pb-24">
-        {/* Decorative blobs */}
-        <DecorativeBlob className="w-96 h-96 -top-48 -right-48" color="gold" />
-        <DecorativeBlob className="w-72 h-72 top-1/2 -left-36" color="wine" />
-        <DecorativeBlob className="w-64 h-64 bottom-0 right-1/4" color="beige" />
+      <section className="relative min-h-screen flex items-center px-4 md:px-8 pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+        {/* Animated background gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-ivory via-beige-light/50 to-ivory" />
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          {/* Personalized Badge */}
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-gold/15 via-gold/20 to-gold/15 border border-gold/30 rounded-full text-sm font-body font-medium text-forest mb-8 shadow-sm">
-            <Sparkles className="w-4 h-4 text-gold" />
-            <span>✨ Your Personalized Path</span>
+        {/* Decorative elements */}
+        <div className="absolute top-20 left-10 w-2 h-2 bg-gold rounded-full animate-pulse" />
+        <div className="absolute top-40 right-20 w-3 h-3 bg-wine/40 rounded-full animate-pulse delay-300" />
+        <div className="absolute bottom-40 left-1/4 w-2 h-2 bg-gold/60 rounded-full animate-pulse delay-500" />
+
+        {/* Decorative blobs */}
+        <DecorativeBlob
+          className="w-[70vw] h-[70vw] max-w-[500px] max-h-[500px] -top-[15vw] -right-[15vw] md:-top-64 md:-right-64 animate-pulse"
+          color="gold"
+        />
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 top-1/2 -left-[12vw] md:-left-48"
+          color="wine"
+        />
+        <DecorativeBlob
+          className="w-[40vw] h-[40vw] max-w-80 max-h-80 bottom-20 -right-[5vw] md:right-1/4"
+          color="beige"
+        />
+
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          {/* Premium Badge */}
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-forest/5 via-forest/10 to-forest/5 backdrop-blur-sm border border-gold/40 rounded-full text-sm font-body font-semibold text-forest mb-10 shadow-lg">
+            <div className="flex items-center gap-1">
+              <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
+              <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse delay-150" />
+              <span className="w-2 h-2 bg-gold/30 rounded-full animate-pulse delay-300" />
+            </div>
+            <span className="font-headline font-bold tracking-[0.15em] text-wine">
+              TRANSFORM
+            </span>
+            <Crown className="w-4 h-4 text-gold" />
           </div>
 
           {/* Hero Headline */}
-          <h1 className="font-headline text-[32px] leading-[1.15] md:text-5xl lg:text-6xl md:leading-[1.1] font-bold text-forest mb-8">
-            Your Personal Transformation Architect—
-            <span className="text-wine">Where Unstoppable Becomes Your Identity</span>
+          <h1 className="font-headline text-[40px] leading-[1.1] md:text-6xl lg:text-7xl md:leading-[1.05] font-bold mb-8">
+            <span className="bg-gradient-to-r from-forest via-forest to-forest-light bg-clip-text text-transparent">
+              While Other Women Hesitate,
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-wine via-wine to-wine-light bg-clip-text text-transparent">
+              You TRANSFORM
+            </span>
           </h1>
 
-          {/* Hero Subheadline */}
-          <p className="font-body text-base md:text-lg text-forest/75 max-w-[680px] mx-auto leading-relaxed mb-8">
-            You&apos;re done doing this alone. Based on your quiz answers,
-            Transform is your invitation to work 1:1 with Disha Methi
-            Khandelwal—the woman who&apos;s guided 2,500+ transformations and
-            built India&apos;s most premium holistic program. This isn&apos;t
-            coaching. This is complete life redesign. Welcome to your next
-            chapter.
+          {/* Subheadline */}
+          <p className="font-accent text-lg md:text-2xl text-forest/70 mb-8 leading-relaxed max-w-[850px] mx-auto px-4">
+            You&apos;ve invested in your career, your home, your wardrobe.
+            You&apos;ve spent ₹3L on a handbag without blinking. Now it&apos;s
+            time to invest that same confidence in becoming the woman everyone
+            asks about.
           </p>
 
-          {/* Credibility Line */}
-          <p className="font-accent text-sm md:text-base text-wine/80 mb-10 max-w-2xl mx-auto">
-            Founded by Disha Methi Khandelwal • Master&apos;s in Finance • 10+
-            Years Transforming India&apos;s Most Ambitious Women • Featured in
-            Telangana Today, WebVeda Founder (400,000+ Students)
-          </p>
-
-          {/* Hero Image */}
-          <div className="mb-10 max-w-md md:max-w-2xl mx-auto">
-            <div className="relative aspect-[4/3] md:aspect-[16/9] rounded-[2rem] overflow-hidden bg-gradient-to-br from-forest via-forest to-forest-light shadow-2xl ring-1 ring-gold/20">
-              <div className="absolute inset-0 bg-gradient-to-t from-forest/80 via-transparent to-gold/10" />
-              {/* Decorative corner accents */}
-              <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-gold/40 rounded-tl-xl" />
-              <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-gold/40 rounded-br-xl" />
-              <Image
-                src="/images/DMK/Disha Wine Blazer 2.png"
-                alt="Disha Methi Khandelwal in sophisticated setting"
-                fill
-                className="object-cover object-top"
-                priority
-                sizes="(max-width: 768px) 100vw, 672px"
-              />
-            </div>
-            <p className="font-accent text-sm text-forest/60 mt-4">
-              Disha Methi Khandelwal - Founder of Glow Up Academy Transform Program
+          {/* Microcopy above CTA */}
+          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 mb-10 max-w-3xl mx-auto border border-gold/20 shadow-lg">
+            <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
+              Women like you have invested in Chanel bags (₹2.5L), fancy lehngas (₹4L), cosmetic treatments (₹5L+).{" "}
+              <span className="font-headline font-bold text-wine">
+                <TransformBrand className="text-base md:text-lg" /> is
+                ₹1,99,999
+              </span>{" "}
+              to become the woman who owns all of it - body, confidence, and
+              presence.
             </p>
           </div>
 
-          {/* Primary CTA Button */}
-          <Button
-            onClick={scrollToCalendar}
-            className="bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg font-semibold px-10 py-6 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
-          >
-            <Heart className="w-5 h-5 mr-2 fill-current" />
-            Book My Strategy Call with Disha
-          </Button>
+          {/* Hero Image */}
+          <div className="mb-12 max-w-sm md:max-w-xl mx-auto px-2">
+            <div className="relative group">
+              <div className="absolute inset-0 bg-gradient-to-r from-gold/20 via-wine/20 to-gold/20 rounded-[2.5rem] blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
+
+              <div className="relative aspect-[3/4] md:aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-gold/20">
+                <div className="absolute inset-0 bg-gradient-to-t from-forest/40 via-transparent to-transparent z-10" />
+
+                <Image
+                  src="/images/DMK/Disha Wine Blazer 2.png"
+                  alt="Disha Methi Khandelwal - TRANSFORM Program Founder"
+                  fill
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  priority
+                  sizes="(max-width: 768px) 100vw, 576px"
+                />
+
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-20">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-4 md:px-6 py-3 md:py-4 shadow-lg">
+                    <p className="font-headline text-base md:text-lg text-forest font-semibold">
+                      Disha Methi Khandelwal
+                    </p>
+                    <p className="font-body text-xs md:text-sm text-forest/60">
+                      Founder, Glow Up Academy •{" "}
+                      <TransformBrand className="text-xs md:text-sm" />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Primary CTA */}
+          <div className="space-y-4 px-4">
+            <Link
+              href="/checkout?program=transform-strategy-call"
+              className="group inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-base md:text-lg font-bold px-8 md:px-12 py-5 md:py-7 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
+              <span className="whitespace-nowrap">
+                Invest ₹9,999 in Your Strategy Session
+              </span>
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+            </Link>
+
+            <p className="font-body text-sm text-forest/50">
+              (Credited toward TRANSFORM when you enroll)
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Curved divider */}
       <div className="relative h-16 md:h-24 -mt-1">
-        <svg viewBox="0 0 1440 100" fill="none" className="absolute bottom-0 w-full h-full" preserveAspectRatio="none">
-          <path d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z" fill="#F2EBD9" fillOpacity="0.5" />
+        <svg
+          viewBox="0 0 1440 100"
+          fill="none"
+          className="absolute bottom-0 w-full h-full"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z"
+            fill="#F2EBD9"
+            fillOpacity="0.5"
+          />
         </svg>
       </div>
 
       {/* =========================================================================
-          SECTION 2: INVESTMENT TRANSPARENCY (SCREEN 2)
+          SECTION 2: YOU'RE NOT BEING SELFISH. YOU'RE BEING STRATEGIC.
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
-        <DecorativeBlob className="w-80 h-80 top-0 right-0" color="gold" />
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-80 max-h-80 top-0 right-0"
+          color="gold"
+        />
 
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* Section Label */}
-          <p className="text-xs uppercase tracking-[2px] text-wine font-body text-center mb-3">
-            Your Investment
-          </p>
-
-          {/* Decorative line */}
-          <div className="flex justify-center mb-8">
-            <div className="w-12 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent" />
-          </div>
-
-          {/* Pricing Headline */}
-          <h2 className="font-headline text-3xl md:text-5xl font-bold text-forest text-center mb-8">
-            The Strategy Call: <span className="text-gold">₹9,999</span>
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            You&apos;re Not Being Selfish.
+            <br />
+            <span className="text-wine">You&apos;re Being Strategic.</span>
           </h2>
 
-          {/* Pricing Explanation */}
-          <div className="max-w-[680px] mx-auto mb-10 text-center">
-            <p className="font-body text-base md:text-lg text-forest/75 leading-relaxed mb-4">
-              Your transformation begins with a 60-minute private strategy
-              session with Disha. This is where we assess your current state,
-              design your complete transformation roadmap across fitness,
-              beauty, finance, and confidence—and determine if Transform is the
-              right fit.
+          <div className="max-w-[720px] mx-auto space-y-6 mb-10 text-center px-2">
+            <p className="font-body text-base md:text-xl text-forest/80 leading-[1.7] md:leading-relaxed">
+              The women who look effortlessly put together? They invested in
+              transformation years ago.
             </p>
-            <p className="font-body text-base md:text-lg text-forest/75 leading-relaxed mb-8">
-              If you enroll in the full Transform program after your call, this
-              ₹9,999 is credited back to your total investment.
+            <p className="font-body text-base md:text-xl text-forest/80 leading-[1.7] md:leading-relaxed">
+              The ones who walk into rooms with quiet confidence? They chose
+              themselves before choosing anyone else.
             </p>
-            <p className="font-headline text-2xl md:text-3xl font-bold text-forest mb-2">
-              Full Transform Program: <span className="text-wine">₹1,99,999</span>
-            </p>
-            <p className="font-accent text-base text-wine/80">
-              6-Month Commitment • Complete Life Transformation
+            <p className="font-accent text-lg md:text-2xl text-wine leading-[1.5] md:leading-relaxed">
+              The difference between you and the woman you admire isn&apos;t
+              luck, it&apos;s the decision you&apos;re about to make.
             </p>
           </div>
 
-          {/* Payment Details Card */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-[2rem] p-8 max-w-lg mx-auto mb-12 shadow-lg border border-gold/20">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gold/15 flex items-center justify-center">
-                <span className="text-xl">💳</span>
-              </div>
-              <p className="font-headline text-lg text-forest">Flexible Payment Options</p>
-            </div>
-            <ul className="space-y-3 font-body text-sm text-forest/75">
-              <li className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-gold" />
-                6-month program: ₹1,99,999 (one-time)
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-10 max-w-3xl mx-auto shadow-xl border border-gold/10">
+            <p className="font-body text-base md:text-lg text-forest/85 leading-[1.6] md:leading-relaxed mb-6">
+              You already know this: When you&apos;re at your best, everyone
+              around you benefits.
+            </p>
+            <ul className="space-y-4 mb-6">
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/80">
+                  Your team gets better leadership
+                </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-gold" />
-                EMI available through Razorpay
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/80">
+                  Your family gets your full presence
+                </span>
               </li>
-              <li className="flex items-center gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-gold" />
-                Strategy call: ₹9,999 (pay first, then book)
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/80">
+                  Your partner notices the shift
+                </span>
               </li>
             </ul>
-          </div>
-
-          {/* Testimonial - VIP Client */}
-          <div className="relative max-w-2xl mx-auto mb-10">
-            {/* Decorative quotes */}
-            <div className="absolute -top-4 -left-2 text-6xl text-gold/20 font-accent">&ldquo;</div>
-
-            <div className="bg-white/70 backdrop-blur-sm rounded-[2rem] p-8 md:p-10 shadow-xl border border-wine/10 relative overflow-hidden">
-              {/* Accent border */}
-              <div className="absolute left-0 top-8 bottom-8 w-1 bg-gradient-to-b from-wine/40 via-wine to-wine/40 rounded-full" />
-
-              <p className="font-accent text-xl md:text-2xl text-forest/85 leading-relaxed mb-6 pl-6">
-                I&apos;ve worked with celebrity trainers, nutritionists,
-                and therapists. Nothing came close to Transform. Disha
-                doesn&apos;t just change your body—she redesigns how you show up
-                in the world. I&apos;m unrecognizable in the best way.
-              </p>
-              <div className="flex items-center gap-4 pl-6">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-beige to-beige-dark flex items-center justify-center ring-2 ring-gold/20">
-                  <span className="text-2xl">👩🏻</span>
-                </div>
-                <div>
-                  <p className="font-headline text-lg text-forest">
-                    Ananya K.
-                  </p>
-                  <p className="font-body text-sm text-forest/60">
-                    Investment Banker, Mumbai
-                  </p>
-                  <p className="font-body text-xs text-wine/70 mt-1">
-                    Lost 12 kg • Raised ₹18L in promotions • Reclaimed confidence
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Secondary CTA */}
-          <div className="text-center">
-            <Button
-              onClick={scrollToCalendar}
-              className="bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg font-semibold px-10 py-5 h-auto rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              Yes, I&apos;m Ready for My Strategy Call
-            </Button>
+            <p className="font-headline text-xl md:text-2xl text-wine font-bold text-center">
+              <TransformBrand className="text-xl md:text-2xl" /> isn&apos;t
+              selfish. It&apos;s strategic.
+            </p>
           </div>
         </div>
       </section>
@@ -741,126 +500,369 @@ export default function TransformLandingPage() {
       <FloralDivider />
 
       {/* =========================================================================
-          SECTION 3: WHAT IS TRANSFORM (SCREEN 3)
+          SECTION 3: THE COMPARISON THAT CHANGES EVERYTHING
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24">
-        <DecorativeBlob className="w-96 h-96 -top-24 -left-48" color="beige" />
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 -top-[8vw] -left-[12vw] md:-top-24 md:-left-48"
+          color="beige"
+        />
 
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* Section Headline */}
-          <h2 className="font-headline text-2xl md:text-4xl lg:text-5xl font-bold text-forest text-center mb-10 max-w-[800px] mx-auto leading-tight">
-            This Is Where Discipline Becomes <span className="text-wine">Luxury</span>—And Transformation Becomes <span className="text-gold">Lifestyle</span>
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            What Your ₹2L Could Buy vs.
+            <br />
+            <span className="text-wine">What It Could Make You Become</span>
           </h2>
 
-          {/* Opening Copy */}
-          <div className="max-w-[720px] mx-auto text-center mb-12">
-            <p className="font-body text-base md:text-lg text-forest/75 leading-relaxed mb-6">
-              Transform isn&apos;t a 12-week program. It&apos;s not a meal plan
-              and workout tracker. It&apos;s not something you
-              &ldquo;complete.&rdquo;
+          <p className="font-body text-base md:text-lg text-forest/80 text-center mb-8 max-w-2xl mx-auto leading-relaxed">
+            Let&apos;s be honest. You&apos;ve spent more than ₹2L on things
+            that depreciate:
+          </p>
+
+          {/* Comparison Cards */}
+          <div className="space-y-4 mb-12">
+            {comparisonItems.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white/60 backdrop-blur-sm rounded-2xl p-5 md:p-6 shadow-lg border border-forest/5 flex items-start gap-4"
+              >
+                <div className="w-6 h-6 rounded-full bg-forest/10 flex items-center justify-center flex-shrink-0 mt-1">
+                  <Check className="w-4 h-4 text-forest/60" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                    <p className="font-headline text-base md:text-lg text-forest font-semibold">
+                      {item.item}
+                    </p>
+                    <p className="font-headline text-base md:text-lg text-wine font-bold">
+                      {item.cost}
+                    </p>
+                  </div>
+                  <p className="font-body text-sm md:text-base text-forest/60 italic">
+                    {item.result}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center mb-10">
+            <p className="font-body text-base md:text-lg text-forest/80 mb-4 leading-relaxed">
+              You didn&apos;t think twice about those investments because they
+              felt worth it.
             </p>
-            <p className="font-body text-base md:text-lg text-forest/75 leading-relaxed mb-6">
-              Transform is the decision that you&apos;re done optimizing around
-              the edges. Done with programs that change your body but leave your
-              life the same. Done being your own transformation architect when
-              you could have the woman who&apos;s built this for 2,500+ Indian
-              women.
-            </p>
-            <p className="font-body text-base md:text-lg text-forest/75 leading-relaxed mb-6">
-              This is 1:1 work with Disha. Personal strategy sessions. Custom
-              protocols across fitness, beauty, finance, and confidence. Weekly
-              accountability. Direct access. The kind of guidance that
-              doesn&apos;t scale—because it&apos;s not meant to.
-            </p>
-            <p className="font-accent text-lg md:text-xl text-wine leading-relaxed">
-              This is the program for women who know exactly what they want: to
-              become hot and unstoppable. Not next year. Now.
+            <p className="font-accent text-xl md:text-3xl text-wine font-bold leading-tight">
+              Here&apos;s what makes{" "}
+              <TransformBrand className="text-xl md:text-3xl" /> different:
             </p>
           </div>
 
-          {/* "This Is For You If..." Checklist */}
-          <div className="bg-white/50 backdrop-blur-sm rounded-[2rem] p-8 md:p-10 max-w-2xl mx-auto mb-12 shadow-lg border border-gold/10">
-            <h3 className="font-headline text-xl md:text-2xl font-bold text-forest mb-8 text-center">
-              This Is For You If...
-            </h3>
-            <ul className="space-y-5">
-              {thisIsForYouChecklist.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-4">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-gold/30 to-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5 ring-1 ring-gold/30">
-                    <Check className="w-4 h-4 text-gold" />
+          {/* The Real Comparison */}
+          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-3xl md:rounded-[2rem] p-8 md:p-12 max-w-3xl mx-auto shadow-xl border-2 border-gold/30">
+            <p className="font-headline text-2xl md:text-4xl text-wine font-bold text-center mb-8">
+              ₹1,99,999 doesn&apos;t depreciate.
+              <br />
+              <span className="text-gold">It compounds.</span>
+            </p>
+
+            <p className="font-body text-base md:text-lg text-forest/80 text-center mb-10 leading-relaxed">
+              6 months from now, you won&apos;t just remember the
+              transformation. You&apos;ll <strong>be</strong> the
+              transformation. Every single day.
+            </p>
+
+            <div className="bg-white/70 rounded-2xl p-6 md:p-8 mb-6">
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                <div className="text-center md:text-left">
+                  <p className="font-body text-sm text-forest/60 mb-2">
+                    That handbag makes you look successful for
+                  </p>
+                  <p className="font-headline text-2xl md:text-3xl text-forest/40">
+                    2-3 years
+                  </p>
+                </div>
+                <div className="text-center md:text-left">
+                  <p className="font-body text-sm text-wine/80 mb-2 font-semibold">
+                    <TransformBrand className="text-sm" /> makes you become
+                    unstoppable for
+                  </p>
+                  <p className="font-headline text-3xl md:text-4xl text-wine font-bold">
+                    the rest of your life
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <p className="font-accent text-lg md:text-2xl text-forest text-center">
+              Which investment would your future self thank you for?
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 4: WOMEN LIKE YOU DON'T DO GROUP PROGRAMS
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 top-1/4 -right-[10vw] md:-right-36"
+          color="gold"
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            Women Like You Don&apos;t Do
+            <br />
+            <span className="text-wine">Group Programs</span>
+          </h2>
+
+          <p className="font-body text-base md:text-lg text-forest/80 text-center mb-8 max-w-2xl mx-auto leading-relaxed">
+            You&apos;ve seen the Instagram ads:
+          </p>
+
+          {/* Group Program Examples */}
+          <div className="flex flex-wrap justify-center gap-4 mb-10">
+            <div className="bg-white/60 rounded-full px-5 py-2 border border-forest/10">
+              <p className="font-body text-sm text-forest/60">
+                &ldquo;Join our 6-week challenge!&rdquo; (₹499)
+              </p>
+            </div>
+            <div className="bg-white/60 rounded-full px-5 py-2 border border-forest/10">
+              <p className="font-body text-sm text-forest/60">
+                &ldquo;Group coaching starts Monday!&rdquo; (₹2,999)
+              </p>
+            </div>
+            <div className="bg-white/60 rounded-full px-5 py-2 border border-forest/10">
+              <p className="font-body text-sm text-forest/60">
+                &ldquo;Monthly membership access!&rdquo; (₹1,499)
+              </p>
+            </div>
+          </div>
+
+          <div className="max-w-[720px] mx-auto mb-10 px-2">
+            <p className="font-body text-base md:text-lg text-forest/80 mb-6 leading-relaxed">
+              You&apos;ve maybe even tried them.
+            </p>
+            <p className="font-body text-base md:text-lg text-forest/80 mb-6 leading-relaxed">
+              And here&apos;s what happened: You showed up for 2 weeks. Life
+              got busy. You dropped off. You felt guilty. You promised yourself
+              &ldquo;next time.&rdquo;
+            </p>
+            <p className="font-accent text-lg md:text-2xl text-wine mb-8 leading-tight">
+              Here&apos;s why that cycle exists:
+            </p>
+            <p className="font-headline text-xl md:text-3xl text-forest font-bold text-center">
+              Group programs are designed for everyone.
+              <br />
+              <span className="text-wine">
+                <TransformBrand className="text-xl md:text-3xl" /> is designed
+                for you.
+              </span>
+            </p>
+          </div>
+
+          {/* Comparison Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-10">
+            {/* You're not looking for */}
+            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border border-forest/10">
+              <h3 className="font-headline text-lg md:text-xl text-forest/60 mb-6 text-center">
+                You&apos;re not looking for:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-forest/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <X className="w-4 h-4 text-forest/40" />
                   </div>
-                  <span className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
-                    {item}
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Generic meal plans (you&apos;ve tried those)
                   </span>
                 </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Disha Professional Photo */}
-          <div className="max-w-sm mx-auto">
-            <div className="relative">
-              {/* Decorative frame */}
-              <div className="absolute -inset-3 bg-gradient-to-br from-gold/20 via-transparent to-wine/20 rounded-[2.5rem]" />
-
-              <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden bg-gradient-to-br from-forest via-forest to-forest-light shadow-2xl">
-                <div className="absolute inset-0 bg-gradient-to-t from-forest/70 via-transparent to-gold/10" />
-                {/* Corner accents */}
-                <div className="absolute top-4 left-4 w-10 h-10 border-t-2 border-l-2 border-gold/50 rounded-tl-lg" />
-                <div className="absolute bottom-4 right-4 w-10 h-10 border-b-2 border-r-2 border-gold/50 rounded-br-lg" />
-                <Image
-                  src="/images/DMK/Professional portrait of Disha - sophisticated,.jpg"
-                  alt="Professional portrait of Disha Methi Khandelwal"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 384px"
-                />
-              </div>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-forest/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <X className="w-4 h-4 text-forest/40" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Recorded workouts (you need accountability)
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-forest/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <X className="w-4 h-4 text-forest/40" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Community-only support (you need personal guidance)
+                  </span>
+                </li>
+              </ul>
             </div>
-            <p className="font-accent text-base text-forest/70 text-center mt-5">
-              Disha Methi Khandelwal - Your Transformation Architect
-            </p>
+
+            {/* You're looking for */}
+            <div className="bg-gradient-to-br from-wine/5 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border-2 border-gold/30">
+              <h3 className="font-headline text-lg md:text-xl text-wine mb-6 text-center font-bold">
+                You&apos;re looking for:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Custom protocols designed for YOUR body, YOUR schedule, YOUR
+                    goals
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    TheDMK as your personal transformation architect
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Integration across all four pillars (because you&apos;re
+                    done with piecemeal approaches)
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
+
+          <p className="font-accent text-base md:text-lg text-forest/80 text-center max-w-2xl mx-auto leading-relaxed">
+            The women who choose{" "}
+            <TransformBrand className="text-base md:text-lg" /> aren&apos;t
+            better than group program members. They just know what level of
+            investment creates the results they actually want.
+          </p>
         </div>
       </section>
 
-      {/* Curved divider */}
-      <div className="relative h-16 md:h-24">
-        <svg viewBox="0 0 1440 100" fill="none" className="absolute top-0 w-full h-full" preserveAspectRatio="none">
-          <path d="M0,100 C480,0 960,0 1440,100 L1440,0 L0,0 Z" fill="#F2EBD9" fillOpacity="0.5" />
-        </svg>
-      </div>
+      <FloralDivider />
 
       {/* =========================================================================
-          SECTION 4: THE COMPLETE TRANSFORMATION - 4 PILLARS (SCREEN 4)
+          SECTION 5: YOU KNOW THAT WOMAN WHO...
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24 bg-gradient-to-b from-beige-light/50 via-beige-light/30 to-ivory">
-        <DecorativeBlob className="w-72 h-72 top-1/4 -right-36" color="gold" />
-        <DecorativeBlob className="w-64 h-64 bottom-1/4 -left-32" color="wine" />
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 bottom-1/4 -left-[8vw] md:-left-32"
+          color="wine"
+        />
 
-        <div className="max-w-5xl mx-auto relative z-10">
-          {/* Section Headline */}
-          <h2 className="font-headline text-2xl md:text-4xl lg:text-5xl font-bold text-forest text-center mb-4 leading-tight">
-            Why Transform Works When Everything Else Stops at Your Body
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            You Know That Woman Who...
           </h2>
 
-          {/* Section Intro */}
-          <p className="font-body text-base md:text-lg text-forest/75 text-center max-w-[680px] mx-auto mb-12 leading-relaxed">
-            Most programs transform your body. Then life happens—stress,
-            burnout, self-doubt—and the results evaporate. Transform rebuilds
-            ALL of you, so the transformation lasts. Here&apos;s how:
-          </p>
-
-          {/* 4 Pillar Cards - 2x2 grid desktop, 1 column mobile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            {pillars.map((pillar, idx) => (
-              <PillarCard key={idx} pillar={pillar} index={idx} />
-            ))}
+          <div className="max-w-[720px] mx-auto mb-10 space-y-4 text-center">
+            <p className="font-body text-lg md:text-xl text-forest/80 leading-relaxed">
+              ...Always looks radiant in photos (no filter needed)?
+            </p>
+            <p className="font-body text-lg md:text-xl text-forest/80 leading-relaxed">
+              ...Wears confidence like it&apos;s tailored just for her?
+            </p>
+            <p className="font-body text-lg md:text-xl text-forest/80 leading-relaxed">
+              ...Has that subtle glow that makes people ask &ldquo;what&apos;s
+              your secret?&rdquo;
+            </p>
+            <p className="font-body text-lg md:text-xl text-forest/80 leading-relaxed">
+              ...Seems to have it all together—body, career, presence, energy?
+            </p>
           </div>
 
-          {/* Transformation Gallery */}
-          <div className="mt-16 md:mt-20">
-            <TransformationGallery />
+          <p className="font-accent text-xl md:text-2xl text-wine text-center mb-8 leading-tight">
+            You follow her on Instagram. You&apos;ve wondered what she&apos;s
+            doing differently.
+          </p>
+
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-8 md:p-10 max-w-3xl mx-auto shadow-xl border border-gold/10 mb-10">
+            <h3 className="font-headline text-xl md:text-2xl text-forest mb-6 text-center">
+              Here&apos;s what she&apos;s <strong>NOT</strong> doing:
+            </h3>
+            <ul className="space-y-4 mb-8">
+              <li className="flex items-start gap-3">
+                <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-1" />
+                <span className="font-body text-sm md:text-lg text-forest/70">
+                  Following free YouTube workouts
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-1" />
+                <span className="font-body text-sm md:text-lg text-forest/70">
+                  Buying every supplement she sees online
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-1" />
+                <span className="font-body text-sm md:text-lg text-forest/70">
+                  Waiting for &ldquo;the right time&rdquo; to start
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-1" />
+                <span className="font-body text-sm md:text-lg text-forest/70">
+                  Choosing generic programs over personalized transformation
+                </span>
+              </li>
+            </ul>
+
+            <div className="h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent my-8" />
+
+            <h3 className="font-headline text-xl md:text-2xl text-wine mb-6 text-center font-bold">
+              Here&apos;s what she <strong>DID</strong> do:
+            </h3>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/85">
+                  Invested in herself the way she invests in everything else
+                  that matters
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/85">
+                  Chose personal guidance over trial-and-error
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/85">
+                  Treated transformation as a strategic priority, not a
+                  &ldquo;someday&rdquo; goal
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Check className="w-4 h-4 text-wine" />
+                </div>
+                <span className="font-body text-sm md:text-lg text-forest/85">
+                  Stopped comparing what she spends on herself vs. what she
+                  spends on others
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="text-center">
+            <p className="font-accent text-xl md:text-3xl text-wine mb-4 leading-tight">
+              The woman you admire made a decision.
+            </p>
+            <p className="font-headline text-2xl md:text-4xl text-forest font-bold">
+              Now it&apos;s your turn.
+            </p>
           </div>
         </div>
       </section>
@@ -868,134 +870,844 @@ export default function TransformLandingPage() {
       <FloralDivider />
 
       {/* =========================================================================
-          SECTION 5: HOW TRANSFORM WORKS - TIMELINE (SCREEN 5)
+          SECTION 6: HOW TRANSFORM WORKS (VALUE BREAKDOWN)
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24">
-        <DecorativeBlob className="w-80 h-80 top-0 left-1/4" color="beige" />
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 top-1/4 right-0"
+          color="gold"
+        />
 
-        <div className="max-w-3xl mx-auto relative z-10">
-          {/* Section Headline */}
-          <h2 className="font-headline text-2xl md:text-4xl lg:text-5xl font-bold text-forest text-center mb-4 leading-tight">
-            Your Transformation Journey
+        <div className="max-w-5xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-6 md:mb-8 px-2">
+            What ₹1,99,999 Gets You
           </h2>
-          <p className="font-accent text-lg md:text-xl text-wine text-center mb-12">
-            3 Phases to Unstoppable
+          <p className="font-accent text-lg md:text-xl text-wine text-center mb-12 max-w-2xl mx-auto">
+            (And Why It&apos;s Worth More Than You&apos;re Paying)
           </p>
 
-          {/* Timeline */}
-          <div className="pl-0">
-            {timelinePhases.map((phase, idx) => (
-              <TimelinePhase
-                key={idx}
-                phase={phase}
-                isLast={idx === timelinePhases.length - 1}
-              />
-            ))}
+          <p className="font-body text-base md:text-lg text-forest/80 text-center mb-8 max-w-2xl mx-auto">
+            If you hired these experts separately:
+          </p>
+
+          {/* Services Breakdown Table */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-gold/10 mb-10 overflow-x-auto">
+            <div className="min-w-[600px]">
+              {/* Header */}
+              <div className="grid grid-cols-4 gap-4 pb-4 mb-4 border-b border-forest/10">
+                <div className="font-headline text-sm md:text-base text-forest/60">
+                  What You Need
+                </div>
+                <div className="font-headline text-sm md:text-base text-forest/60">
+                  What It Costs
+                </div>
+                <div className="font-headline text-sm md:text-base text-forest/60">
+                  Total
+                </div>
+                <div className="font-headline text-sm md:text-base text-forest/60">
+                  What You Get
+                </div>
+              </div>
+
+              {/* Rows */}
+              {separateServicesBreakdown.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-4 gap-4 py-4 border-b border-forest/5 last:border-0"
+                >
+                  <div className="font-body text-sm md:text-base text-forest font-semibold">
+                    {item.service}
+                  </div>
+                  <div className="font-body text-xs md:text-sm text-forest/70">
+                    {item.cost}
+                  </div>
+                  <div className="font-headline text-sm md:text-base text-wine font-bold">
+                    {item.total}
+                  </div>
+                  <div className="font-body text-xs md:text-sm text-forest/60 italic">
+                    {item.what}
+                  </div>
+                </div>
+              ))}
+
+              {/* Total Row */}
+              <div className="grid grid-cols-4 gap-4 pt-6 mt-4 border-t-2 border-forest/20">
+                <div className="col-span-2 font-headline text-base md:text-lg text-forest font-bold">
+                  Total if hired separately:
+                </div>
+                <div className="font-headline text-xl md:text-2xl text-forest/40 line-through">
+                  ₹7,38,000/6 months
+                </div>
+                <div></div>
+              </div>
+            </div>
           </div>
 
-          {/* Tertiary CTA */}
-          <div className="text-center mt-12">
-            <button
-              onClick={scrollToCalendar}
-              className="group border-2 border-gold text-gold hover:bg-gold hover:text-forest font-body text-lg font-semibold px-10 py-5 h-auto rounded-full transition-all duration-300 bg-transparent inline-flex items-center justify-center gap-2"
+          {/* The TRANSFORM Offer */}
+          <div className="relative mb-12">
+            <div className="absolute -inset-1 bg-gradient-to-br from-gold/30 via-transparent to-wine/30 rounded-[2.5rem]" />
+
+            <div className="relative bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-[2rem] p-8 md:p-12 shadow-xl border-2 border-gold/30">
+              <div className="text-center">
+                <p className="font-body text-sm md:text-base text-forest/60 mb-2">
+                  With <TransformBrand className="text-sm md:text-base" />:
+                </p>
+                <p className="font-headline text-4xl md:text-6xl text-wine font-bold mb-6">
+                You save <strong className="text-wine">₹5,38,001</strong>
+                </p>
+                <p className="font-accent text-lg md:text-2xl text-forest/85 mb-8 leading-relaxed">
+                  AND
+                  get something money can&apos;t buy separately:{" "}
+                  <strong className="text-wine">INTEGRATION.</strong>
+                </p>
+                <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed max-w-2xl mx-auto">
+                  When TheDMK architects your fitness, beauty, finance, and
+                  confidence together, they compound. That&apos;s the
+                  transformation that lasts.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <Link
+              href="/checkout?program=transform-strategy-call"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-base md:text-lg font-semibold px-8 md:px-10 py-4 md:py-5 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
             >
-              <span>I&apos;m Ready—Book My Strategy Call</span>
-              <span className="group-hover:translate-x-1 transition-transform">→</span>
-            </button>
+              <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" />
+              <span className="whitespace-nowrap">Book Your Strategy Session</span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Curved divider */}
-      <div className="relative h-16 md:h-24">
-        <svg viewBox="0 0 1440 100" fill="none" className="absolute top-0 w-full h-full" preserveAspectRatio="none">
-          <path d="M0,100 C480,0 960,0 1440,100 L1440,0 L0,0 Z" fill="#F2EBD9" fillOpacity="0.5" />
-        </svg>
-      </div>
+      <FloralDivider />
 
       {/* =========================================================================
-          SECTION 6: FINAL PROOF + CTA (SCREEN 6)
+          SECTION 7: YOUR HUSBAND/PARTNER WILL NOTICE (TESTIMONIALS)
           ========================================================================= */}
-      <section className="relative px-4 md:px-8 py-16 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
         <div className="max-w-4xl mx-auto relative z-10">
-          {/* Transformation Showcase */}
-          {transformationShowcase.map((client, idx) => (
-            <div
-              key={idx}
-              className="bg-white/70 backdrop-blur-sm rounded-[2rem] p-8 md:p-10 shadow-xl border border-gold/10 mb-12"
+          <h2 className="font-headline text-[24px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-12 md:mb-16 px-2">
+            Your Husband/Partner Will Notice
+            <br />
+            <span className="text-wine" style={{fontSize: '1rem'}}>(And So Will Everyone Else)</span>
+          </h2>
+
+          <div className="space-y-8 md:space-y-10">
+            {testimonials.map((testimonial, idx) => (
+              <div
+                key={idx}
+                className="bg-white/70 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-10 shadow-xl border border-wine/10 relative overflow-hidden"
+              >
+                {/* Accent border */}
+                <div className="absolute left-0 top-6 md:top-8 bottom-6 md:bottom-8 w-1 bg-gradient-to-b from-wine/40 via-wine to-wine/40 rounded-full" />
+
+                <div className="pl-5 md:pl-6">
+                  <p className="font-accent text-base md:text-xl text-forest/85 leading-[1.6] md:leading-relaxed mb-6">
+                    &ldquo;{testimonial.quote}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden ring-2 ring-gold/20 flex-shrink-0">
+                      <Image
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        width={64}
+                        height={64}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-headline text-base md:text-lg text-forest">
+                        {testimonial.name}
+                      </p>
+                      <p className="font-body text-sm text-forest/60">
+                        {testimonial.profession}, {testimonial.location}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 8: LET'S TALK ABOUT WHAT ₹2L REALLY MEANS TO YOU
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 -top-[8vw] -left-[12vw] md:-top-24 md:-left-48"
+          color="beige"
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            Let&apos;s Talk About What ₹2L
+            <br />
+            <span className="text-wine">Really Means to You</span>
+          </h2>
+
+          <p className="font-body text-base md:text-lg text-forest/80 text-center mb-10 max-w-2xl mx-auto leading-relaxed">
+            You&apos;re reading this because you earn ₹25-60L annually (or
+            $45-70K if you&apos;re an NRI).
+          </p>
+
+          <p className="font-accent text-lg md:text-xl text-wine text-center mb-12">
+            Let&apos;s be honest about what ₹1,99,999 represents:
+          </p>
+
+          {/* Income Breakdown Cards */}
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+            {/* ₹40L earner */}
+            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border border-gold/10">
+              <h3 className="font-headline text-xl md:text-2xl text-wine mb-6 text-center font-bold">
+                For someone earning ₹40L/year:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s <strong>5% of your annual income</strong>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s less than your annual shopping budget
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s less than what you spent on your last vacation +
+                    gifts + eating out this year
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s what you&apos;d spend on a luxury watch or jewelry
+                    piece without stress
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* ₹60L earner */}
+            <div className="bg-gradient-to-br from-wine/5 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border-2 border-gold/30">
+              <h3 className="font-headline text-xl md:text-2xl text-wine mb-6 text-center font-bold">
+                For someone earning ₹60L/year:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s <strong>3.3% of your annual income</strong>
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s less than your car EMI for the year
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s comparable to what you invest in mutual funds
+                    monthly (scaled annually)
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-2 h-2 rounded-full bg-wine mt-2 flex-shrink-0" />
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    It&apos;s less than what you&apos;ve spent on things that
+                    haven&apos;t changed your life
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="font-accent text-lg md:text-2xl text-forest/85 mb-3 leading-relaxed">
+              The question isn&apos;t{" "}
+              <span className="text-wine font-semibold">
+                &ldquo;Can I afford ₹2L?&rdquo;
+              </span>
+            </p>
+            <p className="font-headline text-xl md:text-3xl text-wine font-bold leading-tight">
+              The question is &ldquo;Can I afford another year of feeling like
+              I&apos;m capable of more but not living it?&rdquo;
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 9: THE BRUTAL COMPARISON (ANNUAL SPENDING)
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 top-1/4 -right-[10vw] md:-right-36"
+          color="gold"
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            Here&apos;s What You&apos;ve Already Spent This Year
+            <br />
+            <span className="text-wine">(That Didn&apos;t TRANSFORM You)</span>
+          </h2>
+
+          <p className="font-body text-base md:text-lg text-forest/80 text-center mb-10 max-w-2xl mx-auto leading-relaxed">
+            Let&apos;s do the uncomfortable math:
+          </p>
+
+          {/* Spending Breakdown */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-gold/10 mb-10">
+            <div className="space-y-4">
+              {annualSpendingBreakdown.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 py-3 border-b border-forest/5 last:border-0"
+                >
+                  <span className="font-body text-sm md:text-base text-forest/80">
+                    {item.category}
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="font-body text-xs md:text-sm text-forest/60">
+                      {item.monthly}
+                    </span>
+                    <span className="font-headline text-sm md:text-base text-wine font-bold">
+                      {item.annual}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+              {/* Total */}
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 pt-6 mt-4 border-t-2 border-forest/20">
+                <span className="font-headline text-base md:text-lg text-forest font-bold">
+                  Total you&apos;ve already spent:
+                </span>
+                <span className="font-headline text-xl md:text-2xl text-wine font-bold">
+                  ₹7.4L-₹9.6L this year
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* The Hard Truth */}
+          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-3xl md:rounded-[2rem] p-8 md:p-12 max-w-3xl mx-auto shadow-xl border-2 border-wine/20 mb-10">
+            <p className="font-accent text-xl md:text-3xl text-wine text-center mb-6 leading-tight">
+              And here&apos;s the hard truth:
+            </p>
+            <p className="font-headline text-2xl md:text-4xl text-forest font-bold text-center mb-8">
+              You&apos;re the same woman you were Last Year.
+            </p>
+            <p className="font-body text-base md:text-lg text-forest/80 text-center leading-relaxed mb-6">
+              <TransformBrand className="text-base md:text-lg" /> costs
+              ₹1,99,999. You&apos;ve been spending more than that annually on
+              things that don&apos;t compound.
+            </p>
+            <p className="font-accent text-lg md:text-2xl text-forest/85 text-center leading-relaxed">
+              Imagine redirecting even half of that scattered spending into ONE
+              integrated transformation that actually works.
+            </p>
+          </div>
+
+          <p className="font-headline text-xl md:text-3xl text-wine font-bold text-center">
+            Which version feels like the smarter investment now?
+          </p>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 10: WOMEN AT YOUR LEVEL CHOOSE TRANSFORM
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 bottom-1/4 -left-[8vw] md:-left-32"
+          color="wine"
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            Women at Your Level
+            <br />
+            <span className="text-wine">Choose TRANSFORM</span>
+          </h2>
+
+          <p className="font-accent text-lg md:text-xl text-forest/80 text-center mb-12 max-w-2xl mx-auto leading-relaxed">
+            <TransformBrand className="text-lg md:text-xl" /> clients
+            aren&apos;t just high-earners. They&apos;re high-performers who
+            understand ROI.
+          </p>
+
+          {/* Client Profiles */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-8 md:p-10 shadow-xl border border-gold/10 mb-12">
+            <h3 className="font-headline text-xl md:text-2xl text-wine mb-8 text-center font-bold">
+              Our current <TransformBrand className="text-xl md:text-2xl" />{" "}
+              clients:
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {transformClients.map((client, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-4 bg-gradient-to-br from-beige-light/30 to-transparent rounded-2xl border border-gold/10"
+                >
+                  <div className="w-8 h-8 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Crown className="w-4 h-4 text-wine" />
+                  </div>
+                  <p className="font-body text-sm md:text-base text-forest/85">
+                    {client}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="text-center max-w-2xl mx-auto space-y-6">
+            <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
+              They&apos;re not &ldquo;fitter&rdquo; than you. They&apos;re not
+              &ldquo;more disciplined.&rdquo;
+            </p>
+            <p className="font-accent text-xl md:text-2xl text-wine leading-tight">
+              They just made the decision you&apos;re considering right now.
+            </p>
+            <p className="font-headline text-xl md:text-3xl text-forest font-bold leading-tight">
+              And 6 months later? They&apos;re the women other women ask about.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 11: THE FINAL COMPARISON CLOSE
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-6 md:mb-8 px-2">
+            The Most Expensive Decision
+            <br />
+            <span className="text-wine">You&apos;ll Make This Year...</span>
+          </h2>
+
+          <p className="font-accent text-xl md:text-3xl text-wine text-center mb-12 leading-tight">
+            ...isn&apos;t paying ₹1,99,999 for{" "}
+            <TransformBrand className="text-xl md:text-3xl" />.
+            <br />
+            It&apos;s staying exactly where you are.
+          </p>
+
+          {/* Cost Comparison */}
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8 mb-12">
+            {/* Another year of... */}
+            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border border-forest/10">
+              <h3 className="font-headline text-lg md:text-xl text-forest/60 mb-6 text-center">
+                Another year of:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Looking at photos and feeling &ldquo;I could look better
+                    than this&rdquo;
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Comparing yourself to other women and wondering
+                    &ldquo;what&apos;s she doing that I&apos;m not?&rdquo;
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Buying more clothes to feel confident instead of being
+                    confident
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Starting programs and stopping them, wondering why you
+                    can&apos;t stay consistent
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Watching your peers transform while you stay stuck in
+                    analysis paralysis
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 6 months from now */}
+            <div className="bg-gradient-to-br from-wine/5 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border-2 border-gold/30">
+              <h3 className="font-headline text-lg md:text-xl text-wine mb-6 text-center font-bold">
+                Versus 6 months from now, after{" "}
+                <TransformBrand className="text-lg md:text-xl" />:
+              </h3>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    You don&apos;t just look different. You are different.
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    The woman who walks into rooms with quiet confidence?
+                    That&apos;s you.
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    The woman people ask &ldquo;what&apos;s your secret?&rdquo;
+                    That&apos;s you.
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-5 h-5 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-3 h-3 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    The woman who invested in herself the way she invests in
+                    everything else? That&apos;s you.
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="text-center max-w-2xl mx-auto">
+            <p className="font-headline text-2xl md:text-4xl text-forest font-bold mb-4 leading-tight">
+              The women who hesitate stay the same.
+            </p>
+            <p className="font-headline text-2xl md:text-4xl text-wine font-bold leading-tight">
+              The women who decide, transform.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 12: PRIMARY CTA (WHAT HAPPENS AFTER BOOKING)
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <Link
+              href="/checkout?program=transform-strategy-call"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg md:text-xl font-bold px-10 md:px-14 py-6 md:py-8 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
             >
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                {/* Before/After placeholder */}
-                <div className="w-full md:w-1/3">
-                  <div className="aspect-square rounded-[1.5rem] bg-gradient-to-br from-beige to-beige-dark flex items-center justify-center shadow-inner">
-                    <p className="text-forest/40 text-sm text-center px-4">
-                      [Before/After Photos]
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-3 flex-shrink-0" />
+              <span className="whitespace-nowrap">
+                Invest ₹9,999 in Your Strategy Session
+              </span>
+            </Link>
+          </div>
+
+          {/* What happens after you book */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-8 md:p-10 shadow-xl border border-gold/10 mb-10">
+            <h3 className="font-headline text-xl md:text-2xl text-forest mb-8 text-center font-bold">
+              What happens after you book:
+            </h3>
+
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-wine to-wine-light flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="font-headline text-base text-ivory font-bold">
+                    1
+                  </span>
+                </div>
+                <div className="flex-1 pt-1">
+                  <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
+                    You fill out a transformation readiness questionnaire (we
+                    prepare for YOUR specific situation)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-wine to-wine-light flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="font-headline text-base text-ivory font-bold">
+                    2
+                  </span>
+                </div>
+                <div className="flex-1 pt-1">
+                  <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
+                    TheDMK reviews your goals, current challenges, and
+                    transformation vision
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-wine to-wine-light flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="font-headline text-base text-ivory font-bold">
+                    3
+                  </span>
+                </div>
+                <div className="flex-1 pt-1">
+                  <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
+                    During your 60-minute strategy session, we map your 6-month
+                    transformation blueprint
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="font-headline text-base text-forest font-bold">
+                    4
+                  </span>
+                </div>
+                <div className="flex-1 pt-1">
+                  <div className="space-y-2">
+                    <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
+                      <strong>If you&apos;re accepted into TRANSFORM:</strong>{" "}
+                      Your ₹9,999 is credited toward your ₹1,99,999 investment
+                    </p>
+                    <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
+                      <strong>
+                        If TRANSFORM isn&apos;t the right fit:
+                      </strong>{" "}
+                      You keep the strategy session insights (₹9,999 value)
                     </p>
                   </div>
                 </div>
-
-                {/* Content */}
-                <div className="flex-1 text-center md:text-left">
-                  <h3 className="font-headline text-2xl md:text-3xl font-bold text-forest mb-3">
-                    {client.name}
-                  </h3>
-                  <p className="font-body text-sm text-wine mb-4">
-                    {client.profession}, {client.city}
-                  </p>
-                  <p className="font-accent text-lg md:text-xl text-forest/80 leading-relaxed mb-6">
-                    &ldquo;{client.quote}&rdquo;
-                  </p>
-                  <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                    {client.results.map((result, ridx) => (
-                      <span
-                        key={ridx}
-                        className="bg-gradient-to-r from-gold/15 to-gold/10 text-forest text-sm font-body px-4 py-2 rounded-full border border-gold/20"
-                      >
-                        {result}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
             </div>
-          ))}
+          </div>
 
-          {/* Disha's Final Message */}
+          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-3xl p-6 md:p-8 text-center max-w-2xl mx-auto border border-gold/20">
+            <p className="font-headline text-xl md:text-2xl text-wine font-bold mb-3">
+              Either way, you win.
+            </p>
+            <p className="font-accent text-base md:text-lg text-forest/85">
+              You don&apos;t lose money. You invest in clarity.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 13: TheDMKWORKS WITH 14 TRANSFORM CLIENTS PER YEAR
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24">
+        <DecorativeBlob
+          className="w-[50vw] h-[50vw] max-w-96 max-h-96 top-1/4 right-0"
+          color="gold"
+        />
+
+        <div className="max-w-4xl mx-auto relative z-10">
+          <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
+            TheDMK Works with 14{" "}
+            <TransformBrand className="text-[28px] md:text-4xl lg:text-5xl" />{" "}
+            Clients Per Year
+          </h2>
+
+          <p className="font-accent text-lg md:text-xl text-wine text-center mb-12">
+            Here&apos;s why that matters to you:
+          </p>
+
+          <div className="max-w-3xl mx-auto mb-10">
+            <p className="font-body text-base md:text-lg text-forest/80 text-center mb-8 leading-relaxed">
+              You&apos;ve been in group programs where the coach:
+            </p>
+
+            <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border border-forest/10 mb-8">
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Disappears for weeks
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Gives generic advice
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Doesn&apos;t remember your specific situation
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <X className="w-5 h-5 text-forest/40 flex-shrink-0 mt-0.5" />
+                  <span className="font-body text-sm md:text-base text-forest/70">
+                    Treats you like a number, not a person
+                  </span>
+                </li>
+              </ul>
+            </div>
+
+            <p className="font-headline text-2xl md:text-3xl text-wine font-bold text-center mb-8">
+              <TransformBrand className="text-2xl md:text-3xl" /> is the
+              opposite.
+            </p>
+
+            <div className="bg-gradient-to-br from-wine/5 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-lg border-2 border-gold/30">
+              <p className="font-body text-base md:text-lg text-forest/80 text-center mb-6 leading-relaxed">
+                With only 14 clients annually, DMK:
+              </p>
+              <ul className="space-y-4">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Knows your cycle, your schedule, your triggers, your goals
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Adapts your protocols in real-time based on what&apos;s
+                    working
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Responds to your messages within hours, not days
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-full bg-wine/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="w-4 h-4 text-wine" />
+                  </div>
+                  <span className="font-body text-sm md:text-base text-forest/85">
+                    Architects every dimension to work together, not in isolation
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="text-center max-w-2xl mx-auto space-y-6">
+            <p className="font-accent text-lg md:text-xl text-forest/85 leading-relaxed">
+              This isn&apos;t just &ldquo;more expensive coaching.&rdquo;
+            </p>
+            <p className="font-headline text-xl md:text-3xl text-wine font-bold leading-tight">
+              This is why women at your level choose{" "}
+              <TransformBrand className="text-xl md:text-3xl" /> over
+              everything else.
+            </p>
+            <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
+              The ₹9,999 strategy session determines if you&apos;re one of this
+              year&apos;s 14.
+            </p>
+            <p className="font-accent text-lg md:text-xl text-wine leading-relaxed">
+              This isn&apos;t a sales call. It&apos;s a mutual evaluation.
+            </p>
+            <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
+              Because <TransformBrand className="text-base md:text-lg" />{" "}
+              isn&apos;t for everyone.
+              <br />
+              It&apos;s for women like you who are done waiting.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <FloralDivider />
+
+      {/* =========================================================================
+          SECTION 14: THE WOMAN YOU'LL BE 6 months FROM NOW + FINAL CTA
+          ========================================================================= */}
+      <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
+        <div className="max-w-4xl mx-auto relative z-10">
+          {/* Final Message */}
           <div className="relative max-w-[720px] mx-auto mb-12">
-            {/* Decorative frame */}
             <div className="absolute -inset-2 bg-gradient-to-br from-wine/20 via-transparent to-gold/20 rounded-[2.5rem]" />
 
             <div className="relative bg-gradient-to-br from-wine via-wine to-wine-light rounded-[2rem] p-10 md:p-12 text-ivory shadow-2xl overflow-hidden">
-              {/* Inner decorations */}
               <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl" />
               <div className="absolute bottom-0 left-0 w-32 h-32 bg-ivory/5 rounded-full blur-2xl" />
 
-              {/* Quote marks */}
-              <div className="absolute top-6 left-6 text-6xl text-ivory/10 font-accent">&ldquo;</div>
+              <div className="absolute top-6 left-6 text-6xl text-ivory/10 font-accent">
+                &ldquo;
+              </div>
 
               <div className="relative z-10">
-                <p className="font-accent text-xl md:text-2xl leading-relaxed mb-6">
-                  Here&apos;s what I know: You didn&apos;t find this page by
-                  accident. You&apos;re here because something inside you is ready
-                  to rise. Transform isn&apos;t for everyone. It&apos;s for women
-                  who are done waiting, done settling, done being their own
-                  obstacle.
+                <h2 className="font-headline text-2xl md:text-4xl mb-6 leading-tight">
+                  The Woman You&apos;ll Be 6 months From Now Is Watching You
+                  Decide Right Now
+                </h2>
+                <div className="space-y-4 mb-6">
+                  <p className="font-body text-base md:text-lg leading-relaxed">
+                    She&apos;s hoping you choose her.
+                  </p>
+                  <p className="font-body text-base md:text-lg leading-relaxed">
+                    She&apos;s hoping you stop comparing what you spend on
+                    yourself vs. others.
+                  </p>
+                  <p className="font-body text-base md:text-lg leading-relaxed">
+                    She&apos;s hoping you finally invest in transformation the
+                    way you invest in everything else.
+                  </p>
+                </div>
+                <p className="font-accent text-xl md:text-2xl mb-8 leading-relaxed">
+                  She&apos;s already decided.
+                  <br />
+                  <span className="text-gold">
+                    Now you just have to catch up.
+                  </span>
                 </p>
-                <p className="font-accent text-xl md:text-2xl leading-relaxed mb-8">
-                  If that&apos;s you—if you&apos;re ready to become hot and
-                  unstoppable, not someday, but NOW—then let&apos;s begin. I&apos;ll
-                  see you on our strategy call.
-                </p>
+
                 <div className="flex items-center gap-5">
-                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-ivory/20 flex items-center justify-center ring-2 ring-gold/30">
-                    <span className="text-3xl">👩🏻‍💼</span>
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-2 ring-gold/30">
+                    <Image
+                      src="/images/DMK/Disha Close Up Face.png"
+                      alt="Disha Methi Khandelwal"
+                      width={80}
+                      height={80}
+                      className="object-cover w-full h-full"
+                    />
                   </div>
                   <div>
-                    <p className="font-headline text-xl text-ivory">
+                    <p className="font-headline text-lg md:text-xl text-ivory">
                       Disha Methi Khandelwal
                     </p>
                     <p className="font-body text-sm text-ivory/70">
-                      Founder, Glow Up Academy • Your Transformation Architect
+                      Founder, Glow Up Academy
                     </p>
                   </div>
                 </div>
@@ -1003,7 +1715,23 @@ export default function TransformLandingPage() {
             </div>
           </div>
 
-          {/* Collapsible FAQ Section */}
+          {/* Final CTA */}
+          <div className="text-center mb-12">
+            <Link
+              href="/checkout?program=transform-strategy-call"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg md:text-xl font-bold px-10 md:px-14 py-6 md:py-8 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+            >
+              <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-3 flex-shrink-0" />
+              <span className="whitespace-nowrap">
+                Invest ₹9,999 in Your Strategy Session
+              </span>
+            </Link>
+            <p className="font-accent text-base md:text-lg text-wine mt-6">
+              The DMK Woman doesn&apos;t wait. She acts.
+            </p>
+          </div>
+
+          {/* FAQ Section */}
           <div className="mb-12">
             <h3 className="font-headline text-2xl md:text-3xl font-bold text-forest text-center mb-3">
               Questions? We&apos;ve Got Answers.
@@ -1025,63 +1753,6 @@ export default function TransformLandingPage() {
               ))}
             </div>
           </div>
-
-          {/* Final CTA */}
-          <div
-            id="final-cta"
-            className="relative overflow-hidden"
-          >
-            {/* Decorative frame */}
-            <div className="absolute -inset-1 bg-gradient-to-br from-gold/30 via-transparent to-wine/30 rounded-[2.5rem]" />
-
-            <div className="relative bg-gradient-to-br from-forest via-forest to-forest-light rounded-[2rem] p-10 md:p-16 text-center shadow-2xl">
-              {/* Inner decorations */}
-              <div className="absolute top-0 left-1/4 w-48 h-48 bg-gold/10 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-wine/10 rounded-full blur-3xl" />
-
-              {/* Corner accents */}
-              <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-gold/30 rounded-tl-2xl" />
-              <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-gold/30 rounded-br-2xl" />
-
-              <div className="relative z-10">
-                <h2 className="font-headline text-2xl md:text-4xl text-ivory mb-4 leading-tight">
-                  Your Queens Are Waiting.
-                  <br />
-                  <span className="text-gold">Book Your Strategy Call Today.</span>
-                </h2>
-                <p className="font-body text-base md:text-lg text-ivory/70 mb-10 max-w-md mx-auto">
-                  Limited to 5 Transform clients at a time. Disha&apos;s
-                  calendar fills fast.
-                </p>
-
-                <Link
-                  href="/book-call?program=transform"
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg md:text-xl font-bold px-12 md:px-14 py-6 md:py-7 h-auto rounded-full shadow-xl hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
-                >
-                  <Heart className="w-5 h-5 mr-2 fill-current" />
-                  Book My 60-Min Strategy Call — ₹9,999
-                </Link>
-
-                {/* Payment + Booking Flow */}
-                <div className="mt-12 bg-ivory/10 rounded-2xl p-8 border border-ivory/20">
-                  <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 mb-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-bold">1</div>
-                      <span className="text-ivory/80 font-body">Pay ₹9,999 via Razorpay</span>
-                    </div>
-                    <div className="hidden md:block text-gold">→</div>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center text-gold font-bold">2</div>
-                      <span className="text-ivory/80 font-body">Calendar unlocks to book your call</span>
-                    </div>
-                  </div>
-                  <p className="text-ivory/50 text-sm font-body text-center">
-                    [Razorpay Payment Button → On success, Calendly scheduling opens]
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -1089,7 +1760,7 @@ export default function TransformLandingPage() {
       <MobileStickyCTA visible={showStickyCTA} />
 
       {/* Add bottom padding on mobile to account for sticky CTA */}
-      <div className="h-[80px] md:hidden" />
+      <div className="h-[100px] md:h-0" />
 
       <Footer />
     </div>

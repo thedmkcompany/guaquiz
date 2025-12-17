@@ -6,124 +6,71 @@ import {
   getMerchantKey,
   isPayUConfigured,
 } from '@/lib/payu';
-import { getProgramById } from '@/lib/programs';
 import {
-  checkRateLimit,
-  getClientIP,
-  rateLimitResponse,
-  RATE_LIMITS,
-} from '@/lib/rate-limit';
-import { maskEmail, maskIP } from '@/lib/validation';
+  withPaymentHandler,
+  validatePaymentWithProgram,
+  parseCustomerName,
+  getBaseUrl,
+  errorResponse,
+  ErrorCode,
+} from '@/lib/payment-api';
+import { checkRateLimit, RATE_LIMITS, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
-  try {
-    // Rate limiting by IP
-    const clientIP = getClientIP(request);
-    const ipLimit = checkRateLimit(`payment_create_${clientIP}`, RATE_LIMITS.PAYMENT_CREATE);
-    if (!ipLimit.allowed) {
-      return rateLimitResponse(ipLimit.resetIn);
-    }
-
+  return withPaymentHandler(request, async ({ clientIP, body }) => {
     // Check if PayU is configured
     if (!isPayUConfigured()) {
-      return NextResponse.json(
-        { error: 'PayU is not configured' },
-        { status: 500 }
-      );
+      return errorResponse('PayU is not configured', 500, ErrorCode.NOT_CONFIGURED);
     }
 
-    const body = await request.json();
-
-    const {
-      amount,
-      programId,
-      programName,
-      customerEmail,
-      customerName,
-      customerPhone,
-    } = body;
-
-    // Validate required fields
-    if (!amount || !programId || !customerEmail || !customerName) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+    // Validate request and get program
+    const validation = validatePaymentWithProgram(body, clientIP);
+    if (validation instanceof NextResponse) {
+      return validation;
     }
 
-    // Rate limiting by email
-    const emailLimit = checkRateLimit(
-      `payment_email_${customerEmail.toLowerCase()}`,
+    const { data, program } = validation;
+
+    // Additional rate limit by email
+    const emailLimit = await checkRateLimit(
+      `payment_email_${data.customerEmail}`,
       RATE_LIMITS.PAYMENT_PER_EMAIL
     );
     if (!emailLimit.allowed) {
       return rateLimitResponse(emailLimit.resetIn);
     }
 
-    // Validate amount is a positive number
-    if (typeof amount !== 'number' || amount <= 0) {
-      return NextResponse.json(
-        { error: 'Invalid amount' },
-        { status: 400 }
-      );
-    }
-
-    // SECURITY: Validate amount matches program price
-    const program = getProgramById(programId);
-    if (!program) {
-      return NextResponse.json(
-        { error: 'Invalid program' },
-        { status: 400 }
-      );
-    }
-
-    if (amount !== program.price) {
-      console.error('[SECURITY] PayU price manipulation attempt:', {
-        programId,
-        expectedPrice: program.price,
-        receivedAmount: amount,
-        ip: maskIP(clientIP),
-        email: maskEmail(customerEmail),
-      });
-      return NextResponse.json(
-        { error: 'Invalid amount for selected program' },
-        { status: 400 }
-      );
-    }
-
+    // Generate transaction ID and parse name
     const txnid = generateTxnId();
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const { firstName, lastName } = parseCustomerName(data.customerName);
+    const baseUrl = getBaseUrl();
+    const productInfo = data.programName || program.name;
 
-    // Parse name
-    const nameParts = customerName.trim().split(' ');
-    const firstname = nameParts[0] || '';
-    const lastname = nameParts.slice(1).join(' ') || '';
-
-    // Generate hash
+    // Generate payment hash
     const hash = generatePaymentHash({
       txnid,
-      amount: amount.toFixed(2),
-      productinfo: programName || programId,
-      firstname,
-      email: customerEmail,
-      udf1: programId, // Store programId in udf1
-      udf2: '', // Reserved for future use
+      amount: data.amount.toFixed(2),
+      productinfo: productInfo,
+      firstname: firstName,
+      email: data.customerEmail,
+      udf1: data.programId,
+      udf2: '',
     });
 
-    // Payment parameters for PayU form
+    // Build payment parameters for PayU form
     const paymentParams = {
       key: getMerchantKey(),
       txnid,
-      amount: amount.toFixed(2),
-      productinfo: programName || programId,
-      firstname,
-      lastname,
-      email: customerEmail,
-      phone: customerPhone || '',
+      amount: data.amount.toFixed(2),
+      productinfo: productInfo,
+      firstname: firstName,
+      lastname: lastName,
+      email: data.customerEmail,
+      phone: data.customerPhone || '',
       surl: `${baseUrl}/api/payment/payu/callback`,
       furl: `${baseUrl}/api/payment/payu/callback`,
       hash,
-      udf1: programId,
+      udf1: data.programId,
       udf2: '',
       udf3: '',
       udf4: '',
@@ -135,11 +82,5 @@ export async function POST(request: NextRequest) {
       paymentUrl: getPayUUrl(),
       params: paymentParams,
     });
-  } catch (error) {
-    console.error('[PayU] Payment initiation failed:', error instanceof Error ? error.message : 'Unknown error');
-    return NextResponse.json(
-      { error: 'Unable to process payment. Please try again.' },
-      { status: 500 }
-    );
-  }
+  });
 }

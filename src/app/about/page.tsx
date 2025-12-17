@@ -2,21 +2,29 @@ import Link from "next/link";
 import { Heart, Users, Sparkles, Award, CheckCircle2 } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { Footer } from "@/components/ui/footer";
-import { Header } from "@/components/ui/header";
+import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 
-export const metadata = {
-  title: "About Us | The DMK",
-  description: "Transforming lives through fitness, nutrition, and confidence. Learn about The DMK's mission to empower Indian women.",
-};
+export const metadata = getPageMetadata({
+  title: "About Us - Meet Disha & The Glow Up Academy Story",
+  description:
+    "Meet Disha Methi Khandelwal, founder of Glow Up Academy. Master's in Applied Finance turned transformation coach. 2,500+ women transformed, 5,000+ sessions conducted. Learn about our holistic approach to fitness, beauty, finance, and confidence for Indian women.",
+  keywords: [
+    "Disha Methi Khandelwal",
+    "about Glow Up Academy",
+    "transformation coach India",
+    "women empowerment India",
+    "holistic wellness",
+    "founder story",
+  ],
+  ogImage: "/api/og?page=about",
+  canonical: `${siteConfig.url}/about`,
+});
 
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-gradient-pastel font-body text-forest">
-      {/* Header */}
-      <Header variant="back" position="fixed" />
-
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <main className="pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <DecorativeBlobs />
 
         <article className="max-w-4xl mx-auto relative z-10">

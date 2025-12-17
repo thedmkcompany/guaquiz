@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { getProgramBySlug, getAllPrograms } from "@/lib/programs";
 import { ResultPageClient } from "./result-page-client";
-import { TrialResultClient } from "./trial-result-client";
-import { TransformResultClient } from "./transform-result-client";
+import { WebinarResultClient } from "./webinar-result-client";
 import { EssentialsResultClient } from "./essentials-result-client";
+import { getProgramMetadata } from "@/lib/seo-config";
 
 interface ResultPageProps {
   params: Promise<{ slug: string }>;
@@ -21,10 +21,12 @@ export async function generateMetadata({ params }: ResultPageProps) {
 
   // Circle has its own dedicated page
   if (slug === "circle") {
-    return {
-      title: "Circle - Your Sisterhood to Unstoppable | Glow Up Academy",
-      description: "Join 2,500+ women in the Circle community. Live workouts, 4-pillar transformation, and sisterhood accountability.",
-    };
+    redirect("/circle");
+  }
+
+  // Transform has its own dedicated page
+  if (slug === "transform") {
+    redirect("/transform");
   }
 
   const program = getProgramBySlug(slug);
@@ -33,10 +35,8 @@ export async function generateMetadata({ params }: ResultPageProps) {
     return { title: "Program Not Found" };
   }
 
-  return {
-    title: `Your Result: ${program.name} | DMK`,
-    description: program.description,
-  };
+  // Use centralized program metadata
+  return getProgramMetadata(slug);
 }
 
 export default async function ResultPage({ params }: ResultPageProps) {
@@ -47,6 +47,11 @@ export default async function ResultPage({ params }: ResultPageProps) {
     redirect("/circle");
   }
 
+  // Redirect Transform results to the dedicated Transform landing page
+  if (slug === "transform") {
+    redirect("/transform");
+  }
+
   const program = getProgramBySlug(slug);
 
   if (!program) {
@@ -54,12 +59,8 @@ export default async function ResultPage({ params }: ResultPageProps) {
   }
 
   // Use specialized result pages for each program
-  if (program.slug === "trial") {
-    return <TrialResultClient program={program} />;
-  }
-
-  if (program.slug === "transform") {
-    return <TransformResultClient program={program} />;
+  if (program.slug === "webinar") {
+    return <WebinarResultClient program={program} />;
   }
 
   if (program.slug === "essentials") {

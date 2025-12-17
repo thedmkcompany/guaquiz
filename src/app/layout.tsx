@@ -6,6 +6,8 @@ import {
   GoogleTagManager,
   GoogleTagManagerNoScript,
 } from "@/components/analytics";
+import { Header } from "@/components/ui/header";
+import { defaultMetadata, siteConfig } from "@/lib/seo-config";
 
 // Custom fonts from /public/fonts/
 // Brand Typography (from 09-BRAND-COLORS.md):
@@ -45,31 +47,7 @@ const holiday = localFont({
   weight: "400",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Glow Up Academy | Find Your Perfect Program",
-    template: "%s | Glow Up Academy",
-  },
-  description:
-    "Transform your life with Glow Up Academy. Take our smart quiz to find the perfect program tailored to your goals and start your glow up journey today.",
-  keywords: [
-    "glow up",
-    "transformation",
-    "self improvement",
-    "personal development",
-    "online courses",
-    "academy",
-  ],
-  authors: [{ name: "Glow Up Academy" }],
-  openGraph: {
-    type: "website",
-    locale: "en_IN",
-    siteName: "Glow Up Academy",
-    title: "Glow Up Academy | Your Transformation Starts Here",
-    description:
-      "Transform your life with Glow Up Academy. Find the perfect program for your glow up journey.",
-  },
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
@@ -80,11 +58,27 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <GoogleTagManager />
+        {/* Preconnect for performance optimization */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="anonymous"
+        />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
+        {/* Theme color for mobile browsers */}
+        <meta name="theme-color" content={siteConfig.branding.themeColor} />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=5"
+        />
       </head>
       <body
         className={`${holiday.variable} ${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased overflow-x-hidden`}
       >
         <GoogleTagManagerNoScript />
+        <Header variant="logo" />
         {children}
       </body>
     </html>

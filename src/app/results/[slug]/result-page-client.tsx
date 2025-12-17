@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Program } from "@/types";
@@ -11,9 +11,8 @@ import {
   ProgramContent,
   QuizAnswers,
 } from "@/lib/results-data";
-import { WhatsAppButton } from "@/components/support/whatsapp-button";
+import { getQuizAnswers, migrateLegacyStorage, getQ1Answer } from "@/lib/lead-storage";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
-import { Header } from "@/components/ui/header";
 import {
   Section,
   SectionHeader,
@@ -38,39 +37,24 @@ interface ResultPageClientProps {
 
 export function ResultPageClient({ program }: ResultPageClientProps) {
   // Store quiz answers for personalization
-  const [quizAnswers, setQuizAnswers] = useState<QuizAnswers>({});
+  const [quizAnswers] = useState<QuizAnswers>(() => {
+    // Migrate any legacy sessionStorage data
+    migrateLegacyStorage();
+
+    // Get quiz answers from unified storage
+    const storedAnswers = getQuizAnswers();
+    if (storedAnswers) {
+      return storedAnswers as QuizAnswers;
+    } else {
+      // Fallback to Q1 answer or default
+      const q1 = getQ1Answer() || "q1-b";
+      return { q1 };
+    }
+  });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   const isHighTicket = program.requiresCall;
   const content: ProgramContent = getProgramContent(program.id);
-
-  // Read quiz answers from sessionStorage on mount
-  useEffect(() => {
-    // Try to get full quiz response first
-    const quizResponseStr = sessionStorage.getItem("quizResponse");
-    if (quizResponseStr) {
-      try {
-        const quizResponse = JSON.parse(quizResponseStr);
-        const answers: QuizAnswers = {};
-        // Extract first selected option for each question
-        Object.entries(quizResponse.answers || {}).forEach(([qId, optionIds]) => {
-          const opts = optionIds as string[];
-          if (opts && opts.length > 0) {
-            answers[qId as keyof QuizAnswers] = opts[0];
-          }
-        });
-        setQuizAnswers(answers);
-      } catch {
-        // Fallback to q1 answer only
-        const q1 = sessionStorage.getItem("dmk_q1_answer") || "q1-b";
-        setQuizAnswers({ q1 });
-      }
-    } else {
-      // Fallback to q1 answer only
-      const q1 = sessionStorage.getItem("dmk_q1_answer") || "q1-b";
-      setQuizAnswers({ q1 });
-    }
-  }, []);
 
   // Derive full personalization from all quiz answers
   const personalization = useMemo(() => {
@@ -88,16 +72,13 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
   // Build dynamic text with program-specific personalization
   const heroSubheadline = content.heroSubheadlineTemplate
     .replace("{personalization}", personalization.heroSubheadline)
-    .replace("{trialPersonalization}", personalization.trialHeroSubheadline);
+    .replace("{webinarPersonalization}", personalization.webinarHeroSubheadline);
   const whyWorksIntro = content.whyWorksIntroTemplate
     .replace("{reason}", personalization.whyThisWorksReason)
-    .replace("{trialReason}", personalization.trialWhyThisWorksReason);
+    .replace("{webinarReason}", personalization.webinarWhyThisWorksReason);
 
   return (
     <>
-      {/* HEADER - Enhanced glass overlay */}
-      <Header variant="logo" />
-
       <main className="bg-gradient-pastel relative overflow-hidden">
         {/* Decorative background blobs - Global for results page */}
         <DecorativeBlobs />
@@ -187,7 +168,7 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
 
               <div className="mt-8 md:mt-10 pt-5 md:pt-7 border-t border-beige-dark/20">
                 <p className="font-headline text-xl md:text-2xl text-forest mb-1">
-                  — {content.dishaSignature || "Disha Methi Khandelwal"}
+                  - {content.dishaSignature || "Disha Methi Khandelwal"}
                 </p>
                 <p className="text-xs md:text-sm text-charcoal/60 font-body">
                   Founder, Glow Up Academy
@@ -226,7 +207,7 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
                     )}
                   </p>
                   <p className="text-xs md:text-sm text-charcoal/60 font-body">
-                    {content.pricePerDay}—{content.priceComparison}
+                    {content.pricePerDay}-{content.priceComparison}
                   </p>
                 </div>
 
@@ -264,12 +245,15 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
                 </ul>
 
                 <p className="text-xs md:text-sm text-charcoal/50 font-body">
-                  Questions?{" "}
-                  <WhatsAppButton
-                    variant="link"
-                    message={`Hi! I have a question about ${program.name}.`}
-                    className="text-forest hover:text-forest-dark inline"
-                  />
+                  Questions? Contact us via Instagram{" "}
+                  <a
+                    href="https://instagram.com/_thedmk_"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-forest hover:text-forest-dark inline font-medium underline"
+                  >
+                    @_thedmk_
+                  </a>
                 </p>
               </div>
             </div>
@@ -430,22 +414,23 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
               </Link>
 
               <p className="text-white/60 text-xs md:text-sm mb-4 md:mb-5">
-                Questions before you commit?
-              </p>
-              <div className="flex items-center justify-center gap-4 md:gap-5 flex-wrap">
-                <WhatsAppButton
-                  variant="link"
-                  message={`Hi! I have questions about ${program.name}.`}
-                  className="text-white/80 hover:text-white text-sm"
-                />
-                <span className="text-white/40 text-sm">or</span>
+                Questions before you commit? Reach out via{" "}
+                <a
+                  href="https://instagram.com/_thedmk_"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 hover:text-white font-medium underline"
+                >
+                  Instagram
+                </a>
+                {" "}or{" "}
                 <Link
                   href="/contact"
-                  className="text-white/80 hover:text-white font-body text-sm underline"
+                  className="text-white/80 hover:text-white font-body underline"
                 >
-                  Email us
+                  Email
                 </Link>
-              </div>
+              </p>
               <p className="text-white/50 text-xs md:text-sm mt-8 md:mt-10 font-body">
                 {content.trustReminder}
               </p>
@@ -497,12 +482,6 @@ export function ResultPageClient({ program }: ResultPageClientProps) {
           </div>
         </div>
       </footer>
-
-      {/* Floating WhatsApp */}
-      <WhatsAppButton
-        variant="fixed"
-        message={`Hi! I'm interested in the ${program.name} program.`}
-      />
     </>
   );
 }

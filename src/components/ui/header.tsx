@@ -2,6 +2,7 @@
 
 import { memo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,13 +57,17 @@ export const Header = memo(function Header({
     return (
       <header className={cn(baseClasses, "px-4 sm:px-6 lg:px-8 py-3 sm:py-5")}>
         <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-1 sm:gap-4">
-            <div className="text-center sm:text-left">
-              <p className="font-headline text-xl sm:text-2xl font-bold text-forest">
-                Glow Up Academy
-              </p>
-              <p className="text-xs sm:text-sm text-forest/60">by THEDMK</p>
-            </div>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/GUA Logo.png"
+                alt="Glow Up Academy"
+                width={180}
+                height={60}
+                className="h-12 sm:h-14 w-auto"
+                priority
+              />
+            </Link>
             <p className="font-body text-xs sm:text-sm text-forest/80 italic">
               Become Hot &amp; Unstoppable
             </p>
@@ -94,12 +99,15 @@ export const Header = memo(function Header({
     <header className={cn(baseClasses, "border-white/30")}>
       <div className="container mx-auto px-6 md:px-8 py-4 md:py-5">
         <div className="flex items-center justify-center">
-          <Link
-            href="/"
-            className="font-headline text-lg md:text-xl text-forest hover:text-forest-light transition-colors"
-          >
-            Glow Up Academy{" "}
-            <span className="text-gold font-normal">by THEDMK</span>
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Image
+              src="/images/GUA Logo.png"
+              alt="Glow Up Academy"
+              width={180}
+              height={60}
+              className="h-12 md:h-14 w-auto"
+              priority
+            />
           </Link>
         </div>
       </div>

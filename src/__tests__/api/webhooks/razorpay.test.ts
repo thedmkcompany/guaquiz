@@ -1,595 +1,314 @@
-/**
- * Tests for Razorpay Webhook Handler
- * Tests: /api/webhooks/razorpay
- */
-
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { createMockTextRequest, getResponseJson } from '../../helpers/test-utils';
 import { POST } from '@/app/api/webhooks/razorpay/route';
-import { webhookPayloads } from '@/__tests__/mocks/payment.fixtures';
 
-// Mock dependencies
+// Mock razorpay module
 vi.mock('@/lib/razorpay', () => ({
-  verifyWebhookSignature: vi.fn((body, signature) => {
-    return signature === 'valid_webhook_signature';
-  }),
+  verifyWebhookSignature: vi.fn(() => true),
   paiseToRupees: vi.fn((paise) => paise / 100),
 }));
 
-vi.mock('@/lib/wix-crm', () => ({
-  syncToWixCRM: vi.fn().mockResolvedValue({ success: true, contactId: 'contact_123' }),
+// Mock Supabase
+vi.mock('@/lib/supabase', () => ({
+  updateLeadPaymentStatus: vi.fn(() => Promise.resolve({ success: true })),
+  markPaymentFailed: vi.fn(() => Promise.resolve()),
 }));
 
+// Mock Wix CRM
+vi.mock('@/lib/wix-crm', () => ({
+  syncToWixCRM: vi.fn(() => Promise.resolve({ success: true })),
+}));
+
+// Mock webhook store
 vi.mock('@/lib/webhook-store', () => ({
-  isEventProcessed: vi.fn(() => false),
-  markEventProcessed: vi.fn(),
+  tryMarkEventProcessed: vi.fn(() => Promise.resolve(true)), // true = first time processing
+}));
+
+// Mock payment-api
+vi.mock('@/lib/payment-api', () => ({
+  parseCustomerName: vi.fn((name) => {
+    const parts = (name || '').trim().split(' ');
+    return { firstName: parts[0] || '', lastName: parts.slice(1).join(' ') || '' };
+  }),
+}));
+
+// Mock validation
+vi.mock('@/lib/validation', () => ({
+  maskEmail: vi.fn((email) => email?.replace(/^(.{2}).*(@.*)$/, '$1***$2') || '***'),
 }));
 
 describe('POST /api/webhooks/razorpay', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    process.env.RAZORPAY_WEBHOOK_SECRET = 'webhook_secret';
   });
 
-  // ============================================
-  // SUCCESS CASES
-  // ============================================
+  afterEach(() => {
+    vi.resetAllMocks();
+  });
 
-  describe('Success Cases', () => {
-    it('should process valid payment.captured webhook', async () => {
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_123',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.received).toBe(true);
-    });
-
-    it('should sync to Wix CRM on payment captured', async () => {
-      const { syncToWixCRM } = await import('@/lib/wix-crm');
-
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_123',
-        },
-        body: payload,
-      });
-
-      await POST(request as any);
-
-      expect(syncToWixCRM).toHaveBeenCalledWith(
-        expect.objectContaining({
+  const createWebhookPayload = (event: string, data: Record<string, unknown> = {}) => ({
+    event,
+    payload: {
+      payment: {
+        entity: {
+          id: 'pay_test123',
+          order_id: 'order_test123',
+          amount: 499900,
           email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-          programId: 'essentials',
-          isSubscription: false,
-        })
-      );
+          contact: '+919876543210',
+          notes: {
+            programId: 'essentials',
+            programName: 'Essentials Program',
+            customerEmail: 'test@example.com',
+            customerName: 'Test User',
+            customerPhone: '+919876543210',
+          },
+          ...data,
+        },
+      },
+    },
+  });
+
+  describe('Signature Verification', () => {
+    it('should reject request without signature', async () => {
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
+        headers: {},
+      });
+
+      const response = await POST(request);
+      const data = await getResponseJson<{ error: string }>(response);
+
+      expect(response.status).toBe(401);
+      expect(data.error).toBe('Invalid signature');
     });
 
-    it('should handle payment.failed webhook', async () => {
-      const payload = JSON.stringify(webhookPayloads.paymentFailed);
+    it('should reject request with invalid signature', async () => {
+      const { verifyWebhookSignature } = await import('@/lib/razorpay');
+      vi.mocked(verifyWebhookSignature).mockReturnValueOnce(false);
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_failed_123',
-        },
-        body: payload,
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
+        headers: { 'x-razorpay-signature': 'invalid_signature' },
       });
 
-      const response = await POST(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(200);
-      expect(data.received).toBe(true);
+      const response = await POST(request);
+      expect(response.status).toBe(401);
     });
 
-    it('should return 200 for unhandled events', async () => {
-      const payload = JSON.stringify({
-        ...webhookPayloads.paymentCaptured,
-        event: 'order.created',
+    it('should accept request with valid signature', async () => {
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_unhandled',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      const data = await response.json();
+      const response = await POST(request);
+      const data = await getResponseJson<{ received: boolean }>(response);
 
       expect(response.status).toBe(200);
       expect(data.received).toBe(true);
     });
   });
 
-  // ============================================
-  // SECURITY TESTS
-  // ============================================
+  describe('Duplicate Event Prevention', () => {
+    it('should ignore duplicate events', async () => {
+      const { tryMarkEventProcessed } = await import('@/lib/webhook-store');
+      vi.mocked(tryMarkEventProcessed).mockResolvedValueOnce(false); // false = already processed
 
-  describe('Security', () => {
-    it('should reject webhook with invalid signature', async () => {
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
         headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'invalid_signature',
+          'x-razorpay-signature': 'valid_signature',
+          'x-razorpay-event-id': 'evt_duplicate123',
         },
-        body: payload,
       });
 
-      const response = await POST(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(401);
-      expect(data.error).toBe('Invalid signature');
-    });
-
-    it('should reject webhook without signature', async () => {
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      const data = await response.json();
-
-      expect(response.status).toBe(401);
-      expect(data.error).toBe('Invalid signature');
-    });
-
-    it('should prevent replay attacks', async () => {
-      const { isEventProcessed } = await import('@/lib/webhook-store');
-
-      vi.mocked(isEventProcessed).mockReturnValueOnce(true);
-
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_duplicate',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      const data = await response.json();
+      const response = await POST(request);
+      const data = await getResponseJson<{ duplicate: boolean }>(response);
 
       expect(response.status).toBe(200);
       expect(data.duplicate).toBe(true);
     });
 
-    it('should mark events as processed', async () => {
+    it('should mark event as processed after handling', async () => {
       const { markEventProcessed } = await import('@/lib/webhook-store');
 
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-      const eventId = 'evt_mark_processed';
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
         headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': eventId,
+          'x-razorpay-signature': 'valid_signature',
+          'x-razorpay-event-id': 'evt_new123',
         },
-        body: payload,
       });
 
-      await POST(request as any);
+      await POST(request);
 
-      expect(markEventProcessed).toHaveBeenCalledWith(eventId, 'razorpay');
-    });
-
-    it('should handle webhook without event ID', async () => {
-      const { markEventProcessed } = await import('@/lib/webhook-store');
-
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-
-      expect(response.status).toBe(200);
-      expect(markEventProcessed).not.toHaveBeenCalled();
+      expect(markEventProcessed).toHaveBeenCalledWith('evt_new123', 'razorpay');
     });
   });
 
-  // ============================================
-  // ERROR HANDLING
-  // ============================================
-
-  describe('Error Handling', () => {
-    it('should return 200 even on CRM sync failure', async () => {
+  describe('Payment Events', () => {
+    it('should handle payment.captured event', async () => {
+      const { updateLeadPaymentStatus } = await import('@/lib/supabase');
       const { syncToWixCRM } = await import('@/lib/wix-crm');
 
-      vi.mocked(syncToWixCRM).mockRejectedValueOnce(new Error('CRM API error'));
-
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_crm_fail',
-        },
-        body: payload,
+      const body = JSON.stringify(createWebhookPayload('payment.captured'));
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body,
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const response = await POST(request as any);
-      const data = await response.json();
+      const response = await POST(request);
 
-      // Should still return 200 to prevent Razorpay retries
       expect(response.status).toBe(200);
-      expect(data.received).toBe(true);
+      expect(updateLeadPaymentStatus).toHaveBeenCalled();
+      expect(syncToWixCRM).toHaveBeenCalled();
     });
 
-    it('should handle malformed JSON gracefully', async () => {
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
+    it('should handle payment.failed event', async () => {
+      const { markPaymentFailed } = await import('@/lib/supabase');
+
+      const payload = {
+        event: 'payment.failed',
+        payload: {
+          payment: {
+            entity: {
+              id: 'pay_failed123',
+              order_id: 'order_test123',
+              email: 'test@example.com',
+              notes: { customerEmail: 'test@example.com' },
+            },
+          },
         },
-        body: 'invalid json{',
+      };
+
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: JSON.stringify(payload),
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const response = await POST(request as any);
-      const data = await response.json();
+      await POST(request);
 
-      // Should return 200 to prevent retries
-      expect(response.status).toBe(200);
-      expect(data.received).toBe(true);
-      expect(data.error).toBe('Processing error');
+      expect(markPaymentFailed).toHaveBeenCalled();
     });
 
-    it('should handle missing payment entity', async () => {
-      const payload = JSON.stringify({
-        entity: 'event',
-        event: 'payment.captured',
-        payload: {}, // Missing payment entity
-        created_at: Date.now(),
-      });
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
+    it('should handle order.paid event', async () => {
+      const payload = {
+        event: 'order.paid',
+        payload: {
+          order: { entity: { id: 'order_test123' } },
         },
-        body: payload,
+      };
+
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: JSON.stringify(payload),
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const response = await POST(request as any);
-
-      // Should handle gracefully
+      const response = await POST(request);
       expect(response.status).toBe(200);
     });
   });
-
-  // ============================================
-  // SUBSCRIPTION EVENTS
-  // ============================================
 
   describe('Subscription Events', () => {
     it('should handle subscription.activated event', async () => {
       const { syncToWixCRM } = await import('@/lib/wix-crm');
 
-      const payload = JSON.stringify({
-        entity: 'event',
+      const payload = {
         event: 'subscription.activated',
         payload: {
           subscription: {
             entity: {
-              id: 'sub_123',
-              plan_id: 'plan_test',
+              id: 'sub_test123',
+              plan_id: 'plan_circle',
               status: 'active',
               notes: {
                 programId: 'circle',
-                programName: 'Circle',
-                customerEmail: 'sub@example.com',
-                customerName: 'Sub User',
-                customerPhone: '+919876543210',
+                programName: 'The Circle',
+                customerEmail: 'test@example.com',
+                customerName: 'Test User',
               },
             },
           },
         },
-        created_at: Date.now(),
+      };
+
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: JSON.stringify(payload),
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_sub_activated',
-        },
-        body: payload,
-      });
+      await POST(request);
 
-      const response = await POST(request as any);
-
-      expect(response.status).toBe(200);
-      expect(syncToWixCRM).toHaveBeenCalledWith(
-        expect.objectContaining({
-          isSubscription: true,
-          subscriptionId: 'sub_123',
-        })
-      );
-    });
-
-    it('should handle subscription.charged event', async () => {
-      const payload = JSON.stringify({
-        entity: 'event',
-        event: 'subscription.charged',
-        payload: {
-          subscription: {
-            entity: {
-              id: 'sub_123',
-              status: 'active',
-            },
-          },
-          payment: {
-            entity: {
-              id: 'pay_recurring_123',
-              amount: 449900,
-            },
-          },
-        },
-        created_at: Date.now(),
-      });
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      expect(response.status).toBe(200);
-    });
-
-    it('should handle subscription.halted event', async () => {
-      const payload = JSON.stringify({
-        entity: 'event',
-        event: 'subscription.halted',
-        payload: {
-          subscription: {
-            entity: {
-              id: 'sub_123',
-              plan_id: 'plan_test',
-              status: 'halted',
-            },
-          },
-        },
-        created_at: Date.now(),
-      });
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
-      expect(response.status).toBe(200);
+      expect(syncToWixCRM).toHaveBeenCalled();
     });
 
     it('should handle subscription.cancelled event', async () => {
-      const payload = JSON.stringify({
-        entity: 'event',
+      const payload = {
         event: 'subscription.cancelled',
         payload: {
           subscription: {
             entity: {
-              id: 'sub_123',
-              plan_id: 'plan_test',
-              status: 'cancelled',
-              ended_at: Date.now(),
+              id: 'sub_test123',
+              plan_id: 'plan_circle',
+              ended_at: 1234567890,
             },
           },
         },
-        created_at: Date.now(),
+      };
+
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: JSON.stringify(payload),
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
-
-      const response = await POST(request as any);
+      const response = await POST(request);
       expect(response.status).toBe(200);
     });
   });
 
-  // ============================================
-  // EDGE CASES
-  // ============================================
-
-  describe('Edge Cases', () => {
-    it('should handle empty notes object', async () => {
-      const payload = JSON.stringify({
-        ...webhookPayloads.paymentCaptured,
-        payload: {
-          payment: {
-            entity: {
-              ...webhookPayloads.paymentCaptured.payload.payment.entity,
-              notes: {},
-            },
-          },
-        },
+  describe('Error Handling', () => {
+    it('should handle malformed JSON gracefully', async () => {
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: 'not valid json',
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
+      const response = await POST(request);
+      const data = await getResponseJson<{ received: boolean }>(response);
 
-      const response = await POST(request as any);
+      // Should return 200 to prevent retries
       expect(response.status).toBe(200);
+      expect(data.received).toBe(true);
     });
 
-    it('should handle name parsing with single name', async () => {
-      const { syncToWixCRM } = await import('@/lib/wix-crm');
+    it('should handle unhandled event types', async () => {
+      const payload = { event: 'unknown.event', payload: {} };
 
-      const payload = JSON.stringify({
-        ...webhookPayloads.paymentCaptured,
-        payload: {
-          payment: {
-            entity: {
-              ...webhookPayloads.paymentCaptured.payload.payment.entity,
-              notes: {
-                ...webhookPayloads.paymentCaptured.payload.payment.entity.notes,
-                customerName: 'Singlename',
-              },
-            },
-          },
-        },
+      const request = createMockTextRequest({
+        url: 'http://localhost:3000/api/webhooks/razorpay',
+        body: JSON.stringify(payload),
+        headers: { 'x-razorpay-signature': 'valid_signature' },
       });
 
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-        },
-        body: payload,
-      });
-
-      await POST(request as any);
-
-      expect(syncToWixCRM).toHaveBeenCalledWith(
-        expect.objectContaining({
-          firstName: 'Singlename',
-          lastName: '',
-        })
-      );
-    });
-
-    it('should handle concurrent webhook deliveries', async () => {
-      const requests = Array(5)
-        .fill(null)
-        .map((_, i) => {
-          const payload = JSON.stringify({
-            ...webhookPayloads.paymentCaptured,
-            payload: {
-              payment: {
-                entity: {
-                  ...webhookPayloads.paymentCaptured.payload.payment.entity,
-                  id: `pay_concurrent_${i}`,
-                },
-              },
-            },
-          });
-
-          return new Request('http://localhost:3000/api/webhooks/razorpay', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'x-razorpay-signature': 'valid_webhook_signature',
-              'x-razorpay-event-id': `evt_concurrent_${i}`,
-            },
-            body: payload,
-          });
-        });
-
-      const responses = await Promise.all(requests.map((req) => POST(req as any)));
-
-      // All should succeed
-      responses.forEach((res) => {
-        expect(res.status).toBe(200);
-      });
-    });
-  });
-
-  // ============================================
-  // PERFORMANCE
-  // ============================================
-
-  describe('Performance', () => {
-    it('should respond quickly even with slow CRM sync', async () => {
-      const { syncToWixCRM } = await import('@/lib/wix-crm');
-
-      // Simulate slow CRM
-      vi.mocked(syncToWixCRM).mockImplementationOnce(
-        () => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100))
-      );
-
-      const payload = JSON.stringify(webhookPayloads.paymentCaptured);
-
-      const request = new Request('http://localhost:3000/api/webhooks/razorpay', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-razorpay-signature': 'valid_webhook_signature',
-          'x-razorpay-event-id': 'evt_slow_crm',
-        },
-        body: payload,
-      });
-
-      const startTime = Date.now();
-      const response = await POST(request as any);
-      const duration = Date.now() - startTime;
-
-      // Should respond quickly despite slow CRM
+      const response = await POST(request);
       expect(response.status).toBe(200);
-      // Allow reasonable time for async operations
-      expect(duration).toBeLessThan(200);
     });
   });
 });

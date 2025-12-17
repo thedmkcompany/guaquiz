@@ -17,6 +17,9 @@ node_modules/
 /out/
 /build/
 /.turbo/
+# Next.js lock files (dev server)
+.next/dev/lock
+.next/**/lock
 
 # ============================================
 # TESTING & COVERAGE
@@ -24,6 +27,10 @@ node_modules/
 /coverage/
 *.lcov
 .nyc_output/
+.vitest-cache/
+.test-cache/
+test-results/
+playwright-report/
 
 # ============================================
 # ENVIRONMENT FILES
@@ -54,11 +61,17 @@ logs/
 .DS_Store
 .DS_Store?
 ._*
+.AppleDouble
+.LSOverride
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+ehthumbs_vista.db
 Thumbs.db
+Thumbs.db:encryptable
 Desktop.ini
+$RECYCLE.BIN/
+nul
 
 # ============================================
 # IDE & EDITORS
@@ -69,6 +82,8 @@ Desktop.ini
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+.cursor/
+.cursorignore
 *.swp
 *.swo
 *.swn
@@ -99,6 +114,44 @@ secrets/
 .serverless/
 
 # ============================================
+# CLAUDE AI
+# ============================================
+.claude/settings.local.json
+.claude/*.local.json
+.mcp.json
+
+# ============================================
+# CDN ASSETS (hosted on Vercel Blob)
+# ============================================
+# Large images and videos moved to CDN to reduce repo size
+# These files are served from Vercel Blob Storage
+# See: src/lib/cdn.ts and scripts/upload-to-cdn.ts
+
+# DMK Hero Images (large PNGs)
+public/images/DMK/Hero*.png
+public/images/DMK/Disha*.png
+public/images/DMK/*Blazer*.png
+public/images/DMK/amada*.png
+
+# Circle Program Images & Videos
+public/images/circle/*.mp4
+public/images/circle/*Transformation*.png
+public/images/circle/*Transformation*.jpg
+public/images/circle/*transformation*.png
+
+# Transform Program Images
+public/images/transform/*.jpg
+
+# Misc Large Images
+public/images/misc/*Before*.png
+public/images/misc/*.jpg
+
+# Keep small assets (icons, logos)
+!public/images/**/*-icon.png
+!public/images/**/*-logo.png
+!public/images/**/favicon*.png
+
+# ============================================
 # MISC
 # ============================================
 *.local
@@ -108,12 +161,102 @@ secrets/
 *.temp
 .cache/
 .parcel-cache/
+.eslintcache
+*.profile
+.firebase/
 
 # ============================================
 # GENERATED REPORTS (dev session artifacts)
 # ============================================
+# Ignore auto-generated reports in root and subdirectories
+# Exception: Keep reports in docs/ folder (committed documentation)
 *-REPORT.md
 *-AUDIT.md
 *-SUMMARY.md
 *-QUICKSTART.md
 *-GUIDE.md
+*-IMPLEMENTATION.md
+!docs/*-REPORT.md
+!docs/*-AUDIT.md
+!docs/*-SUMMARY.md
+
+# ============================================
+# REDIS
+# ============================================
+# Local Redis data files (if running Redis locally)
+dump.rdb
+*.rdb
+redis.conf.local
+
+# ============================================
+# SUPABASE
+# ============================================
+# Keep migrations tracked, but ignore local state
+.supabase/
+
+# ============================================
+# LOCAL ENVIRONMENT FILES
+# ============================================
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ============================================
+# TESTING
+# ============================================
+# MSW (Mock Service Worker) cache
+.msw/
+# Test artifacts
+test-output/
+__snapshots__/
+*.spec.ts.snap
+*.test.ts.snap
+# Test coverage reports (already covered above but being explicit)
+coverage/
+.nyc_output/
+# Vitest cache
+.vitest/
+node_modules/.vitest/
+
+# ============================================
+# SCRIPTS & TEMPORARY FILES
+# ============================================
+# Integration test scripts output
+scripts/output/
+scripts/logs/
+
+# Temporary test files and directories
+/tmp/
+.tmp/
+*.test.js
+test_*.js
+test_*.ts
+
+# ============================================
+# PUBLIC FOLDER (Static Assets)
+# ============================================
+# Ignore design source files and temporary image files
+public/**/*.psd
+public/**/*.ai
+public/**/*.sketch
+public/**/*.fig
+public/**/*.xcf
+public/**/*.afdesign
+public/**/*.afphoto
+
+# Ignore image processing artifacts
+public/**/*-original.*
+public/**/*-backup.*
+public/**/*.tmp
+public/**/.DS_Store
+public/**/Thumbs.db
+
+# Ignore optimized/processed output folders (if using image optimization)
+public/images/optimized/
+public/images/processed/
+public/images/.cache/
+
+# Ignore video processing files
+public/**/*.mp4.tmp
+public/**/*.webm.tmp

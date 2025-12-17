@@ -1,23 +1,29 @@
 import Link from "next/link";
-import { MessageCircle, Mail, Phone, Clock } from "lucide-react";
-import { WhatsAppButton } from "@/components/support";
+import { Mail, Phone, Clock, Instagram } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { MobileLogoLoop } from "@/components/MobileLogoLoop";
-import { Header } from "@/components/ui/header";
+import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 
-export const metadata = {
-  title: "Contact Us | DMK",
-  description: "Have questions? We're here to help. Reach out via WhatsApp, email, or book a call.",
-};
+export const metadata = getPageMetadata({
+  title: "Contact Us - Get in Touch with Glow Up Academy",
+  description:
+    "Have questions about our transformation programs? Contact Glow Up Academy via Instagram, email, or book a call. We're here to help you start your journey to becoming hot and unstoppable.",
+  keywords: [
+    "contact Glow Up Academy",
+    "customer support",
+    "book a call",
+    "transformation consultation",
+    "program inquiries",
+  ],
+  ogImage: "/api/og?page=contact",
+  canonical: `${siteConfig.url}/contact`,
+});
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-pastel font-body text-forest">
-      {/* Header */}
-      <Header variant="back" position="fixed" />
-
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-60px)] relative overflow-hidden">
+      <main className="pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-60px)] relative overflow-hidden">
         <DecorativeBlobs />
 
         <div className="max-w-2xl w-full relative z-10">
@@ -37,24 +43,29 @@ export default function ContactPage() {
 
           {/* Contact Options */}
           <div className="space-y-6">
-            {/* WhatsApp - Primary */}
+            {/* Instagram - Primary */}
             <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
               <div className="flex items-start gap-5 w-full">
-                <div className="w-14 h-14 bg-[#25D366]/10 rounded-full flex items-center justify-center flex-shrink-0 border border-[#25D366]/20">
-                  <MessageCircle className="w-7 h-7 text-[#25D366]" />
+                <div className="w-14 h-14 bg-gradient-to-br from-wine/20 to-gold/20 rounded-full flex items-center justify-center flex-shrink-0 border border-wine/30">
+                  <Instagram className="w-7 h-7 text-wine" />
                 </div>
                 <div className="flex-1">
                   <h2 className="font-headline font-bold text-lg text-forest mb-1">
-                    WhatsApp (Fastest)
+                    Instagram DM (Fastest)
                   </h2>
                   <p className="text-forest/70 text-sm mb-5 font-body">
-                    Chat with us directly. We usually reply within minutes
+                    Message us directly. We usually reply within minutes
                     during business hours.
                   </p>
-                  <WhatsAppButton
-                    message="Hi! I have a question about the programs."
-                    className="w-full sm:w-auto rounded-full bg-[#25D366] hover:bg-[#128C7E] text-white shadow-md font-semibold px-6 py-3"
-                  />
+                  <a
+                    href="https://instagram.com/_thedmk_"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 w-full sm:w-auto rounded-full bg-gradient-to-r from-wine to-wine-dark hover:from-wine-dark hover:to-wine text-white shadow-md font-semibold px-6 py-3 transition-all"
+                  >
+                    <Instagram className="w-5 h-5" />
+                    Message @_thedmk_
+                  </a>
                 </div>
               </div>
             </div>
@@ -113,7 +124,7 @@ export default function ContactPage() {
               <span className="font-medium">Average Response Time</span>
             </div>
             <p className="text-forest/60 text-sm font-body">
-              WhatsApp: Within minutes | Email: Within 24 hours
+              Instagram: Within minutes | Email: Within 24 hours
             </p>
           </div>
 

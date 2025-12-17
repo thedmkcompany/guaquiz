@@ -1,11 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getProgramBySlug, formatPrice } from "@/lib/programs";
 import { CalendlyEmbed } from "@/components/support";
 import { Crown, Check, Clock, Video, Gift } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
-import { Header } from "@/components/ui/header";
+import { getLeadData, migrateLegacyStorage } from "@/lib/lead-storage";
 
 export function BookCallClient() {
   const searchParams = useSearchParams();
@@ -15,18 +16,30 @@ export function BookCallClient() {
   // Default to Transform program for book-call page
   const displayProgram = program || getProgramBySlug("transform");
 
+  // Pre-fill data from quiz
+  const [prefillData] = useState<{ name?: string; email?: string }>(() => {
+    try {
+      // Migrate any legacy sessionStorage data
+      migrateLegacyStorage();
+
+      // Get lead data from unified storage
+      const lead = getLeadData();
+      if (lead) {
+        return {
+          name: lead.name?.trim() || undefined,
+          email: lead.email?.trim() || undefined,
+        };
+      }
+    } catch (error) {
+      console.error("Error loading quiz data for Calendly prefill:", error);
+    }
+    return {};
+  });
+
   return (
     <div className="min-h-screen bg-gradient-pastel font-body text-forest">
-      {/* Header */}
-      <Header
-        variant="back"
-        position="fixed"
-        backHref={program ? `/results/${program.slug}` : "/"}
-        backText="Back"
-      />
-
       {/* Main Content */}
-      <main className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      <main className="pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <DecorativeBlobs />
 
         <div className="max-w-6xl mx-auto relative z-10">
@@ -150,6 +163,7 @@ export function BookCallClient() {
                   <CalendlyEmbed
                     url={displayProgram?.calendlyUrl || undefined}
                     height="100%"
+                    prefill={prefillData}
                   />
                 </div>
               </div>

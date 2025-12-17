@@ -97,19 +97,17 @@ export function FeminineHeader({
     <header className={`text-center mb-8 md:mb-12 ${className}`}>
       {eyebrow && (
         <div className="flex items-center justify-center gap-2 mb-3">
-          <Sparkles className="w-3 h-3 text-gold" />
           <span className="text-xs md:text-sm font-subheader uppercase tracking-widest text-gold-dark">
             {eyebrow}
           </span>
-          <Sparkles className="w-3 h-3 text-gold" />
         </div>
       )}
       <h2 className="font-headline text-2xl sm:text-3xl md:text-4xl text-forest mb-3 md:mb-4">
-        {title}
+        <span dangerouslySetInnerHTML={{ __html: title }} />
       </h2>
       {subtitle && (
         <p className="text-sm md:text-lg text-charcoal/70 font-body max-w-2xl mx-auto leading-relaxed">
-          {subtitle}
+          <span dangerouslySetInnerHTML={{ __html: subtitle }} />
         </p>
       )}
       {/* Decorative underline */}
@@ -172,7 +170,7 @@ export function FeminineQuote({
       </p>
       {author && (
         <footer className="mt-4 pl-4">
-          <span className="font-headline text-forest">— {author}</span>
+          <span className="font-headline text-forest">- {author}</span>
           {role && (
             <span className="text-sm text-charcoal/60 font-body ml-2">{role}</span>
           )}

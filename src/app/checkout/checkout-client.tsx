@@ -5,44 +5,30 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getProgramBySlug, formatPrice } from "@/lib/programs";
 import { RazorpayCheckout } from "@/components/checkout";
+import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
+import { EssentialsStartDateSelector } from "@/components/checkout/EssentialsStartDateSelector";
+import { WebinarSessionSelector } from "@/components/checkout/WebinarSessionSelector";
 import { Shield, Lock } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
-import { Header } from "@/components/ui/header";
+import {
+  getCheckoutPrefill,
+  isCheckoutPrefillComplete,
+  migrateLegacyStorage,
+} from "@/lib/lead-storage";
+import {
+  calculateCircleStartDate,
+  calculateEssentialsStartDate,
+  calculateWebinarSessionDate,
+  getComingMondayIST,
+  getFollowingMondayIST,
+  getCurrentISTDate,
+} from "@/lib/date-utils";
+import type { CircleStartDateOption, CircleStartDateSelection, EssentialsStartDateSelection, WebinarSessionDateSelection } from "@/types";
 
 interface CustomerInfo {
   name: string;
   email: string;
   phone: string;
-}
-
-interface QuizResponse {
-  lead?: {
-    name: string;
-    email: string;
-    whatsapp: string;
-  };
-}
-
-/**
- * Cleans a phone number to extract the 10-digit Indian mobile number.
- * Handles various formats: +91, 91, 0, spaces, dashes, etc.
- */
-function cleanPhoneNumber(phone: string | undefined | null): string {
-  if (!phone) return "";
-
-  // Remove all non-digit characters
-  let digits = phone.replace(/\D/g, "");
-
-  // Handle various country code formats
-  if (digits.startsWith("91") && digits.length === 12) {
-    // +91 or 91 prefix with 10-digit number
-    digits = digits.slice(2);
-  } else if (digits.startsWith("0") && digits.length === 11) {
-    // 0 prefix (trunk code)
-    digits = digits.slice(1);
-  }
-
-  return digits;
 }
 
 export function CheckoutPageClient() {
@@ -59,33 +45,40 @@ export function CheckoutPageClient() {
   const [errors, setErrors] = useState<Partial<CustomerInfo>>({});
   const [isLoading, setIsLoading] = useState(true);
 
+  // Circle program start date selection
+  const isCircleProgram = programSlug === "circle";
+  const [circleStartDateOption, setCircleStartDateOption] = useState<CircleStartDateOption>("coming-monday");
+  const [circleStartDate, setCircleStartDate] = useState<CircleStartDateSelection | undefined>();
+
+  // Calculate Circle dates for selector
+  const comingMonday = getComingMondayIST();
+  const followingMonday = getFollowingMondayIST();
+  const isTodayMonday = getCurrentISTDate().getDay() === 1;
+
+  // Essentials program start date selection
+  const isEssentialsProgram = programSlug === "essentials";
+  const [essentialsStartDate, setEssentialsStartDate] = useState<EssentialsStartDateSelection | undefined>();
+
+  // Webinar program session date
+  const isWebinarProgram = programSlug === "webinar";
+  const [webinarSessionDate, setWebinarSessionDate] = useState<WebinarSessionDateSelection | undefined>();
+
   // Pre-fill from quiz data on mount
+  // Uses unified storage (localStorage + sessionStorage) for persistence
   useEffect(() => {
     try {
-      const quizResponseStr = sessionStorage.getItem("quizResponse");
-      if (quizResponseStr) {
-        const quizResponse: QuizResponse = JSON.parse(quizResponseStr);
-        if (quizResponse.lead) {
-          const { name, email, whatsapp } = quizResponse.lead;
-          // Clean phone number using robust helper
-          const cleanPhone = cleanPhoneNumber(whatsapp);
+      // First, migrate any legacy sessionStorage data to new storage
+      migrateLegacyStorage();
 
-          const preFilled = {
-            name: name?.trim() || "",
-            email: email?.trim() || "",
-            phone: cleanPhone,
-          };
+      // Get pre-filled data from unified storage
+      const prefill = getCheckoutPrefill();
 
-          setCustomerInfo(preFilled);
+      if (prefill) {
+        setCustomerInfo(prefill);
 
-          // If all fields are filled with valid data, skip directly to payment
-          const hasValidName = preFilled.name.length > 0;
-          const hasValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(preFilled.email);
-          const hasValidPhone = /^[6-9]\d{9}$/.test(preFilled.phone);
-
-          if (hasValidName && hasValidEmail && hasValidPhone) {
-            setStep("payment");
-          }
+        // If all fields are valid, skip directly to payment
+        if (isCheckoutPrefillComplete()) {
+          setStep("payment");
         }
       }
     } catch (error) {
@@ -94,6 +87,32 @@ export function CheckoutPageClient() {
       setIsLoading(false);
     }
   }, []);
+
+  // Update Circle start date when option changes
+  useEffect(() => {
+    if (isCircleProgram) {
+      const selection = calculateCircleStartDate(circleStartDateOption);
+      setCircleStartDate(selection);
+    }
+  }, [isCircleProgram, circleStartDateOption]);
+
+  // Calculate Essentials start date on mount
+  useEffect(() => {
+    if (isEssentialsProgram) {
+      const selection = calculateEssentialsStartDate();
+      console.log('[Essentials Checkout] Calculated start date:', selection);
+      setEssentialsStartDate(selection);
+    }
+  }, [isEssentialsProgram]);
+
+  // Calculate Webinar session date on mount
+  useEffect(() => {
+    if (isWebinarProgram) {
+      const selection = calculateWebinarSessionDate();
+      console.log('[Webinar Checkout] Calculated session date:', selection);
+      setWebinarSessionDate(selection);
+    }
+  }, [isWebinarProgram]);
 
   // Show loading while checking for quiz data
   if (isLoading) {
@@ -181,7 +200,28 @@ export function CheckoutPageClient() {
     subscriptionId?: string;
   }) => {
     // Redirect to success page with payment info
-    window.location.href = `/checkout/success?program=${program.slug}&paymentId=${data.paymentId}`;
+    const params = new URLSearchParams({
+      program: program.slug,
+      paymentId: data.paymentId,
+      email: customerInfo.email,
+    });
+
+    // Add Circle start date if applicable
+    if (isCircleProgram && circleStartDate) {
+      params.append('start_date', circleStartDate.isoString);
+    }
+
+    // Add Essentials start date if applicable
+    if (isEssentialsProgram && essentialsStartDate) {
+      params.append('start_date', essentialsStartDate.isoString);
+    }
+
+    // Add Webinar session date if applicable
+    if (isWebinarProgram && webinarSessionDate) {
+      params.append('start_date', webinarSessionDate.isoString);
+    }
+
+    window.location.href = `/checkout/success?${params.toString()}`;
   };
 
   const handlePaymentError = (error: string) => {
@@ -191,13 +231,6 @@ export function CheckoutPageClient() {
   return (
     <div className="min-h-screen bg-gradient-pastel relative overflow-hidden">
       <DecorativeBlobs />
-
-      {/* Header - Glass effect */}
-      <Header
-        variant="back"
-        backHref={`/results/${program.slug}`}
-        backText="Back to results"
-      />
 
       {/* Main Content */}
       <main className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 relative z-10">
@@ -336,6 +369,39 @@ export function CheckoutPageClient() {
                     </div>
                   </div>
 
+                  {/* Circle Start Date Selector */}
+                  {isCircleProgram && (
+                    <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
+                      <CircleStartDateSelector
+                        value={circleStartDateOption}
+                        onChange={setCircleStartDateOption}
+                        comingMondayDate={comingMonday}
+                        followingMondayDate={followingMonday}
+                        isTodayMonday={isTodayMonday}
+                      />
+                    </div>
+                  )}
+
+                  {/* Essentials Start Date Selector */}
+                  {(() => {
+                    console.log('[Essentials Checkout Render]', { isEssentialsProgram, essentialsStartDate, step });
+                    return isEssentialsProgram && essentialsStartDate && (
+                      <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
+                        <EssentialsStartDateSelector startDate={essentialsStartDate} />
+                      </div>
+                    );
+                  })()}
+
+                  {/* Webinar Session Selector */}
+                  {(() => {
+                    console.log('[Webinar Checkout Render]', { isWebinarProgram, webinarSessionDate, step });
+                    return isWebinarProgram && webinarSessionDate && (
+                      <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
+                        <WebinarSessionSelector sessionDate={webinarSessionDate} />
+                      </div>
+                    );
+                  })()}
+
                   {/* Razorpay Checkout */}
                   <RazorpayCheckout
                     amount={program.price}
@@ -344,6 +410,15 @@ export function CheckoutPageClient() {
                     customerEmail={customerInfo.email}
                     customerName={customerInfo.name}
                     customerPhone={customerInfo.phone}
+                    programStartDate={
+                      isCircleProgram
+                        ? circleStartDate
+                        : isEssentialsProgram
+                        ? essentialsStartDate
+                        : isWebinarProgram
+                        ? webinarSessionDate
+                        : undefined
+                    }
                     onSuccess={handlePaymentSuccess}
                     onError={handlePaymentError}
                   />

@@ -5,94 +5,76 @@ import {
   fetchPayment,
 } from '@/lib/razorpay';
 import {
-  checkRateLimit,
-  getClientIP,
-  rateLimitResponse,
-  RATE_LIMITS,
-} from '@/lib/rate-limit';
+  withPaymentHandler,
+  parseRequest,
+  RazorpayVerifySchema,
+  errorResponse,
+  ErrorCode,
+} from '@/lib/payment-api';
+import { RATE_LIMITS } from '@/lib/rate-limit';
 import { maskIP } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
-  try {
-    // Rate limiting by IP
-    const clientIP = getClientIP(request);
-    const ipLimit = checkRateLimit(`payment_verify_${clientIP}`, RATE_LIMITS.PAYMENT_VERIFY);
-    if (!ipLimit.allowed) {
-      return rateLimitResponse(ipLimit.resetIn);
-    }
+  return withPaymentHandler(
+    request,
+    async ({ clientIP, body }) => {
+      // Parse and validate request
+      const parsed = parseRequest(body, RazorpayVerifySchema);
+      if (!parsed.success) {
+        return parsed.response;
+      }
 
-    const body = await request.json();
-
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-      razorpay_subscription_id,
-    } = body;
-
-    // Validate required fields
-    if (!razorpay_payment_id || !razorpay_signature) {
-      return NextResponse.json(
-        { error: 'Missing required payment fields' },
-        { status: 400 }
-      );
-    }
-
-    let isValid = false;
-
-    // Verify based on payment type
-    if (razorpay_subscription_id) {
-      // Subscription payment verification
-      isValid = verifySubscriptionSignature(
-        razorpay_subscription_id,
-        razorpay_payment_id,
-        razorpay_signature
-      );
-    } else if (razorpay_order_id) {
-      // One-time payment verification
-      isValid = verifyPaymentSignature(
+      const {
         razorpay_order_id,
         razorpay_payment_id,
-        razorpay_signature
-      );
-    } else {
-      return NextResponse.json(
-        { error: 'Missing order_id or subscription_id' },
-        { status: 400 }
-      );
-    }
+        razorpay_signature,
+        razorpay_subscription_id,
+      } = parsed.data;
 
-    if (!isValid) {
-      console.error('[Security] Invalid payment signature attempt:', {
+      // Verify signature based on payment type
+      const isValidSignature = razorpay_subscription_id
+        ? verifySubscriptionSignature(razorpay_subscription_id, razorpay_payment_id, razorpay_signature)
+        : verifyPaymentSignature(razorpay_order_id!, razorpay_payment_id, razorpay_signature);
+
+      if (!isValidSignature) {
+        console.error('[Security] Invalid payment signature:', {
+          paymentId: razorpay_payment_id,
+          ip: maskIP(clientIP),
+        });
+
+        return errorResponse(
+          'Payment verification failed',
+          400,
+          ErrorCode.INVALID_SIGNATURE
+        );
+      }
+
+      // Optionally fetch payment details for confirmation
+      const paymentDetails = await fetchPaymentSafe(razorpay_payment_id);
+
+      return NextResponse.json({
+        verified: true,
         paymentId: razorpay_payment_id,
-        ip: maskIP(clientIP),
+        orderId: razorpay_order_id ?? null,
+        subscriptionId: razorpay_subscription_id ?? null,
+        status: paymentDetails?.status || 'captured',
       });
-      return NextResponse.json(
-        { error: 'Payment verification failed', verified: false },
-        { status: 400 }
-      );
+    },
+    {
+      rateLimitKey: `payment_verify_${request.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown'}`,
+      rateLimitConfig: RATE_LIMITS.PAYMENT_VERIFY,
     }
+  );
+}
 
-    // Optionally fetch payment details for confirmation
-    let paymentDetails = null;
-    try {
-      paymentDetails = await fetchPayment(razorpay_payment_id);
-    } catch {
-      // Non-critical - continue without details
-    }
-
-    return NextResponse.json({
-      verified: true,
-      paymentId: razorpay_payment_id,
-      orderId: razorpay_order_id || null,
-      subscriptionId: razorpay_subscription_id || null,
-      status: paymentDetails?.status || 'captured',
-    });
-  } catch (error) {
-    console.error('[Payment] Verification failed:', error instanceof Error ? error.message : 'Unknown error');
-    return NextResponse.json(
-      { error: 'Verification failed', verified: false },
-      { status: 500 }
-    );
+/**
+ * Fetch payment details without throwing
+ */
+async function fetchPaymentSafe(paymentId: string): Promise<{ status: string } | null> {
+  try {
+    return await fetchPayment(paymentId);
+  } catch {
+    // Non-critical - continue without details
+    return null;
   }
 }
