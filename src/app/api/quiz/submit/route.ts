@@ -123,10 +123,7 @@ export async function POST(request: NextRequest) {
       try {
         const result = await createQuizLeadAsync(leadData);
 
-        // AISensy welcome message disabled per user preference
-        // User wants WhatsApp messages only after payment, not after quiz
-        // To enable: uncomment the code below and set AISENSY_CAMPAIGN_WELCOME in .env
-        /*
+        // Send AISensy welcome message after quiz completion
         try {
           await sendQuizWelcome({
             phone: normalizedWhatsapp,
@@ -137,7 +134,6 @@ export async function POST(request: NextRequest) {
         } catch (error) {
           console.error('[Quiz Submit] AISensy welcome message failed:', error);
         }
-        */
 
         // Step 3: Update Supabase with sync result
         if (leadId && isSupabaseConfigured()) {

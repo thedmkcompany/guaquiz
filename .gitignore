@@ -260,3 +260,5 @@ public/images/.cache/
 # Ignore video processing files
 public/**/*.mp4.tmp
 public/**/*.webm.tmp
+
+.vercel
