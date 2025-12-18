@@ -72,9 +72,12 @@ export default function SyncStatusDashboard() {
       setError(null);
 
       const authString = btoa(`${credentials.user}:${credentials.pass}`);
+      // Include Vercel bypass header for deployment protection
+      const bypassSecret = process.env.NEXT_PUBLIC_VERCEL_BYPASS_SECRET || '';
       const response = await fetch("/api/admin/sync-status", {
         headers: {
           Authorization: `Basic ${authString}`,
+          ...(bypassSecret && { 'x-vercel-protection-bypass': bypassSecret }),
         },
       });
 

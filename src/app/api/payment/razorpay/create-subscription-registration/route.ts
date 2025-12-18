@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSubscriptionRegistrationLink } from '@/lib/razorpay';
-import { rateLimit } from '@/lib/rate-limit';
+import { checkRateLimit, RATE_LIMITS, rateLimitResponse } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting
-    const identifier = request.headers.get('x-forwarded-for') || 'anonymous';
-    const rateLimitResult = await rateLimit(identifier, 5, 60000); // 5 requests per minute
+    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+    const rateLimitCheck = await checkRateLimit(
+      `subscription-registration:${clientIp}`,
+      RATE_LIMITS.PAYMENT_CREATE
+    );
 
-    if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { error: 'Too many requests' },
-        { status: 429 }
-      );
+    if (!rateLimitCheck.allowed) {
+      return rateLimitResponse(rateLimitCheck.resetIn);
     }
 
     const body = await request.json();

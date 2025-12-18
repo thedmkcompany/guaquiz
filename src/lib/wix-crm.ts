@@ -1108,7 +1108,7 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
     // Step 2: Create member (required for pricing plan assignment)
     // Always attempt to create member when payment is made
     // createMember handles "already exists" case gracefully
-    const memberId = await createMember(contactId, data.email);
+    let memberId = await createMember(contactId, data.email);
     console.log(memberId ? `Member ready: ${memberId}` : 'Member creation skipped');
 
     // Step 3: Assign pricing plan if configured
