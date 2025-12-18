@@ -59,7 +59,7 @@ interface DashboardData {
 export default function SyncStatusDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [credentials, setCredentials] = useState({ user: "", pass: "" });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [autoRefresh, setAutoRefresh] = useState(false);
