@@ -5,6 +5,7 @@ import {
   cancelWixOrder,
   pauseWixOrder,
   resumeWixOrder,
+  postponeWixOrderEndDate,
   updateContactSubscriptionStatus,
 } from '@/lib/wix-crm';
 import {
@@ -12,8 +13,6 @@ import {
   markPaymentFailed,
   storeWixIds,
   updateSubscriptionStatus,
-  getWixOrderIdForSubscription,
-  findLeadBySubscriptionId,
 } from '@/lib/supabase';
 import { tryMarkEventProcessed } from '@/lib/webhook-store';
 import { parseCustomerName } from '@/lib/payment-api';
@@ -151,11 +150,30 @@ async function handleSubscriptionCharged(payload: RazorpayWebhookPayload): Promi
     return;
   }
 
-  // If subscription was previously halted, resume the Wix order
   const lead = result.lead;
+
+  // If subscription was previously halted, resume the Wix order first
   if (lead?.wix_order_id && lead?.subscription_status === 'halted') {
     console.log('[Razorpay Webhook] Resuming previously halted Wix order');
     await resumeWixOrder(lead.wix_order_id);
+  }
+
+  // Extend Wix order by 1 month on every successful renewal charge
+  if (lead?.wix_order_id) {
+    console.log('[Razorpay Webhook] Extending Wix order for renewal:', lead.wix_order_id);
+    const extended = await postponeWixOrderEndDate(lead.wix_order_id, 1);
+    if (!extended) {
+      console.error('[Razorpay Webhook] CRITICAL: Failed to extend Wix order - user may lose access:', {
+        subscriptionId: subscription.id,
+        wixOrderId: lead.wix_order_id,
+        email: lead.email,
+      });
+    }
+  } else {
+    console.warn('[Razorpay Webhook] No wix_order_id found - cannot extend order:', {
+      subscriptionId: subscription.id,
+      email: lead?.email,
+    });
   }
 
   // Update contact's subscription status in Wix

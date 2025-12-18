@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSubscriptionRegistrationLink } from '@/lib/razorpay';
 import { checkRateLimit, RATE_LIMITS, rateLimitResponse } from '@/lib/rate-limit';
 import { getProgramById } from '@/lib/programs';
+import { planMismatchError } from '@/lib/payment-api';
 
 export async function POST(request: NextRequest) {
   try {
@@ -56,20 +57,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Calculate maxAmount based on program price and payment method
-    // UPI has government limit of ₹15,000 per transaction
-    // Cards/emandate can handle full program price
-    const programPrice = program.price;
-    const maxAmount = paymentMethod === 'upi'
-      ? Math.min(programPrice, 15000)  // Respect UPI government limit
-      : programPrice;  // Full amount for cards/emandate
+    // Verify planId matches program's configured plan (security: prevent plan substitution)
+    if (program.razorpayPlanId && planId !== program.razorpayPlanId) {
+      return planMismatchError({
+        programId: program.id,
+        expectedPlanId: program.razorpayPlanId,
+        receivedPlanId: planId,
+        clientIP: clientIp,
+        email: email,
+      });
+    }
+
+    // Use program price as the mandate max amount
+    // This ensures customers see the actual subscription amount, not a scary high number
+    // - Essentials: ₹2,499/month mandate
+    // - Circle: ₹4,499 mandate
+    // Note: UPI has RBI limit of ₹15,000, but our programs are below this
+    const maxAmount = program.price;
 
     console.log('[Razorpay Registration] Creating link for program:', {
       programId: program.id,
       programName: program.name,
-      programPrice,
+      programPrice: program.price,
+      mandateMaxAmount: maxAmount,
       paymentMethod: paymentMethod || 'customer choice',
-      calculatedMaxAmount: maxAmount,
     });
 
     // Create registration link
@@ -85,7 +96,7 @@ export async function POST(request: NextRequest) {
       notes: {
         program_id: programId || '',
         program_name: program.name,
-        program_price: String(programPrice),
+        program_price: String(program.price),
         created_at: new Date().toISOString(),
       },
     });

@@ -150,7 +150,7 @@ export async function createSubscriptionRegistrationLink(params: {
     description: `Subscription registration for ${params.planId}`,
     subscription_registration: {
       method: params.paymentMethod || 'emandate', // emandate allows multiple payment methods
-      max_amount: params.maxAmount || 50000, // Default ₹500 for safety
+      max_amount: params.maxAmount, // Use program-specific mandate amount (required)
       expire_at: params.expireBy || Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days
     },
     receipt: `reg_${Date.now()}`,
@@ -169,13 +169,14 @@ export async function createSubscriptionRegistrationLink(params: {
     }),
   };
 
-  // UPI-specific config
+  // UPI-specific config - cap at RBI's ₹15,000 limit for UPI autopay
   if (params.paymentMethod === 'upi') {
     registrationConfig.subscription_registration.method = 'upi';
+    // UPI has RBI limit of ₹15,000, but we use program price if lower
     registrationConfig.subscription_registration.max_amount = Math.min(
-      params.maxAmount || 15000,
+      params.maxAmount || 0,
       15000
-    ); // UPI limit
+    );
   }
 
   const registrationLink = await razorpay.subscriptions.createRegistrationLink(

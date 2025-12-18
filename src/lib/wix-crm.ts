@@ -980,6 +980,118 @@ export async function resumeWixOrder(orderId: string): Promise<boolean> {
 }
 
 /**
+ * Get a Wix pricing plan order's details
+ * Used to fetch current end date before extending
+ *
+ * @param orderId - The Wix pricing plan order ID
+ * @returns Order details including endDate, or null on failure
+ */
+async function getWixOrder(orderId: string): Promise<{ endDate: string; status: string } | null> {
+  if (!isWixConfigured()) {
+    console.log('[Wix CRM] Not configured, cannot get order');
+    return null;
+  }
+
+  try {
+    const response = await fetchWithTimeout(
+      `${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}`,
+      {
+        method: 'GET',
+        headers: getWixHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Wix CRM] Failed to get order:', errorText);
+      return null;
+    }
+
+    const data = await response.json();
+    const order = data.order;
+
+    if (!order) {
+      console.error('[Wix CRM] Order not found in response');
+      return null;
+    }
+
+    return {
+      endDate: order.endDate,
+      status: order.status,
+    };
+  } catch (error) {
+    console.error('[Wix CRM] Error getting order:', error);
+    return null;
+  }
+}
+
+/**
+ * Extend a Wix pricing plan order's end date
+ * Called when Razorpay subscription renewal payment succeeds
+ *
+ * @param orderId - The Wix pricing plan order ID
+ * @param monthsToExtend - Number of months to extend (default: 1)
+ * @returns true if successfully extended, false otherwise
+ */
+export async function postponeWixOrderEndDate(
+  orderId: string,
+  monthsToExtend: number = 1
+): Promise<boolean> {
+  if (!isWixConfigured()) {
+    console.log('[Wix CRM] Not configured, cannot extend order');
+    return false;
+  }
+
+  try {
+    // Step 1: Get current order to find its endDate and status
+    const order = await getWixOrder(orderId);
+    if (!order) {
+      console.error('[Wix CRM] Could not get current order details:', orderId);
+      return false;
+    }
+
+    // Cannot extend paused orders - they need to be resumed first
+    if (order.status === 'PAUSED') {
+      console.warn('[Wix CRM] Cannot extend paused order - resume it first:', orderId);
+      return false;
+    }
+
+    // Step 2: Calculate new end date (add months)
+    const currentEndDate = new Date(order.endDate);
+    const newEndDate = new Date(currentEndDate);
+    newEndDate.setMonth(newEndDate.getMonth() + monthsToExtend);
+
+    console.log(`[Wix CRM] Extending order ${orderId}:`, {
+      currentEndDate: currentEndDate.toISOString(),
+      newEndDate: newEndDate.toISOString(),
+      monthsToExtend,
+    });
+
+    // Step 3: Call PATCH endpoint to update end date
+    const response = await fetchWithTimeout(
+      `${WIX_API_BASE}/pricing-plans/v2/orders/${orderId}`,
+      {
+        method: 'PATCH',
+        headers: getWixHeaders(),
+        body: JSON.stringify({ endDate: newEndDate.toISOString() }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Wix CRM] Failed to extend order:', errorText);
+      return false;
+    }
+
+    console.log(`[Wix CRM] Successfully extended order ${orderId} to ${newEndDate.toISOString()}`);
+    return true;
+  } catch (error) {
+    console.error('[Wix CRM] Error extending order:', error);
+    return false;
+  }
+}
+
+/**
  * Update contact's subscription status extended field
  */
 export async function updateContactSubscriptionStatus(
@@ -1138,6 +1250,7 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
   memberId?: string;
   orderId?: string;
   error?: string;
+  planAssignmentFailed?: boolean;
 }> {
   if (!isWixConfigured()) {
     console.log('Wix CRM not configured, skipping sync');
@@ -1191,6 +1304,8 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
     }
 
     // Only assign plan if we have a memberId (either from createMember or verification)
+    let planAssignmentFailed = false;
+
     if (memberId && planId) {
       // All requirements met - assign the plan
       try {
@@ -1202,7 +1317,7 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
         });
         console.log(`[Wix CRM] Pricing plan assigned successfully: ${orderId}`);
       } catch (planError) {
-        // Log but don't fail the entire sync - contact/member were created
+        planAssignmentFailed = true;
         console.error('[Wix CRM] ✗ Pricing plan assignment failed - FULL CONTEXT:');
         console.error('[Wix CRM] Error:', planError instanceof Error ? planError.message : planError);
         console.error('[Wix CRM] Member ID:', memberId);
@@ -1219,16 +1334,21 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
         console.error('[Wix CRM]   3. Check API key has "Manage Pricing Plan Orders" permission');
         console.error('[Wix CRM]   4. Verify member status is ACTIVE (not blocked)');
       }
+    } else if (!memberId) {
+      // No member ID means we can't assign a plan - this is a critical failure
+      planAssignmentFailed = true;
+      console.error('[Wix CRM] CRITICAL: No memberId available - cannot assign pricing plan');
     }
 
     // Step 4: Trigger automation for welcome email
     await triggerWixAutomation(data);
 
     return {
-      success: true,
+      success: !planAssignmentFailed,
       contactId,
       memberId: memberId || undefined,
       orderId: orderId || undefined,
+      planAssignmentFailed,
     };
   } catch (error) {
     console.error('Wix CRM sync failed:', error);
