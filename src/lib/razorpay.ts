@@ -136,6 +136,7 @@ export async function createSubscriptionRegistrationLink(params: {
   const razorpay = getRazorpayInstance();
 
   // Base registration link config
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const registrationConfig: any = {
     customer: {
       name: params.customerName,

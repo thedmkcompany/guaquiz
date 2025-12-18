@@ -200,12 +200,13 @@ async function withRetry<T>(
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
 
-      // Don't retry on abort (timeout) or if it's the last attempt
+      // Don't retry on abort (timeout) - throw immediately
       if (error instanceof Error && error.name === 'AbortError') {
-        console.error(`${operationName} timed out on attempt ${attempt}`);
-      } else {
-        console.error(`${operationName} failed on attempt ${attempt}:`, error);
+        console.error(`${operationName} timed out on attempt ${attempt} - not retrying timeouts`);
+        throw error;
       }
+
+      console.error(`${operationName} failed on attempt ${attempt}:`, error);
 
       if (attempt < maxRetries) {
         const delay = INITIAL_RETRY_DELAY * Math.pow(2, attempt - 1);
@@ -287,7 +288,8 @@ export async function findOrCreateLabel(displayName: string): Promise<string | n
     if (!response.ok) {
       const error = await response.text();
       // If label already exists (race condition), try to find it again
-      if (error.includes('already exists') || error.includes('ALREADY_EXISTS') || error.includes('DUPLICATE')) {
+      const errorLower = error.toLowerCase();
+      if (errorLower.includes('already exists') || errorLower.includes('duplicate')) {
         const retryKey = await findLabelByName(displayName);
         if (retryKey) {
           setCachedLabel(displayName, retryKey);
@@ -391,7 +393,7 @@ export async function findContactByEmail(
   email: string
 ): Promise<{ _id: string; revision?: string | number } | null> {
   try {
-    const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/query`, {
+    const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/contacts/query`, {
       method: 'POST',
       headers: getWixHeaders(),
       body: JSON.stringify({
@@ -492,8 +494,8 @@ async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
 
     // Handle race condition: contact was created by concurrent request
     // Fall back to finding and updating the existing contact
-    if (error.includes('DUPLICATE') || error.includes('duplicate') ||
-        error.includes('already exists') || error.includes('ALREADY_EXISTS')) {
+    const errorLower = error.toLowerCase();
+    if (errorLower.includes('duplicate') || errorLower.includes('already exists')) {
       console.log('[Wix CRM] Contact already exists (race condition), falling back to update');
 
       // Find the contact that was just created by the other request
@@ -574,10 +576,13 @@ async function updateContact(
   } = { ...updatePayload };
 
   if (revision !== undefined && revision !== null) {
-    requestBody.revision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
+    const parsedRevision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
+    if (!isNaN(parsedRevision)) {
+      requestBody.revision = parsedRevision;
+    }
   }
 
-  const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
+  const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
     method: 'PATCH',
     headers: getWixHeaders(),
     body: JSON.stringify(requestBody),
@@ -585,6 +590,16 @@ async function updateContact(
 
   if (!response.ok) {
     const error = await response.text();
+
+    // Retry once if revision mismatch (concurrent update scenario)
+    if (error.toLowerCase().includes('revision')) {
+      console.warn('[Wix CRM] Revision mismatch detected, retrying with fresh revision');
+      const fresh = await findContactByEmail(data.email);
+      if (fresh && fresh._id === contactId) {
+        return updateContact(contactId, fresh.revision, data);
+      }
+    }
+
     console.error('Wix contact update failed:', error);
     throw new Error(`Failed to update Wix contact: ${error}`);
   }
@@ -622,7 +637,8 @@ export async function createMember(contactId: string, email: string): Promise<st
     if (!response.ok) {
       const error = await response.text();
       // Member might already exist - get the actual memberId
-      if (error.includes('already exists') || error.includes('ALREADY_EXISTS')) {
+      const errorLower = error.toLowerCase();
+      if (errorLower.includes('already exists')) {
         console.log('Member already exists for contact:', contactId);
         // Query for the existing member to get correct memberId
         const existingMemberId = await findMemberByEmail(email);
@@ -671,7 +687,7 @@ async function findMemberByEmail(email: string, retries = 2): Promise<string | n
         await new Promise(resolve => setTimeout(resolve, 500 * attempt));
       }
 
-      const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
+      const response = await fetchWithTimeout(`${WIX_API_BASE}/members/v1/members/query`, {
         method: 'POST',
         headers: getWixHeaders(),
         body: JSON.stringify({
@@ -720,7 +736,7 @@ async function findMemberByEmail(email: string, retries = 2): Promise<string | n
  */
 async function findMemberByContactId(contactId: string): Promise<string | null> {
   try {
-    const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
+    const response = await fetchWithTimeout(`${WIX_API_BASE}/members/v1/members/query`, {
       method: 'POST',
       headers: getWixHeaders(),
       body: JSON.stringify({
@@ -753,7 +769,7 @@ async function findMemberByContactId(contactId: string): Promise<string | null> 
 async function sendPasswordSetupEmail(email: string): Promise<void> {
   try {
     // Correct endpoint per Wix API docs for member password setup
-    const response = await fetch(`${WIX_API_BASE}/wix-sm/api/v1/auth/v1/auth/members/send-set-password-email`, {
+    const response = await fetchWithTimeout(`${WIX_API_BASE}/wix-sm/api/v1/auth/v1/auth/members/send-set-password-email`, {
       method: 'POST',
       headers: getWixHeaders(),
       body: JSON.stringify({ email }),
@@ -787,7 +803,7 @@ export async function assignPricingPlan(params: {
   startDate?: string;
 }): Promise<string> {
   // Correct endpoint: /pricing-plans/v2/checkout/orders/offline (per Wix API docs)
-  const response = await fetch(`${WIX_API_BASE}/pricing-plans/v2/checkout/orders/offline`, {
+  const response = await fetchWithTimeout(`${WIX_API_BASE}/pricing-plans/v2/checkout/orders/offline`, {
     method: 'POST',
     headers: getWixHeaders(),
     body: JSON.stringify({
@@ -852,7 +868,8 @@ export async function cancelWixOrder(
     if (!response.ok) {
       const errorText = await response.text();
       // Check if already cancelled
-      if (errorText.includes('ALREADY_CANCELED') || errorText.includes('already canceled')) {
+      const errorLower = errorText.toLowerCase();
+      if (errorLower.includes('already cancel')) {
         console.log(`[Wix CRM] Order ${orderId} already cancelled`);
         return true;
       }
@@ -895,7 +912,8 @@ export async function pauseWixOrder(orderId: string): Promise<boolean> {
     if (!response.ok) {
       const errorText = await response.text();
       // Check if already suspended
-      if (errorText.includes('ALREADY_SUSPENDED') || errorText.includes('already suspended')) {
+      const errorLower = errorText.toLowerCase();
+      if (errorLower.includes('already suspend')) {
         console.log(`[Wix CRM] Order ${orderId} already suspended`);
         return true;
       }
@@ -981,12 +999,15 @@ export async function updateContactSubscriptionStatus(
     };
 
     if (contact.revision !== undefined) {
-      requestBody.revision = typeof contact.revision === 'string'
+      const parsedRevision = typeof contact.revision === 'string'
         ? parseInt(contact.revision, 10)
         : contact.revision;
+      if (!isNaN(parsedRevision)) {
+        requestBody.revision = parsedRevision;
+      }
     }
 
-    const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contact._id}`, {
+    const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/contacts/${contact._id}`, {
       method: 'PATCH',
       headers: getWixHeaders(),
       body: JSON.stringify(requestBody),
@@ -994,6 +1015,16 @@ export async function updateContactSubscriptionStatus(
 
     if (!response.ok) {
       const error = await response.text();
+
+      // Retry once if revision mismatch
+      if (error.toLowerCase().includes('revision')) {
+        console.warn('[Wix CRM] Revision mismatch in subscription status update, retrying');
+        const fresh = await findContactByEmail(email);
+        if (fresh) {
+          return updateContactSubscriptionStatus(email, status, additionalFields);
+        }
+      }
+
       console.error('[Wix CRM] Failed to update contact subscription status:', error);
       return false;
     }
@@ -1492,10 +1523,13 @@ async function updateQuizLead(
   };
 
   if (revision !== undefined && revision !== null) {
-    requestBody.revision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
+    const parsedRevision = typeof revision === 'string' ? parseInt(revision, 10) : revision;
+    if (!isNaN(parsedRevision)) {
+      requestBody.revision = parsedRevision;
+    }
   }
 
-  const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
+  const response = await fetchWithTimeout(`${WIX_API_BASE}/contacts/v4/contacts/${contactId}`, {
     method: 'PATCH',
     headers: getWixHeaders(),
     body: JSON.stringify(requestBody),
@@ -1503,6 +1537,16 @@ async function updateQuizLead(
 
   if (!response.ok) {
     const errorText = await response.text();
+
+    // Retry once if revision mismatch
+    if (errorText.toLowerCase().includes('revision')) {
+      console.warn('[Wix CRM] Revision mismatch in quiz lead update, retrying');
+      const fresh = await findContactByEmail(data.email);
+      if (fresh && fresh._id === contactId) {
+        return updateQuizLead(contactId, data, labelKeys, fresh.revision);
+      }
+    }
+
     if (isExtendedFieldsNotFoundError(errorText)) {
       console.warn(
         'Wix extended fields missing for quiz lead; skipping extendedFields update for contact:',
