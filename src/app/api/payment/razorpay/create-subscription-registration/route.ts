@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { planId, name, email, phone, programId, paymentMethod } = body;
+    const { planId, name, email, phone, programId, paymentMethod, callbackUrl } = body;
 
     // Validation - Required fields
     if (!planId || !name || !email || !phone) {
@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: paymentMethod || undefined, // Let customer choose if not specified
       maxAmount,
       totalCount: 12,
+      callbackUrl: callbackUrl || undefined,
       notes: {
         program_id: programId || '',
         program_name: program.name,

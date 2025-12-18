@@ -118,24 +118,26 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Step 2: Fire-and-forget Wix sync with status updates
+    // Step 2: Send WhatsApp message BEFORE returning response (guaranteed delivery)
+    // This is awaited to ensure the message is sent before the response is returned
+    try {
+      await sendQuizWelcome({
+        phone: normalizedWhatsapp,
+        name: normalizedName,
+        email: normalizedEmail,
+        quizResult: recommendation,
+      });
+    } catch (error) {
+      // Log but don't block - WhatsApp failure shouldn't prevent quiz submission
+      console.error('[Quiz Submit] AISensy welcome message failed:', error);
+    }
+
+    // Step 3: Fire-and-forget Wix sync with status updates
     const syncToWixWithStatusUpdate = async () => {
       try {
         const result = await createQuizLeadAsync(leadData);
 
-        // Send AISensy welcome message after quiz completion
-        try {
-          await sendQuizWelcome({
-            phone: normalizedWhatsapp,
-            name: normalizedName,
-            email: normalizedEmail,
-            quizResult: recommendation,
-          });
-        } catch (error) {
-          console.error('[Quiz Submit] AISensy welcome message failed:', error);
-        }
-
-        // Step 3: Update Supabase with sync result
+        // Step 4: Update Supabase with sync result
         if (leadId && isSupabaseConfigured()) {
           if (result.success) {
             await updateLeadSyncStatus(leadId, 'synced', result.contactId);

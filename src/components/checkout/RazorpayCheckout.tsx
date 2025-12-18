@@ -107,19 +107,26 @@ export function RazorpayCheckout({
       let orderData;
 
       if (isSubscription && razorpayPlanId) {
-        // Create subscription
-        const response = await fetch('/api/payment/razorpay/create-subscription', {
+        // Create subscription registration link (for UPI AutoPay mandate)
+        // Build callback URL for redirect after mandate approval
+        const baseUrl = window.location.origin;
+        const successParams = new URLSearchParams({
+          program: programId,
+          email: customerEmail,
+          ...(programStartDate?.isoString && { start_date: programStartDate.isoString }),
+        });
+        const callbackUrl = `${baseUrl}/checkout/success?${successParams.toString()}`;
+
+        const response = await fetch('/api/payment/razorpay/create-subscription-registration', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             planId: razorpayPlanId,
             programId,
-            programName,
-            customerEmail,
-            customerName,
-            customerPhone,
-            programStartDate: programStartDate?.isoString,
-            startDateOption: programStartDate?.option,
+            name: customerName,
+            email: customerEmail,
+            phone: customerPhone,
+            callbackUrl,
           }),
         });
 
@@ -128,7 +135,12 @@ export function RazorpayCheckout({
           throw new Error(error.error || 'Failed to create subscription');
         }
 
-        orderData = await response.json();
+        const registrationData = await response.json();
+
+        // Redirect to Razorpay registration page for mandate approval
+        // User will complete UPI mandate setup and be redirected back to success page
+        window.location.href = registrationData.shortUrl;
+        return; // Exit early - user will be redirected
       } else {
         // Create one-time order
         const response = await fetch('/api/payment/razorpay/create-order', {

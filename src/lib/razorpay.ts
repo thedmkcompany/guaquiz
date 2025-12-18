@@ -132,6 +132,7 @@ export async function createSubscriptionRegistrationLink(params: {
   totalCount?: number;
   notes?: Record<string, string>;
   expireBy?: number; // Unix timestamp
+  callbackUrl?: string; // URL to redirect after mandate approval
 }) {
   const razorpay = getRazorpayInstance();
 
@@ -161,6 +162,11 @@ export async function createSubscriptionRegistrationLink(params: {
       total_count: String(params.totalCount || 12),
       ...(params.notes || {}),
     },
+    // Callback URL for redirect after mandate approval
+    ...(params.callbackUrl && {
+      callback_url: params.callbackUrl,
+      callback_method: 'get',
+    }),
   };
 
   // UPI-specific config
