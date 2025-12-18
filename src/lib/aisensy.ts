@@ -138,45 +138,34 @@ export function formatPhoneNumber(phone: string): string {
 /**
  * Build tags for contact segmentation
  *
- * Tag Strategy:
- * - Program name (e.g., "Circle", "Transform")
- * - Program tier (e.g., "circle", "transform")
- * - Payment type ("paid_customer", "quiz_lead", "subscriber", "active_customer")
+ * Simple Tag Strategy:
+ * - Quiz leads: "quiz_essentials", "quiz_circle", "quiz_webinar", "quiz_strategy"
+ * - Paid customers: "paid_essentials", "paid_circle", "paid_webinar", "paid_strategy"
+ *
+ * NOTE: Transform is excluded - users pay for strategy call instead.
+ * NOTE: Tags must be pre-created in AISensy dashboard. Unknown tags are silently ignored.
  *
  * @param params - Tag parameters
  * @returns Array of tags
  */
 export function buildTags(params: {
-  programName?: string;
-  tier?: Program['tier'];
+  programId?: string; // e.g., "essentials", "circle", "webinar", "strategy"
   isPaid?: boolean;
-  isSubscription?: boolean;
   isQuizLead?: boolean;
 }): string[] {
   const tags: string[] = [];
 
-  // Program identification
-  if (params.programName) {
-    tags.push(params.programName); // e.g., "Circle", "Transform"
-  }
+  // Normalize program ID
+  const program = (params.programId || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
-  if (params.tier) {
-    tags.push(params.tier); // e.g., "circle", "transform"
-  }
+  // Skip if no program or if transform (users pay for strategy instead)
+  if (!program || program === 'transform') return tags;
 
-  // Payment status
+  // One tag per contact based on their current state
   if (params.isPaid) {
-    tags.push('paid_customer');
-    tags.push('active_customer');
-  }
-
-  if (params.isSubscription) {
-    tags.push('subscriber');
-  }
-
-  if (params.isQuizLead) {
-    tags.push('quiz_lead');
-    tags.push('prospective_customer');
+    tags.push(`paid_${program}`); // e.g., "paid_essentials", "paid_webinar"
+  } else if (params.isQuizLead) {
+    tags.push(`quiz_${program}`); // e.g., "quiz_essentials", "quiz_webinar"
   }
 
   return tags;
@@ -435,10 +424,8 @@ export async function sendPaymentConfirmation(params: {
   }
 
   const tags = buildTags({
-    programName: params.programName,
-    tier: params.programTier,
+    programId: params.programId, // e.g., "essentials", "circle" → creates "paid_essentials", "paid_circle"
     isPaid: true,
-    isSubscription: params.isSubscription,
   });
 
   const attributes = {
@@ -507,7 +494,7 @@ export async function sendQuizWelcome(params: {
   }
 
   const tags = buildTags({
-    programName: params.quizResult,
+    programId: params.quizResult, // e.g., "essentials", "circle" → creates "quiz_essentials", "quiz_circle"
     isQuizLead: true,
   });
 
@@ -545,10 +532,11 @@ export async function sendProgramStartReminder(params: {
   name: string;
   email: string;
   programName: string;
+  programId?: string;
   startDate: string;
 }): Promise<AISensyResponse> {
   const tags = buildTags({
-    programName: params.programName,
+    programId: params.programId || params.programName, // e.g., "essentials" → creates "paid_essentials"
     isPaid: true,
   });
 
