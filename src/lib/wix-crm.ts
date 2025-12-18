@@ -81,6 +81,15 @@ const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY = 1000; // 1 second
 const REQUEST_TIMEOUT = 10000; // 10 seconds
 
+/**
+ * Capitalize first letter of a string
+ * Used for creating label names like "Quiz Circle" from "circle"
+ */
+function capitalizeFirst(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+
 // ============================================
 // LABEL CACHE (Performance optimization)
 // ============================================
@@ -434,8 +443,10 @@ export async function findContactByEmail(
  * Handles race condition: if contact was created by concurrent request, falls back to update
  */
 async function createContact(data: WixCustomerData): Promise<{ _id: string }> {
-  // Ensure labels exist before creating contact
-  const labelDisplayNames = ['Customer', data.programName || data.programId];
+  // Labels: "Customer", "{Program}", "Paid {Program}" (Paid Webinar, Paid Essentials, Paid Circle, Paid Strategy)
+  const programName = data.programName || data.programId;
+  const paidLabel = programName ? `Paid ${capitalizeFirst(programName)}` : null;
+  const labelDisplayNames = ['Customer', programName, ...(paidLabel ? [paidLabel] : [])].filter(Boolean) as string[];
   const labelKeys = await ensureLabelsExist(labelDisplayNames);
 
   const response = await fetch(`${WIX_API_BASE}/contacts/v4/contacts`, {
@@ -604,8 +615,10 @@ async function updateContact(
     throw new Error(`Failed to update Wix contact: ${error}`);
   }
 
-  // Add Customer and program labels to the existing contact AFTER updating (avoids revision mismatch).
-  const labelDisplayNames = ['Customer', data.programName || data.programId];
+  // Add Customer, program, and "Paid {Program}" labels to existing contact AFTER updating (avoids revision mismatch).
+  const programName = data.programName || data.programId;
+  const paidLabel = programName ? `Paid ${capitalizeFirst(programName)}` : null;
+  const labelDisplayNames = ['Customer', programName, ...(paidLabel ? [paidLabel] : [])].filter(Boolean) as string[];
   const labelKeys = await ensureLabelsExist(labelDisplayNames);
   if (labelKeys.length > 0) {
     await addLabelsToContact(contactId, labelKeys);
@@ -1314,9 +1327,10 @@ export async function createQuizLead(data: QuizLeadData): Promise<{
   const lastName = nameParts.slice(1).join(' ') || '';
 
   try {
-    // Ensure "Lead" label exists before creating/updating contact
-    // Note: Program label is added ONLY after payment, not during quiz
-    const labelKeys = await ensureLabelsExist(['Lead']);
+    // Labels: "Lead" + "Quiz {Program}" (Quiz Webinar, Quiz Essentials, Quiz Circle, Quiz Strategy)
+    const quizLabel = data.recommendation ? `Quiz ${capitalizeFirst(data.recommendation)}` : null;
+    const labelDisplayNames = ['Lead', ...(quizLabel ? [quizLabel] : [])];
+    const labelKeys = await ensureLabelsExist(labelDisplayNames);
 
     // Check for existing contact with retry
     const existingContact = await withRetry(
