@@ -42,7 +42,7 @@ const CAMPAIGNS = {
   ESSENTIALS_1ST: process.env.AISENSY_CAMPAIGN_ESSENTIALS_1ST || '',
   STRATEGY: process.env.AISENSY_CAMPAIGN_STRATEGY || '',
 
-  // Quiz welcome campaigns (disabled until templates are created)
+  // Quiz welcome campaigns (program-specific, sent after quiz completion)
   QUIZ_RESULTS_CIRCLE: process.env.AISENSY_CAMPAIGN_QUIZ_RESULTS_CIRCLE || '',
   QUIZ_RESULTS_TRANSFORM: process.env.AISENSY_CAMPAIGN_QUIZ_RESULTS_TRANSFORM || '',
   QUIZ_RESULTS_ESSENTIALS: process.env.AISENSY_CAMPAIGN_QUIZ_RESULTS_ESSENTIALS || '',
@@ -493,11 +493,16 @@ export async function sendQuizWelcome(params: {
   const campaignName = getQuizWelcomeCampaign(params.quizResult);
 
   if (!campaignName) {
-    console.log(`[AISensy] No quiz welcome campaign configured for result: ${params.quizResult}`);
-    console.log('[AISensy] Skipping quiz welcome message - templates not yet created');
+    const envVarName = `AISENSY_CAMPAIGN_QUIZ_RESULTS_${params.quizResult.toUpperCase()}`;
+    console.error(`[AISensy] Quiz welcome message failed for program: ${params.quizResult}`);
+    console.error(`[AISensy] Environment variable not set: ${envVarName}`);
+    console.error(`[AISensy] Action required:`);
+    console.error(`[AISensy]   1. Create campaign in AISensy dashboard`);
+    console.error(`[AISensy]   2. Set ${envVarName} in Vercel environment variables`);
+    console.error(`[AISensy]   3. Redeploy application`);
     return {
       success: false,
-      error: `No quiz welcome campaign configured for: ${params.quizResult}`,
+      error: `Missing campaign configuration: ${envVarName}`,
     };
   }
 

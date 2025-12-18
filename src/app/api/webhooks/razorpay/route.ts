@@ -29,6 +29,7 @@ const EVENT_HANDLERS: Record<string, WebhookEventHandler> = {
   'payment.captured': handlePaymentCaptured,
   'payment.failed': handlePaymentFailed,
   'order.paid': handleOrderPaid,
+  'subscription.authenticated': handleSubscriptionAuthenticated,
   'subscription.activated': handleSubscriptionActivated,
   'subscription.charged': handleSubscriptionCharged,
   'subscription.pending': handleSubscriptionPending,
@@ -167,8 +168,28 @@ async function handleSubscriptionCharged(payload: RazorpayWebhookPayload): Promi
   }
 }
 
+/**
+ * Handle subscription.authenticated event
+ * Triggered when customer completes mandate/card authorization
+ */
+async function handleSubscriptionAuthenticated(payload: RazorpayWebhookPayload): Promise<void> {
+  const subscription = payload.payload.subscription?.entity;
+  if (!subscription) return;
+
+  console.log('[Razorpay Webhook] Subscription authenticated:', subscription.id);
+  console.log('[Razorpay Webhook] Payment method:', subscription.payment_method);
+  console.log('[Razorpay Webhook] Status:', subscription.status);
+
+  // Subscription will auto-activate, handled by subscription.activated
+  // This is just for logging/tracking
+}
+
 async function handleSubscriptionPending(payload: RazorpayWebhookPayload): Promise<void> {
-  console.log('[Razorpay Webhook] Subscription pending:', payload.payload.subscription?.entity.id);
+  const subscription = payload.payload.subscription?.entity;
+  console.log('[Razorpay Webhook] Subscription pending authorization:', subscription?.id);
+  console.log('[Razorpay Webhook] Payment method:', subscription?.payment_method || 'not set');
+
+  // Could send reminder email/WhatsApp here if needed
 }
 
 async function handleSubscriptionHalted(payload: RazorpayWebhookPayload): Promise<void> {

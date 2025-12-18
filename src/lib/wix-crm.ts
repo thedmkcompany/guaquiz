@@ -662,31 +662,56 @@ export async function createMember(contactId: string, email: string): Promise<st
  * Find member by email address
  * Returns memberId if found, null otherwise
  */
-async function findMemberByEmail(email: string): Promise<string | null> {
-  try {
-    const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
-      method: 'POST',
-      headers: getWixHeaders(),
-      body: JSON.stringify({
-        query: {
-          filter: {
-            loginEmail: { $eq: email },
+async function findMemberByEmail(email: string, retries = 2): Promise<string | null> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 0) {
+        console.log(`[Wix CRM] Retrying member lookup (attempt ${attempt + 1}/${retries + 1})`);
+        // Small delay for eventual consistency
+        await new Promise(resolve => setTimeout(resolve, 500 * attempt));
+      }
+
+      const response = await fetch(`${WIX_API_BASE}/members/v1/members/query`, {
+        method: 'POST',
+        headers: getWixHeaders(),
+        body: JSON.stringify({
+          query: {
+            filter: {
+              loginEmail: { $eq: email },
+            },
           },
-        },
-      }),
-    });
+        }),
+      });
 
-    if (!response.ok) {
-      return null;
+      if (!response.ok) {
+        if (attempt === retries) {
+          console.error('[Wix CRM] Member lookup failed after retries:', await response.text());
+        }
+        continue; // Try again
+      }
+
+      const data = await response.json();
+      const member = data.members?.[0];
+
+      if (member?.id) {
+        console.log(`[Wix CRM] ✓ Found member by email: ${member.id}`);
+        return member.id;
+      }
+
+      // No member found but API call succeeded
+      if (attempt === retries) {
+        console.log('[Wix CRM] No member found for email (after retries):', email);
+      }
+
+    } catch (error) {
+      console.error(`[Wix CRM] Error finding member by email (attempt ${attempt + 1}):`, error);
+      if (attempt === retries) {
+        return null;
+      }
     }
-
-    const data = await response.json();
-    const member = data.members?.[0];
-    return member?.id || null;
-  } catch (error) {
-    console.error('Error finding member by email:', error);
-    return null;
   }
+
+  return null;
 }
 
 /**
@@ -1096,9 +1121,33 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
       console.warn(`[Wix CRM] No Wix Plan ID configured for program: ${data.programId}`);
       console.warn('[Wix CRM] Check WIX_PLAN_ID_* environment variables');
     } else if (!memberId) {
-      console.warn('[Wix CRM] No memberId available - cannot assign pricing plan');
-      console.warn('[Wix CRM] Pricing plans require a member, not just a contact');
-    } else {
+      console.warn('[Wix CRM] No memberId from createMember, attempting verification lookup');
+
+      // Make one final attempt to find the member before giving up
+      const verifiedMemberId = await findMemberByEmail(data.email);
+
+      if (verifiedMemberId) {
+        console.log('[Wix CRM] ✓ Found member on verification lookup:', verifiedMemberId);
+        memberId = verifiedMemberId;
+        // Continue to plan assignment below
+      } else {
+        console.error('[Wix CRM] ✗ CRITICAL: Cannot find or create member for pricing plan');
+        console.error('[Wix CRM] Contact details:', {
+          email: data.email,
+          contactId,
+          programId: data.programId,
+          planId,
+        });
+        console.error('[Wix CRM] Troubleshooting:');
+        console.error('[Wix CRM]   1. Check Wix Members app is installed');
+        console.error('[Wix CRM]   2. Verify API key has "Manage Members" permission');
+        console.error('[Wix CRM]   3. Check if contact email is valid');
+        console.error('[Wix CRM]   4. Try manual member creation in Wix dashboard');
+      }
+    }
+
+    // Only assign plan if we have a memberId (either from createMember or verification)
+    if (memberId && planId) {
       // All requirements met - assign the plan
       try {
         orderId = await assignPricingPlan({
@@ -1110,7 +1159,21 @@ export async function syncToWixCRM(data: WixCustomerData): Promise<{
         console.log(`[Wix CRM] Pricing plan assigned successfully: ${orderId}`);
       } catch (planError) {
         // Log but don't fail the entire sync - contact/member were created
-        console.error('[Wix CRM] Pricing plan assignment failed:', planError);
+        console.error('[Wix CRM] ✗ Pricing plan assignment failed - FULL CONTEXT:');
+        console.error('[Wix CRM] Error:', planError instanceof Error ? planError.message : planError);
+        console.error('[Wix CRM] Member ID:', memberId);
+        console.error('[Wix CRM] Contact ID:', contactId);
+        console.error('[Wix CRM] Plan ID:', planId);
+        console.error('[Wix CRM] Program:', data.programId, '-', data.programName);
+        console.error('[Wix CRM] Email:', data.email);
+        console.error('[Wix CRM] Is Existing Contact:', !isNew);
+        console.error('[Wix CRM] Subscription ID:', data.subscriptionId);
+        console.error('[Wix CRM] Timestamp:', new Date().toISOString());
+        console.error('[Wix CRM] Troubleshooting:');
+        console.error('[Wix CRM]   1. Check WIX_PLAN_ID_* env var is set correctly');
+        console.error('[Wix CRM]   2. Verify plan exists in Wix Dashboard → Pricing Plans');
+        console.error('[Wix CRM]   3. Check API key has "Manage Pricing Plan Orders" permission');
+        console.error('[Wix CRM]   4. Verify member status is ACTIVE (not blocked)');
       }
     }
 

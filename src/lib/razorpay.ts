@@ -119,6 +119,66 @@ export async function createSubscription(params: {
 }
 
 /**
+ * Create subscription registration link for UPI AutoPay or Card subscriptions
+ * This allows customers to set up recurring mandate before subscription starts
+ */
+export async function createSubscriptionRegistrationLink(params: {
+  planId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  paymentMethod?: 'upi' | 'card' | 'emandate'; // Optional - let customer choose if not specified
+  maxAmount?: number; // For UPI: max ₹15,000, for cards: first payment amount
+  totalCount?: number;
+  notes?: Record<string, string>;
+  expireBy?: number; // Unix timestamp
+}) {
+  const razorpay = getRazorpayInstance();
+
+  // Base registration link config
+  const registrationConfig: any = {
+    customer: {
+      name: params.customerName,
+      email: params.customerEmail,
+      contact: params.customerPhone,
+    },
+    type: 'link',
+    amount: params.maxAmount || 0, // 0 for registration, actual charge on first cycle
+    currency: 'INR',
+    description: `Subscription registration for ${params.planId}`,
+    subscription_registration: {
+      method: params.paymentMethod || 'emandate', // emandate allows multiple payment methods
+      max_amount: params.maxAmount || 50000, // Default ₹500 for safety
+      expire_at: params.expireBy || Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days
+    },
+    receipt: `reg_${Date.now()}`,
+    email_notify: true,
+    sms_notify: true,
+    expire_by: params.expireBy || Math.floor(Date.now() / 1000) + 86400 * 30,
+    notes: {
+      plan_id: params.planId,
+      total_count: String(params.totalCount || 12),
+      ...(params.notes || {}),
+    },
+  };
+
+  // UPI-specific config
+  if (params.paymentMethod === 'upi') {
+    registrationConfig.subscription_registration.method = 'upi';
+    registrationConfig.subscription_registration.max_amount = Math.min(
+      params.maxAmount || 15000,
+      15000
+    ); // UPI limit
+  }
+
+  const registrationLink = await razorpay.subscriptions.createRegistrationLink(
+    registrationConfig
+  );
+
+  return registrationLink;
+}
+
+/**
  * Fetch subscription details
  */
 export async function fetchSubscription(subscriptionId: string) {

@@ -120,6 +120,26 @@ export interface CreateSubscriptionRequest {
   totalCount?: number; // Total billing cycles
 }
 
+export interface SubscriptionRegistrationLinkRequest {
+  planId: string;
+  programId: string;
+  name: string;
+  email: string;
+  phone: string;
+  paymentMethod?: 'upi' | 'card' | 'emandate';
+  maxAmount?: number;
+  totalCount?: number;
+}
+
+export interface SubscriptionRegistrationLinkResponse {
+  success: boolean;
+  registrationLinkId?: string;
+  shortUrl?: string;
+  status?: string;
+  expiresAt?: number;
+  error?: string;
+}
+
 // ============================================
 // PAYU TYPES
 // ============================================
