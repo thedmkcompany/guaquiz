@@ -16,6 +16,10 @@ vi.mock('@/lib/wix-crm', () => ({
   createQuizLeadAsync: vi.fn(() => Promise.resolve({ success: true, contactId: 'test-contact-id' })),
 }));
 
+vi.mock('@/lib/aisensy', () => ({
+  sendQuizWelcome: vi.fn(() => Promise.resolve({ success: true, messageId: 'msg_test123' })),
+}));
+
 describe('POST /api/quiz/submit', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -223,6 +227,146 @@ describe('POST /api/quiz/submit', () => {
 
       const response = await POST(request);
       expect(response.status).toBe(200);
+    });
+  });
+
+  describe('WhatsApp Integration', () => {
+    it('should call sendQuizWelcome with correct parameters', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      const body = createQuizSubmission({
+        name: 'Test User',
+        email: 'test@example.com',
+        whatsapp: '+919876543210',
+        recommendation: 'essentials',
+      });
+      const request = createMockRequest({ body });
+
+      await POST(request);
+
+      expect(sendQuizWelcome).toHaveBeenCalledWith({
+        phone: '+919876543210',
+        name: 'Test User',
+        email: 'test@example.com',
+        quizResult: 'essentials',
+      });
+    });
+
+    it('should call sendQuizWelcome with normalized email (lowercase)', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      const body = createQuizSubmission({
+        email: 'TEST@EXAMPLE.COM',
+      });
+      const request = createMockRequest({ body });
+
+      await POST(request);
+
+      expect(sendQuizWelcome).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'test@example.com',
+        })
+      );
+    });
+
+    it('should call sendQuizWelcome with trimmed name', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      const body = createQuizSubmission({
+        name: '  Test User  ',
+      });
+      const request = createMockRequest({ body });
+
+      await POST(request);
+
+      expect(sendQuizWelcome).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Test User',
+        })
+      );
+    });
+
+    it('should not block response if WhatsApp fails', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      vi.mocked(sendQuizWelcome).mockRejectedValueOnce(new Error('AISensy API error'));
+
+      const body = createQuizSubmission();
+      const request = createMockRequest({ body });
+
+      const response = await POST(request);
+      const data = await getResponseJson<{ success: boolean }>(response);
+
+      // Should still return success even if WhatsApp fails
+      expect(response.status).toBe(200);
+      expect(data.success).toBe(true);
+    });
+
+    it('should send WhatsApp for different recommendations', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      for (const recommendation of ['essentials', 'transform', 'circle']) {
+        vi.clearAllMocks();
+
+        const body = createQuizSubmission({ recommendation });
+        const request = createMockRequest({ body });
+
+        await POST(request);
+
+        expect(sendQuizWelcome).toHaveBeenCalledWith(
+          expect.objectContaining({
+            quizResult: recommendation,
+          })
+        );
+      }
+    });
+
+    it('should handle WhatsApp number with spaces', async () => {
+      const { sendQuizWelcome } = await import('@/lib/aisensy');
+
+      const body = createQuizSubmission({
+        whatsapp: '+91 98765 43210',
+      });
+      const request = createMockRequest({ body });
+
+      await POST(request);
+
+      // Should be called with trimmed number
+      expect(sendQuizWelcome).toHaveBeenCalledWith(
+        expect.objectContaining({
+          phone: '+91 98765 43210', // Note: trimmed but not reformatted
+        })
+      );
+    });
+  });
+
+  describe('Wix CRM Integration', () => {
+    it('should call createQuizLeadAsync with lead data', async () => {
+      const { createQuizLeadAsync } = await import('@/lib/wix-crm');
+
+      const body = createQuizSubmission({
+        name: 'Test User',
+        email: 'test@example.com',
+        whatsapp: '+919876543210',
+        recommendation: 'essentials',
+        answers: { q1: ['a'] },
+        deviceType: 'mobile',
+      });
+      const request = createMockRequest({ body });
+
+      await POST(request);
+
+      // Wait a bit for fire-and-forget to execute
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(createQuizLeadAsync).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Test User',
+          email: 'test@example.com',
+          whatsapp: '+919876543210',
+          recommendation: 'essentials',
+        })
+      );
     });
   });
 });

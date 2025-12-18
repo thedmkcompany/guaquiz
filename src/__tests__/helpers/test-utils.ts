@@ -161,3 +161,26 @@ export function createPaymentRequest(overrides: Partial<{
     ...overrides,
   };
 }
+
+/**
+ * Create valid subscription registration request data
+ */
+export function createSubscriptionRegistrationRequest(overrides: Partial<{
+  planId: string;
+  programId: string;
+  name: string;
+  email: string;
+  phone: string;
+  paymentMethod: 'upi' | 'card' | 'emandate';
+  callbackUrl: string;
+}> = {}) {
+  return {
+    planId: 'plan_test123',
+    programId: 'essentials',
+    name: TEST_DATA.validName,
+    email: TEST_DATA.validEmail,
+    phone: TEST_DATA.validPhone,
+    callbackUrl: 'https://example.com/checkout/success?program=essentials',
+    ...overrides,
+  };
+}
