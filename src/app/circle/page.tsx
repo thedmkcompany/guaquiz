@@ -431,17 +431,20 @@ export default function CircleLandingPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
 
-  // Handle sticky bar visibility
+  // Handle sticky bar visibility using IntersectionObserver (no forced reflows)
   useEffect(() => {
-    const handleScroll = () => {
-      if (heroRef.current) {
-        const heroBottom = heroRef.current.getBoundingClientRect().bottom;
-        setShowStickyBar(heroBottom < 0);
-      }
-    };
+    if (!heroRef.current) return;
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky bar when hero is not visible (scrolled past)
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
   }, []);
 
   // Calculate Circle start date options (coming Monday and following Monday)

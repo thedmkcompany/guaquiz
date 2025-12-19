@@ -1,21 +1,61 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Script from "next/script";
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const GTM_SERVER_ID = process.env.NEXT_PUBLIC_GTM_SERVER_ID;
 
+/**
+ * Delayed GTM loading - only loads after user interaction or 5s timeout
+ * This significantly reduces initial page load time and main thread work
+ */
 export function GoogleTagManager() {
+  const [shouldLoad, setShouldLoad] = useState(false);
   const hasGtm = GTM_ID || GTM_SERVER_ID;
-  if (!hasGtm) return null;
+
+  useEffect(() => {
+    if (!hasGtm) return;
+
+    // Load after first user interaction
+    const events = ["scroll", "click", "touchstart", "keydown"];
+    let loaded = false;
+
+    const loadGTM = () => {
+      if (loaded) return;
+      loaded = true;
+      setShouldLoad(true);
+      // Clean up listeners
+      events.forEach((event) => {
+        window.removeEventListener(event, loadGTM, { capture: true });
+      });
+    };
+
+    // Add interaction listeners
+    events.forEach((event) => {
+      window.addEventListener(event, loadGTM, { capture: true, passive: true });
+    });
+
+    // Fallback: load after 5 seconds if no interaction
+    const timeout = setTimeout(loadGTM, 5000);
+
+    return () => {
+      clearTimeout(timeout);
+      events.forEach((event) => {
+        window.removeEventListener(event, loadGTM, { capture: true });
+      });
+    };
+  }, [hasGtm]);
+
+  if (!hasGtm || !shouldLoad) return null;
 
   return (
     <>
-      {/* Client-side GTM - lazyOnload for better performance */}
+      {/* Client-side GTM */}
       {GTM_ID && (
         <Script
           id="gtm-script"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -27,11 +67,11 @@ export function GoogleTagManager() {
           }}
         />
       )}
-      {/* Server-side GTM - lazyOnload for better performance */}
+      {/* Server-side GTM */}
       {GTM_SERVER_ID && (
         <Script
           id="gtm-server-script"
-          strategy="lazyOnload"
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

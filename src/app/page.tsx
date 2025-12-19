@@ -232,7 +232,7 @@ export default function Home() {
               </p>
 
               <p className="text-sm sm:text-base leading-relaxed">
-                Today, I&apos;ve conducted <strong>4,500+ fitness sessions</strong> and trained <strong>15,000+ women</strong> from Hyderabad professionals to NRIs across the globe. Not through crash diets or punishment, but through holistic transformation that combines fitness, nutrition, and sustainable lifestyle changes.
+                Today, I&apos;ve conducted <strong>5,000+ fitness sessions</strong> and trained <strong>15,000+ women</strong> from Hyderabad professionals to NRIs across the globe. Not through crash diets or punishment, but through holistic transformation that combines fitness, nutrition, and sustainable lifestyle changes.
               </p>
 
               <p className="text-base sm:text-lg md:text-xl font-medium text-forest pt-2 font-headline">
