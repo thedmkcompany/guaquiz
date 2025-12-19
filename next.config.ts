@@ -78,22 +78,13 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // If assets are migrated to Vercel Blob, keep existing `/images/**` paths working
-  // by redirecting to the Blob CDN at runtime.
-  async redirects() {
-    const base = process.env.NEXT_PUBLIC_BLOB_BASE_URL;
-    if (!base) return [];
-
-    const cleanBase = base.replace(/\/+$/, "");
-
-    return [
-      {
-        source: "/images/:path*",
-        destination: `${cleanBase}/images/:path*`,
-        permanent: true,
-      },
-    ];
-  },
+  // REMOVED: Blob redirect - This bypassed Next.js Image optimization!
+  // Images now use getCDNUrl() directly with Next.js Image component
+  // which enables automatic WebP conversion and resizing.
+  //
+  // Old redirect was:
+  // source: "/images/:path*" -> Blob CDN (permanent: true)
+  // This caused 5.8MB images to load without optimization!
 };
 
 export default nextConfig;

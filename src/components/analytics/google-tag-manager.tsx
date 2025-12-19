@@ -11,11 +11,11 @@ export function GoogleTagManager() {
 
   return (
     <>
-      {/* Client-side GTM */}
+      {/* Client-side GTM - lazyOnload for better performance */}
       {GTM_ID && (
         <Script
           id="gtm-script"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -27,11 +27,11 @@ export function GoogleTagManager() {
           }}
         />
       )}
-      {/* Server-side GTM */}
+      {/* Server-side GTM - lazyOnload for better performance */}
       {GTM_SERVER_ID && (
         <Script
           id="gtm-server-script"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
           dangerouslySetInnerHTML={{
             __html: `
               (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

@@ -10,6 +10,7 @@ import { getCheckoutPrefill, migrateLegacyStorage } from "@/lib/lead-storage";
 import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
 import { getComingMondayIST, getFollowingMondayIST, calculateCircleStartDate, getCurrentISTDate } from "@/lib/date-utils";
 import type { CircleStartDateOption } from "@/types";
+import { getCDNUrl } from "@/lib/cdn";
 
 // ============================================
 // DATA CONSTANTS
@@ -208,12 +209,12 @@ function StickyCTABar({ visible, onScrollToPayment }: { visible: boolean; onScro
 
 // FAQAccordion imported from @/components/ui/faq-accordion
 
-// Pillar images mapping
+// Pillar images mapping - CDN optimized
 const pillarImages: Record<string, string> = {
-  FITNESS: "/images/circle/Build the Body That Makes You Feel Powerful.jpg",
-  BEAUTY: "/images/circle/Glow From the Inside, Radiate on the Outside.jpg",
-  FINANCE: "/images/circle/Master Your Money, Build Your Freedom.jpg",
-  CONFIDENCE: "/images/circle/Command Respect, Trust Yourself, Own Every Room.jpg",
+  FITNESS: getCDNUrl("/images/circle/Build the Body That Makes You Feel Powerful.jpg"),
+  BEAUTY: getCDNUrl("/images/circle/Glow From the Inside, Radiate on the Outside.jpg"),
+  FINANCE: getCDNUrl("/images/circle/Master Your Money, Build Your Freedom.jpg"),
+  CONFIDENCE: getCDNUrl("/images/circle/Command Respect, Trust Yourself, Own Every Room.jpg"),
 };
 
 function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
@@ -287,12 +288,12 @@ function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: numbe
   );
 }
 
-// Transformation images mapping by index (Priya M., Anjali K., Meera S., Simran G.)
+// Transformation images mapping - CDN optimized
 const transformationImages = [
-  "/images/circle/Apoorva Transformation.jpg.png",
-  "/images/circle/Dhvani Transformation.jpg.png",
-  "/images/circle/Padmavati Transformation.jpg",
-  "/images/circle/Pratyancha Gupta Transformatiop.jpg.png",
+  getCDNUrl("/images/circle/Apoorva Transformation.jpg.png"),
+  getCDNUrl("/images/circle/Dhvani Transformation.jpg.png"),
+  getCDNUrl("/images/circle/Padmavati Transformation.jpg"),
+  getCDNUrl("/images/circle/Pratyancha Gupta Transformatiop.jpg.png"),
 ];
 
 function TransformationCard({ transformation, index }: { transformation: typeof transformations[0]; index: number }) {
@@ -514,10 +515,10 @@ export default function CircleLandingPage() {
           <div className="flex items-center gap-3 mb-8">
             <div className="flex -space-x-2" aria-label="Community members" role="img">
               {[
-                "/images/circle/1 mini image.jpg",
-                "/images/circle/2 mini image.jpg",
-                "/images/circle/3 mini image.jpg",
-                "/images/circle/4 mini image.jpg",
+                getCDNUrl("/images/circle/1 mini image.jpg"),
+                getCDNUrl("/images/circle/2 mini image.jpg"),
+                getCDNUrl("/images/circle/3 mini image.jpg"),
+                getCDNUrl("/images/circle/4 mini image.jpg"),
               ].map((src, i) => (
                 <div key={`avatar-${i}`} className="w-8 h-8 rounded-full border-2 border-ivory overflow-hidden relative">
                   <Image
@@ -551,9 +552,9 @@ export default function CircleLandingPage() {
                 playsInline
                 preload="auto"
                 className="absolute inset-0 w-full h-full object-cover"
-                poster="/images/circle/Circle community - women supporting women in transformation.jpg"
+                poster={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
               >
-                <source src="/images/circle/Circle live workout session with community members.mp4" type="video/mp4" />
+                <source src={getCDNUrl("/images/circle/Circle live workout session with community members.mp4")} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
@@ -692,7 +693,7 @@ export default function CircleLandingPage() {
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full overflow-hidden border border-beige relative">
                   <Image
-                    src="/images/circle/Dhreeti.jpg"
+                    src={getCDNUrl("/images/circle/Dhreeti.jpg")}
                     alt="Dhreeti V."
                     fill
                     className="object-cover"
@@ -716,10 +717,10 @@ export default function CircleLandingPage() {
         {/* Community Photo Collage */}
         <div className="grid grid-cols-2 gap-1 mb-8">
           {[
-            { src: "/images/circle/Fitness Geetika Transformation.jpg.png", alt: "Fitness transformation - Geetika", priority: true },
-            { src: "/images/circle/Beautfy transformation_2.jpg.png", alt: "Beauty transformation", priority: true },
-            { src: "/images/circle/Confidence Aurvi Before & After.jpg", alt: "Confidence transformation - Aurvi", priority: false },
-            { src: "/images/circle/Circle community - women supporting women in transformation.jpg", alt: "Circle community", priority: false },
+            { src: getCDNUrl("/images/circle/Fitness Geetika Transformation.jpg.png"), alt: "Fitness transformation - Geetika", priority: true },
+            { src: getCDNUrl("/images/circle/Beautfy transformation_2.jpg.png"), alt: "Beauty transformation", priority: true },
+            { src: getCDNUrl("/images/circle/Confidence Aurvi Before & After.jpg"), alt: "Confidence transformation - Aurvi", priority: false },
+            { src: getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg"), alt: "Circle community", priority: false },
           ].map((img, i) => (
             <div
               key={`collage-${i}`}
@@ -774,7 +775,7 @@ export default function CircleLandingPage() {
               preload="metadata"
               className="absolute inset-0 w-full h-full object-cover"
             >
-              <source src="/images/circle/Barsa Client Circle Transformation .mp4" type="video/mp4" />
+              <source src={getCDNUrl("/images/circle/Barsa Client Circle Transformation .mp4")} type="video/mp4" />
               Your browser does not support the video tag.
             </video>
           </div>
@@ -801,7 +802,7 @@ export default function CircleLandingPage() {
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-gold/30 relative">
                   <Image
-                    src="/images/circle/Niharika .jpg"
+                    src={getCDNUrl("/images/circle/Niharika .jpg")}
                     alt="Niharika"
                     fill
                     className="object-cover object-top"
@@ -878,7 +879,7 @@ export default function CircleLandingPage() {
               }}
             >
               <Image
-                src="/images/circle/Circle community - women supporting women in transformation.jpg"
+                src={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
                 alt="Circle community - women supporting women in transformation"
                 fill
                 className="object-cover"
@@ -1179,8 +1180,8 @@ export default function CircleLandingPage() {
           {/* Group Workout Photos */}
           <div className="grid grid-cols-2 gap-2 w-[calc(100%+40px)] -ml-5 mb-10">
             {[
-              "/images/circle/Fitness Geetika Transformation.jpg.png",
-              "/images/circle/Confidence Aurvi Before & After.jpg",
+              getCDNUrl("/images/circle/Fitness Geetika Transformation.jpg.png"),
+              getCDNUrl("/images/circle/Confidence Aurvi Before & After.jpg"),
             ].map((src, i) => (
               <div
                 key={i}
@@ -1270,7 +1271,7 @@ export default function CircleLandingPage() {
               <div className="mt-8 pt-6 border-t border-ivory/20 flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-gold/50 shadow-[0_0_20px_rgba(212,175,55,0.3)] relative">
                   <Image
-                    src="/images/DMK/Disha Close Up Face.png"
+                    src={getCDNUrl("/images/DMK/Disha Close Up Face.png")}
                     alt="Disha Methi Khandelwal"
                     fill
                     className="object-cover"

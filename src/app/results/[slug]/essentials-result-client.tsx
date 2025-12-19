@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { Program } from "@/types";
@@ -21,7 +22,6 @@ import {
   FeminineCard,
   FeminineIcon,
 } from "@/components/ui/feminine-decorations";
-import { MobileLogoLoop } from "@/components/MobileLogoLoop";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
 import {
   Check,
@@ -36,6 +36,13 @@ import {
   Heart,
   Star,
 } from "lucide-react";
+import { getCDNUrl } from "@/lib/cdn";
+
+// Lazy load MobileLogoLoop - below fold
+const MobileLogoLoop = dynamic(
+  () => import("@/components/MobileLogoLoop").then((m) => m.MobileLogoLoop),
+  { ssr: true }
+);
 
 interface EssentialsResultClientProps {
   program: Program;
@@ -117,15 +124,13 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                 {/* Soft decorative border */}
                 <div className="absolute inset-0 rounded-[2.5rem] border-4 border-beige/30 z-10 pointer-events-none" />
                 <Image
-                  src="/images/DMK/Essentials Hero Disha.png"
+                  src={getCDNUrl("/images/DMK/Essentials Hero Disha.png")}
                   alt={content.heroImageAlt}
                   fill
                   className="object-cover"
                   priority
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
+                  quality={80}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-beige/20 via-transparent to-gold/10" />
               </figure>
@@ -297,14 +302,13 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                     <div className="absolute -inset-2 rounded-[2.5rem] border-2 border-gold/20" />
                     <div className="relative w-full h-full rounded-[2rem] overflow-hidden shadow-float">
                       <Image
-                        src="/images/DMK/Disha Beige Blazer.png"
+                        src={getCDNUrl("/images/DMK/Disha Beige Blazer.png")}
                         alt="Disha Methi Khandelwal - Founder, Glow Up Academy"
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 280px, (max-width: 1024px) 320px, 33vw"
-                        onError={(e) => {
-                          e.currentTarget.style.display = "none";
-                        }}
+                        loading="lazy"
+                        quality={75}
                       />
                       <div className="absolute inset-0 bg-gradient-to-br from-beige-light/20 to-wine/5" />
                     </div>

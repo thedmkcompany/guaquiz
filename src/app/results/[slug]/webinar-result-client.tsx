@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { Program } from "@/types";
@@ -19,9 +20,15 @@ import {
   Heart,
   Star,
 } from "lucide-react";
-import { MobileLogoLoop } from "@/components/MobileLogoLoop";
-import { calculateWebinarSessionDate, formatWebinarSessionDate } from "@/lib/date-utils";
+import { calculateWebinarSessionDate } from "@/lib/date-utils";
 import type { WebinarSessionDateSelection } from "@/types";
+import { getCDNUrl } from "@/lib/cdn";
+
+// Lazy load MobileLogoLoop - below fold
+const MobileLogoLoop = dynamic(
+  () => import("@/components/MobileLogoLoop").then((m) => m.MobileLogoLoop),
+  { ssr: true }
+);
 
 // Elegant decorative flourish component
 const ElegantFlourish = ({ className = "" }: { className?: string }) => (
@@ -149,7 +156,7 @@ const webinarTestimonials = [
     journey: "Webinar → Full Member, 6 Months",
     quote:
       "I took the webinar expecting another generic workout. Within 30 minutes, I understood why this is different. The energy, the structure, the complete approach-I joined the full program that day and haven't looked back. Six months later, I'm the most consistent I've ever been.",
-    image: "/images/Webinar/Komal S. .jpg",
+    image: getCDNUrl("/images/Webinar/Komal S. .jpg"),
   },
   {
     id: "webinar-2",
@@ -160,7 +167,7 @@ const webinarTestimonials = [
     journey: "Webinar → Transform Member, 4 Months",
     quote:
       "I've done every fitness program that exists. The webinar showed me what I'd been missing: energy, and a framework that addresses all of me, not just my body. This is the first program I haven't quit.",
-    image: "/images/Webinar/Akancha Sharma.jpg",
+    image: getCDNUrl("/images/Webinar/Akancha Sharma.jpg"),
   },
 ];
 
@@ -275,15 +282,13 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
 
                 <div className="relative w-full h-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden shadow-[0_24px_60px_-12px_rgba(0,0,0,0.08)]">
                   <Image
-                    src="/images/DMK/Disha%20City%20Background.png"
+                    src={getCDNUrl("/images/DMK/Disha City Background.png")}
                     alt="Disha against city backdrop"
                     fill
                     className="object-cover"
                     priority
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
+                    quality={80}
                   />
                   <div className="absolute inset-0 bg-gradient-to-br from-beige/40 via-transparent to-forest/10" />
                 </div>
@@ -386,14 +391,13 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
 
                   <div className="relative aspect-[3/4] rounded-[2rem] overflow-hidden shadow-[0_24px_60px_-12px_rgba(0,0,0,0.08)] border-2 border-white/60">
                     <Image
-                      src="/images/DMK/Disha%20Wine%20Blazer.png"
+                      src={getCDNUrl("/images/DMK/Disha Wine Blazer.png")}
                       alt="Disha in elegant wine blazer, corporate wellness expert"
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 300px, (max-width: 1024px) 340px, 40vw"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
+                      loading="lazy"
+                      quality={75}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-forest/20 via-transparent to-beige/10" />
                   </div>
@@ -443,11 +447,12 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
                   <div className="flex items-center gap-4">
                     <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-gold/30 shadow-lg">
                       <Image
-                        src="/images/DMK/Disha%20Wine%20Blazer.png"
+                        src={getCDNUrl("/images/DMK/Disha Wine Blazer.png")}
                         alt="Disha"
                         fill
                         className="object-cover object-top"
                         sizes="56px"
+                        loading="lazy"
                       />
                     </div>
                     <div>

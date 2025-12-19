@@ -1,12 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { getAllPrograms, formatPrice } from "@/lib/programs";
 import { Program } from "@/types";
 import { Footer } from "@/components/ui/footer";
 import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { generateItemListSchema } from "@/lib/structured-data";
+import { getCDNUrl } from "@/lib/cdn";
+
+// Inline SVG arrow to avoid lucide-react bundle
+function ArrowRight({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
 
 export const metadata = getPageMetadata({
   title: "Our Programs - Find Your Perfect Transformation Path",
@@ -49,11 +70,13 @@ export default function ProgramsPage() {
             {/* Image container */}
             <div className="relative w-full h-full rounded-full overflow-hidden border-4 border-white shadow-2xl ring-4 ring-wine/20">
               <Image
-                src="/images/DMK/Essentials Hero Disha.png"
+                src={getCDNUrl("/images/DMK/Essentials Hero Disha.png")}
                 alt="Disha Methi Khandelwal"
                 fill
                 className="object-cover"
                 priority
+                sizes="192px"
+                quality={80}
               />
             </div>
 

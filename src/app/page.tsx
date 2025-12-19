@@ -1,4 +1,5 @@
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import {
   Section,
   SectionHeading,
@@ -7,14 +8,20 @@ import {
   StatBlock,
 } from "@/components/landing";
 import { Footer } from "@/components/ui/footer";
-import { MobileLogoLoop } from "@/components/MobileLogoLoop";
-import { Sparkles, ArrowRight, Star, Heart } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
 import { StructuredData } from "@/components/seo/StructuredData";
 import {
   generateOrganizationSchema,
   generatePersonSchema,
   combineSchemas,
 } from "@/lib/structured-data";
+import { getCDNUrl } from "@/lib/cdn";
+
+// Lazy load below-fold components
+const MobileLogoLoop = dynamic(
+  () => import("@/components/MobileLogoLoop").then((m) => m.MobileLogoLoop),
+  { ssr: true }
+);
 
 /*
   HIGH-END SOFT UI DESIGN TOKENS:
@@ -24,7 +31,7 @@ import {
   - Floater layout: generous padding, frame borders
 */
 
-// Testimonial data
+// Testimonial data - images via CDN for optimization
 const testimonials = [
   {
     quote: "I went from inconsistent and unmotivated to unstoppable in 90 days. Disha taught me that discipline is the real luxury.",
@@ -32,7 +39,7 @@ const testimonials = [
     location: "Delhi",
     role: "MBBS Student & Youtuber",
     age: 23,
-    photoUrl: "/images/misc/Photo of Woman in Confident Pose.png",
+    photoUrl: getCDNUrl("/images/misc/Photo of Woman in Confident Pose.png"),
   },
   {
     quote: "Finally, I feel confident in my body AND my life. This isn't just fitness, it's complete transformation.",
@@ -40,7 +47,7 @@ const testimonials = [
     location: "Pune",
     role: "Purchase Executive",
     age: 25,
-    photoUrl: "/images/misc/Aurvi Before & After (empowered energy).png",
+    photoUrl: getCDNUrl("/images/misc/Aurvi Before & After (empowered energy).png"),
   },
   {
     quote: "The structure I needed without the pressure I dreaded. I show up for myself now, not from guilt, from love.",
@@ -48,7 +55,7 @@ const testimonials = [
     location: "London",
     role: "Actress",
     age: 24,
-    photoUrl: "/images/misc/Photo of woman, radiant smile.jpg",
+    photoUrl: getCDNUrl("/images/misc/Photo of woman, radiant smile.jpg"),
   },
 ];
 
@@ -75,7 +82,7 @@ export default function Home() {
             HERO SECTION - Feminine & Aesthetic Design
             ============================================ */}
         <section className="relative min-h-[90svh] sm:min-h-[100svh] flex items-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 md:py-20 overflow-hidden">
-          {/* Dreamy Background - Using Brand Colors */}
+          {/* Dreamy Background - Simplified for Performance */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Soft beige gradient orb - top right */}
             <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-gradient-to-br from-beige/60 via-beige-light/30 to-transparent rounded-full blur-3xl opacity-80" />
@@ -83,27 +90,6 @@ export default function Home() {
             <div className="absolute top-1/4 -left-20 w-[400px] h-[400px] bg-gradient-to-r from-gold/25 via-beige/20 to-transparent rounded-full blur-3xl" />
             {/* Soft wine accent - bottom */}
             <div className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-gradient-to-t from-wine/15 via-beige-light/10 to-transparent rounded-full blur-3xl" />
-            {/* Center ethereal glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-white/40 via-beige/20 to-transparent rounded-full blur-2xl" />
-
-            {/* Floating decorative elements - synchronized 4s cycle for cohesive luxury feel */}
-            <div className="absolute top-24 left-[15%] opacity-40 animate-pulse" style={{ animationDuration: '4s' }}>
-              <Heart className="w-4 h-4 text-wine/60" />
-            </div>
-            <div className="absolute top-32 right-[20%] opacity-30 animate-pulse" style={{ animationDuration: '4s', animationDelay: '1s' }}>
-              <Sparkles className="w-5 h-5 text-gold" />
-            </div>
-            <div className="absolute bottom-40 left-[25%] opacity-30 animate-pulse" style={{ animationDuration: '4s', animationDelay: '2s' }}>
-              <Star className="w-4 h-4 text-gold/70 fill-gold/30" />
-            </div>
-            <div className="absolute bottom-32 right-[15%] opacity-40 animate-pulse" style={{ animationDuration: '4s', animationDelay: '3s' }}>
-              <Heart className="w-3 h-3 text-wine/50" />
-            </div>
-
-            {/* Delicate floating dots - smooth float animation */}
-            <div className="absolute top-20 left-[30%] w-2 h-2 bg-gold/30 rounded-full animate-float" />
-            <div className="absolute top-48 right-[30%] w-1.5 h-1.5 bg-wine/25 rounded-full animate-float" style={{ animationDelay: '1.5s' }} />
-            <div className="absolute bottom-48 left-[40%] w-2 h-2 bg-beige-dark/40 rounded-full animate-float" style={{ animationDelay: '3s' }} />
           </div>
 
           {/* Main Content - Two Column Layout */}
@@ -176,53 +162,24 @@ export default function Home() {
 
                   {/* Image container with elegant frame */}
                   <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px] rounded-full overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.15)] ring-4 ring-white/80 ring-offset-4 ring-offset-transparent">
-                    {/* Hero Image wrapper with luxury filters */}
-                    <div
-                      className="absolute inset-0 z-0"
-                      style={{
-                        filter: "brightness(1.02) contrast(0.9) saturate(0.6) sepia(0.25)",
-                      }}
-                    >
-                      <Image
-                        src="/images/DMK/Hero Image Disha 2.jpg"
-                        alt="Disha Methi Khandelwal - Transformation Architect"
-                        fill
-                        className="object-cover object-top"
-                        priority
-                        sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 420px"
-                      />
-                    </div>
-                    {/* Soft overlay for pastel blend - Brand Filter */}
-                    <div
-                      className="absolute inset-0 pointer-events-none z-10 mix-blend-soft-light"
-                      style={{
-                        background: "linear-gradient(to bottom, rgba(232,220,195,0.4) 0%, rgba(232,220,195,0.1) 40%, transparent 60%, rgba(128,0,0,0.2) 100%)",
-                      }}
-                    />
-                    {/* Gloss Reflection/Sheen */}
-                    <div
-                      className="absolute inset-0 pointer-events-none z-20"
-                      style={{
-                        background: "linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.05) 40%, transparent 100%)",
-                      }}
+                    {/* Hero Image - CDN optimized */}
+                    <Image
+                      src={getCDNUrl("/images/DMK/Hero Image Disha 2.png")}
+                      alt="Disha Methi Khandelwal - Transformation Architect"
+                      fill
+                      className="object-cover object-top"
+                      priority
+                      fetchPriority="high"
+                      sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 420px"
+                      quality={80}
                     />
                     {/* Subtle vignette */}
                     <div
-                      className="absolute inset-0 rounded-full pointer-events-none z-10"
+                      className="absolute inset-0 rounded-full pointer-events-none"
                       style={{
-                        boxShadow: "inset 0 0 100px rgba(0,0,0,0.2)",
+                        boxShadow: "inset 0 0 80px rgba(0,0,0,0.15)",
                       }}
                     />
-                  </div>
-
-                  {/* Floating accent elements around image */}
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-gold/20 rounded-full blur-sm animate-pulse" />
-                  <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-wine/15 rounded-full blur-md animate-pulse" style={{ animationDelay: '0.5s' }} />
-                  <div className="absolute top-1/4 -left-6">
-                    <Sparkles className="w-5 h-5 text-gold/60 animate-pulse" />
-                  </div>
-                  <div className="absolute bottom-1/4 -right-4">
-                    <Heart className="w-4 h-4 text-wine/50 animate-pulse" style={{ animationDelay: '0.8s' }} />
                   </div>
                 </div>
               </div>
@@ -245,11 +202,13 @@ export default function Home() {
           <div className="flex justify-center mb-8 sm:mb-10">
             <div className="w-48 h-60 sm:w-56 sm:h-72 md:w-64 md:h-80 bg-forest rounded-[2rem] sm:rounded-[2.5rem] shadow-float overflow-hidden relative group">
               <Image
-                src="/images/DMK/Disha Beige Blazer 2.png"
+                src={getCDNUrl("/images/DMK/Disha Beige Blazer 2.png")}
                 alt="Disha Methi Khandelwal - Founder of Glow Up Academy"
                 fill
                 className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
                 sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"
+                loading="lazy"
+                quality={75}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent" />
             </div>

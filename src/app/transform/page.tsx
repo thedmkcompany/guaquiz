@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getCDNUrl } from "@/lib/cdn";
 
 // =============================================================================
 // DATA CONSTANTS
@@ -85,7 +86,7 @@ const testimonials = [
     profession: "Strategy Consultant",
     quote:
       "My husband asked me if I'd changed my skincare routine. I hadn't. I'd changed my entire system—fitness, sleep, nutrition, confidence. TRANSFORM gave me the structure I'd been missing. Within 8 weeks, people at work started asking what was different. By month 6, I'd been promoted.",
-    image: "/images/transform/Akancha Sharma.jpg",
+    image: getCDNUrl("/images/transform/Akancha Sharma.jpg"),
   },
   {
     name: "Anjali R.",
@@ -93,7 +94,7 @@ const testimonials = [
     profession: "Tech Executive",
     quote:
       "I spent ₹2.5L on a Chanel bag last year without hesitation. When I told my husband I was investing ₹2L in TRANSFORM, I expected pushback. Instead, he said: 'Finally, you're prioritizing yourself the way you prioritize everyone else.' Three months in, he notices how much more present I am with our kids.",
-    image: "/images/transform/Jinal in 3 Months.jpg",
+    image: getCDNUrl("/images/transform/Jinal in 3 Months.jpg"),
   },
   {
     name: "Kavya S.",
@@ -101,7 +102,7 @@ const testimonials = [
     profession: "Finance Manager - NRI",
     quote:
       "I'd see women at events who just had that energy—that presence. I wanted to be her. Circle gave me community, but TRANSFORM gave me the personal blueprint. Now I'm the woman other women ask about. Worth every single pound I invested.",
-    image: "/images/transform/Akancha Sharma.jpg",
+    image: getCDNUrl("/images/transform/Akancha Sharma.jpg"),
   },
 ];
 
@@ -368,7 +369,7 @@ export default function TransformLandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-forest/40 via-transparent to-transparent z-10" />
 
                 <Image
-                  src="/images/DMK/Disha Wine Blazer 2.png"
+                  src={getCDNUrl("/images/DMK/Disha Wine Blazer 2.png")}
                   alt="Disha Methi Khandelwal - TRANSFORM Program Founder"
                   fill
                   className="object-cover object-top transition-transform duration-700 group-hover:scale-105"
@@ -1695,7 +1696,7 @@ export default function TransformLandingPage() {
                 <div className="flex items-center gap-5">
                   <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden ring-2 ring-gold/30">
                     <Image
-                      src="/images/DMK/Disha Close Up Face.png"
+                      src={getCDNUrl("/images/DMK/Disha Close Up Face.png")}
                       alt="Disha Methi Khandelwal"
                       width={80}
                       height={80}

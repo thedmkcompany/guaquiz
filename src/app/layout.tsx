@@ -10,10 +10,10 @@ import { Header } from "@/components/ui/header";
 import { defaultMetadata, siteConfig } from "@/lib/seo-config";
 
 // Custom fonts from /public/fonts/
-// Brand Typography (from 09-BRAND-COLORS.md):
-// - Primary: Roca Two (Headlines, logo text)
-// - Secondary: Be Vietnam Pro (Body text, captions)
-// - Accent: The Seasons (Quotes, signatures)
+// Brand Typography - Optimized for Performance:
+// - Primary: Roca Two (Headlines, logo text) - preloaded
+// - Secondary: Be Vietnam Pro (Body text) - reduced weights
+// - Accent: The Seasons (Quotes only) - optional display
 
 // Roca Two - Headlines, logo text, CTAs (modern geometric sans)
 const rocaTwo = localFont({
@@ -21,30 +21,25 @@ const rocaTwo = localFont({
   variable: "--font-roca-two",
   display: "swap",
   weight: "400 700",
+  preload: true,
 });
 
 // The Seasons - Quotes, signatures (accent serif)
 const theSeasons = localFont({
   src: "../../public/fonts/the-seasons.otf",
   variable: "--font-the-seasons",
-  display: "swap",
+  display: "optional", // Non-critical: use fallback if not loaded quickly
   weight: "400",
+  preload: false,
 });
 
 // Be Vietnam Pro - Body text, captions (Google Fonts)
+// Reduced weights: 400 (regular), 500 (medium), 600 (semibold)
 const beVietnamPro = Be_Vietnam_Pro({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600"],
   variable: "--font-be-vietnam",
   display: "swap",
-});
-
-// Holiday - Optional luxe emphasis (not in brand spec, kept for special use)
-const holiday = localFont({
-  src: "../../public/fonts/HolidayFree.otf",
-  variable: "--font-holiday",
-  display: "swap",
-  weight: "400",
 });
 
 export const metadata: Metadata = defaultMetadata;
@@ -65,6 +60,8 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        {/* Preconnect to Vercel Blob CDN for faster image loading */}
+        <link rel="preconnect" href="https://ktgyku22jawoj5vt.public.blob.vercel-storage.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
         {/* Theme color for mobile browsers */}
@@ -75,7 +72,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${holiday.variable} ${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased overflow-x-hidden`}
+        className={`${rocaTwo.variable} ${theSeasons.variable} ${beVietnamPro.variable} antialiased overflow-x-hidden`}
       >
         <GoogleTagManagerNoScript />
         <Header variant="logo" />
