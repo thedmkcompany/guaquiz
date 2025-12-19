@@ -275,15 +275,22 @@ function MobileStickyCTA({ visible }: { visible: boolean }) {
 export default function TransformLandingPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showStickyCTA, setShowStickyCTA] = useState(false);
+  const heroRef = useRef<HTMLElement>(null);
 
+  // Use IntersectionObserver instead of scroll handler to avoid forced reflows
   useEffect(() => {
-    const handleScroll = () => {
-      const heroHeight = window.innerHeight;
-      setShowStickyCTA(window.scrollY > heroHeight);
-    };
+    if (!heroRef.current) return;
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show sticky CTA when hero is not visible (scrolled past)
+        setShowStickyCTA(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -291,7 +298,7 @@ export default function TransformLandingPage() {
       {/* =========================================================================
           SECTION 1: HERO (ABOVE FOLD)
           ========================================================================= */}
-      <section className="relative min-h-screen flex items-center px-4 md:px-8 pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+      <section ref={heroRef} className="relative min-h-screen flex items-center px-4 md:px-8 pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-ivory via-beige-light/50 to-ivory" />
 

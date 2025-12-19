@@ -1,0 +1,24 @@
+# Target modern browsers only - eliminates polyfills for:
+# - Array.prototype.at
+# - Array.prototype.flat/flatMap
+# - Object.fromEntries
+# - Object.hasOwn
+# - String.prototype.trimStart/trimEnd
+
+# Production: Modern browsers only (saves ~14KB)
+[production]
+Chrome >= 90
+Firefox >= 90
+Safari >= 15
+Edge >= 90
+not dead
+not op_mini all
+
+# Development: Same as production for consistency
+[development]
+Chrome >= 90
+Firefox >= 90
+Safari >= 15
+Edge >= 90
+not dead
+not op_mini all

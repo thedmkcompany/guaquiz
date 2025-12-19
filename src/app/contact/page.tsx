@@ -1,17 +1,17 @@
 import Link from "next/link";
-import { Mail, Phone, Clock, Instagram } from "lucide-react";
+import { Mail, Clock, Instagram } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { MobileLogoLoop } from "@/components/MobileLogoLoop";
+import { Footer } from "@/components/ui/footer";
 import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 
 export const metadata = getPageMetadata({
   title: "Contact Us - Get in Touch with Glow Up Academy",
   description:
-    "Have questions about our transformation programs? Contact Glow Up Academy via Instagram, email, or book a call. We're here to help you start your journey to becoming hot and unstoppable.",
+    "Have questions about our transformation programs? Contact Glow Up Academy via Instagram or email. We're here to help you start your journey to becoming hot and unstoppable.",
   keywords: [
     "contact Glow Up Academy",
     "customer support",
-    "book a call",
     "transformation consultation",
     "program inquiries",
   ],
@@ -58,13 +58,13 @@ export default function ContactPage() {
                     during business hours.
                   </p>
                   <a
-                    href="https://instagram.com/_thedmk_"
+                    href="https://instagram.com/thedmkco"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 w-full sm:w-auto rounded-full bg-gradient-to-r from-wine to-wine-dark hover:from-wine-dark hover:to-wine text-white shadow-md font-semibold px-6 py-3 transition-all"
                   >
                     <Instagram className="w-5 h-5" />
-                    Message @_thedmk_
+                    Message @thedmkco
                   </a>
                 </div>
               </div>
@@ -83,38 +83,15 @@ export default function ContactPage() {
                     communication.
                   </p>
                   <a
-                    href="mailto:support@thedmk.in"
+                    href="mailto:hello@thedmk.online"
                     className="inline-flex items-center gap-2 text-wine font-medium hover:text-wine-light font-subheader text-lg hover:underline underline-offset-4 transition-all"
                   >
-                    support@thedmk.in
+                    hello@thedmk.online
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Book a Call */}
-            <div className="glass-card rounded-[2rem] shadow-medium hover:shadow-float hover:-translate-y-1 transition-all duration-300 p-6 sm:p-8">
-              <div className="flex items-start gap-5 w-full">
-                <div className="w-14 h-14 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0 border border-gold/20">
-                  <Phone className="w-7 h-7 text-gold-dark" />
-                </div>
-                <div className="flex-1">
-                  <h2 className="font-headline font-bold text-lg text-forest mb-1">
-                    Book a Call
-                  </h2>
-                  <p className="text-forest/70 text-sm mb-5 font-body">
-                    Prefer to talk? Schedule a free 20-minute discovery call
-                    with us.
-                  </p>
-                  <Link
-                    href="/book-call"
-                    className="inline-flex items-center gap-2 bg-gold-dark text-white px-8 py-3 rounded-full font-semibold hover:bg-gold transition-all shadow-md hover:-translate-y-0.5"
-                  >
-                    Schedule a Call
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Response Time */}
@@ -140,6 +117,9 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

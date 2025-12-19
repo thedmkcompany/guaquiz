@@ -402,6 +402,24 @@ export default function CircleLandingPage() {
   const paymentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  // Preload LCP resources (video poster) for faster initial paint
+  useEffect(() => {
+    // Preload the video poster through Next.js Image optimization
+    const posterUrl = getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg");
+    const optimizedPosterUrl = `/_next/image?url=${encodeURIComponent(posterUrl)}&w=828&q=75`;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = optimizedPosterUrl;
+    link.type = 'image/webp';
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
   // Pre-fill form from quiz data (unified storage)
   useEffect(() => {
     try {
@@ -548,14 +566,23 @@ export default function CircleLandingPage() {
                 filter: "brightness(1.02) contrast(0.92) saturate(0.7) sepia(0.15)",
               }}
             >
+              {/* Optimized poster image for LCP */}
+              <Image
+                src={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
+                alt=""
+                fill
+                className="object-cover"
+                sizes="100vw"
+                priority
+                quality={75}
+              />
               <video
                 autoPlay
                 loop
                 muted
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="absolute inset-0 w-full h-full object-cover"
-                poster={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
               >
                 <source src={getCDNUrl("/images/circle/Circle live workout session with community members.mp4")} type="video/mp4" />
                 Your browser does not support the video tag.
@@ -616,9 +643,9 @@ export default function CircleLandingPage() {
                   <span className="text-gold/70 text-xs">✿</span>
                   <div className="h-px w-6 bg-gradient-to-l from-transparent to-gold/40" />
                 </div>
-                <h3 className="font-headline text-xl text-forest">
+                <h2 className="font-headline text-xl text-forest">
                   What You&apos;ll <span className="text-gold-dark italic font-accent">Experience</span>
-                </h3>
+                </h2>
               </div>
 
               {/* Benefit Cards - 2x2 Grid */}
@@ -772,10 +799,20 @@ export default function CircleLandingPage() {
               filter: "brightness(1.02) contrast(0.92) saturate(0.7) sepia(0.15)",
             }}
           >
+            {/* Poster image as placeholder until video is played */}
+            <Image
+              src={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
+              alt="Barsa transformation story"
+              fill
+              className="object-cover"
+              sizes="100vw"
+              loading="lazy"
+              quality={75}
+            />
             <video
               playsInline
               controls
-              preload="metadata"
+              preload="none"
               className="absolute inset-0 w-full h-full object-cover"
             >
               <source src={getCDNUrl("/images/circle/Barsa Client Circle Transformation .mp4")} type="video/mp4" />

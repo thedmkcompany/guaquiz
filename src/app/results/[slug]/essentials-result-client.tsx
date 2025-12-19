@@ -23,6 +23,7 @@ import {
   FeminineIcon,
 } from "@/components/ui/feminine-decorations";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
+import { Footer } from "@/components/ui/footer";
 import {
   Check,
   Lock,
@@ -639,53 +640,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
         </section>
       </main>
 
-      {/* FOOTER */}
-      <footer className="bg-forest-dark">
-        <div className="container mx-auto px-6 md:px-8 py-10 md:py-12">
-          <div className="flex items-center justify-center gap-2 mb-6">
-            <Heart className="w-4 h-4 text-wine/60" />
-            <p className="text-center text-white/60 font-body text-xs md:text-sm">
-              Trusted by 2,500+ women across India and globally
-            </p>
-            <Heart className="w-4 h-4 text-wine/60" />
-          </div>
-
-          <nav className="flex flex-wrap items-center justify-center gap-4 md:gap-6 text-xs md:text-sm text-white/50 font-body mb-6">
-            <Link href="/privacy" className="hover:text-white/80 transition-colors">
-              Privacy
-            </Link>
-            <Link href="/terms" className="hover:text-white/80 transition-colors">
-              Terms
-            </Link>
-            <Link href="/refund" className="hover:text-white/80 transition-colors">
-              Refund
-            </Link>
-            <Link href="/about" className="hover:text-white/80 transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="hover:text-white/80 transition-colors">
-              Contact
-            </Link>
-          </nav>
-
-          <div className="flex items-center justify-center">
-            <a
-              href="https://instagram.com/_thedmk_"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/50 hover:text-white/80 flex items-center gap-2 text-xs md:text-sm transition-colors"
-            >
-              <Instagram className="w-4 h-4 md:w-5 md:h-5" />
-              @_thedmk_
-            </a>
-          </div>
-
-          <div className="flex items-center justify-center gap-2 mt-6 text-white/40 text-[10px] md:text-xs">
-            <Lock className="w-3.5 h-3.5" />
-            <span>Secure payments via Razorpay</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

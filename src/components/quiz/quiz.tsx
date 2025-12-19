@@ -398,7 +398,7 @@ export function Quiz() {
 
           {/* Trust Line */}
           <p className="text-ivory/60 font-body text-sm mt-8">
-            Used by 2,500+ women &bull; Created by TheDMK
+            Used by 5,000+ women &bull; Created by TheDMK
           </p>
         </div>
       </div>

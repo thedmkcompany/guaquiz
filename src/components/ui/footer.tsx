@@ -55,27 +55,26 @@ export function Footer({ variant = "default", className = "" }: FooterProps) {
               className="h-10 sm:h-12 w-auto brightness-0 invert"
             />
           </Link>
-          <Link href="/" className="hover:opacity-80 transition-opacity relative">
-            <div className="absolute inset-0 bg-wine/60 mix-blend-multiply rounded-lg" />
+          <Link href="/" className="hover:opacity-80 transition-opacity">
             <Image
-              src="/images/the DMK Logo.png"
+              src="/images/DMK LOGO WHITE.png"
               alt="TheDMK"
               width={120}
               height={50}
-              className="h-10 sm:h-12 w-auto relative z-10"
+              className="h-10 sm:h-12 w-auto"
             />
           </Link>
         </div>
 
         {/* Instagram Link */}
         <a
-          href="https://instagram.com/_thedmk_"
+          href="https://instagram.com/thedmkco"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-gold hover:text-white hover:bg-white/20 transition-all duration-300 font-semibold text-sm mb-8 hover:scale-105"
         >
           <Instagram className="w-4 h-4" />
-          @_thedmk_
+          @thedmkco
         </a>
 
         {/* Legal Links */}

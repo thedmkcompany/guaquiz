@@ -40,6 +40,10 @@ const nextConfig: NextConfig = {
     inlineCss: true,
   },
 
+  // Target modern browsers only (eliminates ~14KB of polyfills)
+  // Browsers that don't support ES2020+ will not work
+  transpilePackages: [],
+
   // ============================================
   // PRODUCTION OPTIMIZATIONS
   // ============================================

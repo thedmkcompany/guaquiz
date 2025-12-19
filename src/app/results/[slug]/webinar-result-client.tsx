@@ -8,6 +8,7 @@ import { Program } from "@/types";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { Section } from "@/components/results";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
+import { Footer } from "@/components/ui/footer";
 import {
   Check,
   Lock,
@@ -287,6 +288,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
                     fill
                     className="object-cover"
                     priority
+                    fetchPriority="high"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 896px"
                     quality={80}
                   />
@@ -997,66 +999,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
         </section>
       </main>
 
-      {/* FOOTER - Elegant Feminine */}
-      <footer className="bg-forest-dark relative overflow-hidden">
-        {/* Subtle decorative gradient */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
-
-        <div className="container mx-auto px-6 md:px-8 py-10 md:py-12 relative z-10">
-          {/* Elegant tagline */}
-          <div className="text-center mb-8 md:mb-10">
-            <ElegantFlourish className="mx-auto text-gold/30 mb-4" />
-            <p className="font-accent italic text-white/50 text-sm md:text-base">
-              Join the 15,000+ women who chose <span className="text-gold/70">unstoppable</span>
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex flex-wrap items-center justify-center gap-6 md:gap-8 text-xs md:text-sm text-white/40 font-body mb-8 md:mb-10">
-            <Link href="/privacy" className="hover:text-gold/80 transition-colors">
-              Privacy Policy
-            </Link>
-            <span className="text-white/20">•</span>
-            <Link href="/terms" className="hover:text-gold/80 transition-colors">
-              Terms
-            </Link>
-            <span className="text-white/20">•</span>
-            <Link href="/contact" className="hover:text-gold/80 transition-colors">
-              Contact
-            </Link>
-            <span className="text-white/20">•</span>
-            <Link href="/about" className="hover:text-gold/80 transition-colors">
-              About
-            </Link>
-          </nav>
-
-          {/* Social */}
-          <div className="flex items-center justify-center mb-8">
-            <a
-              href="https://instagram.com/_thedmk_"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex items-center gap-2 text-white/40 hover:text-gold/80 text-xs md:text-sm transition-colors"
-            >
-              <div className="w-8 h-8 rounded-full bg-white/5 group-hover:bg-gold/10 flex items-center justify-center transition-colors">
-                <Instagram className="w-4 h-4" />
-              </div>
-              <span className="font-body">@_thedmk_</span>
-            </a>
-          </div>
-
-          {/* Trust badge */}
-          <div className="flex items-center justify-center gap-2 md:gap-3 text-white/30 text-[10px] md:text-xs">
-            <Lock className="w-3.5 h-3.5" />
-            <span className="font-body">Secure payments via Razorpay</span>
-          </div>
-
-          {/* Bottom flourish */}
-          <div className="flex justify-center mt-8">
-            <Heart className="w-4 h-4 text-wine/30" />
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

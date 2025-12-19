@@ -61,7 +61,7 @@ const testimonials = [
 
 // Stats data - Updated with latest information
 const stats = [
-  { value: "4,500+", label: "Fitness sessions conducted" },
+  { value: "5,000+", label: "Fitness sessions conducted" },
   { value: "15,000+", label: "Women trained globally" },
   { value: "40K+", label: "Instagram community" },
 ];
