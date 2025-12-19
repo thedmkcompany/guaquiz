@@ -36,6 +36,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // Optimize package imports for better tree-shaking
     optimizePackageImports: ["lucide-react", "@supabase/supabase-js"],
+    // Inline critical CSS to reduce render-blocking
+    inlineCss: true,
   },
 
   // ============================================
@@ -68,6 +70,16 @@ const nextConfig: NextConfig = {
       {
         // Cache fonts
         source: "/:all*(woff|woff2|ttf|otf|eot)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Cache CSS and JS chunks
+        source: "/_next/static/:path*",
         headers: [
           {
             key: "Cache-Control",

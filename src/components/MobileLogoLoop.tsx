@@ -1,12 +1,13 @@
 'use client';
 
-import { LogoLoop, type LogoItem } from './LogoLoop';
+import Image from 'next/image';
+import { getCDNUrl } from '@/lib/cdn';
 
 /**
  * Partner/Brand logos displayed in the mobile logo loop
  * These are corporate clients/partners where Disha has conducted sessions
  */
-const logoItems: LogoItem[] = [
+const logos = [
   { src: '/brand-logos/Bosch-Logo.png', alt: 'Bosch' },
   { src: '/brand-logos/RedBull logo.png', alt: 'Red Bull' },
   { src: '/brand-logos/Airtel-Logo-2010-present.jpg', alt: 'Airtel' },
@@ -26,8 +27,8 @@ interface MobileLogoLoopProps {
 }
 
 /**
- * Mobile-only LogoLoop component that displays above the fold
- * Shows partner logos on mobile devices (hidden on md+ screens)
+ * Mobile-only LogoLoop component - CSS-only animation (no JS layout measurements)
+ * Uses pure CSS animation for smooth, performant scrolling without forced reflows
  */
 export function MobileLogoLoop({ className = '' }: MobileLogoLoopProps) {
   return (
@@ -35,16 +36,44 @@ export function MobileLogoLoop({ className = '' }: MobileLogoLoopProps) {
       <p className="text-[10px] text-center text-forest/50 uppercase tracking-widest mb-1.5 font-medium">
         Trusted by leading brands
       </p>
-      <div className="[&_img]:grayscale [&_img]:opacity-60 hover:[&_img]:grayscale-0 hover:[&_img]:opacity-100 [&_img]:transition-all [&_img]:duration-300">
-        <LogoLoop
-          logos={logoItems}
-          speed={40}
-          direction="left"
-          logoHeight={24}
-          gap={32}
-          pauseOnHover
-          ariaLabel="Trusted corporate partners and brands"
-        />
+      <div
+        className="flex w-max animate-scroll-left"
+        role="region"
+        aria-label="Trusted corporate partners and brands"
+      >
+        {/* First set of logos */}
+        {logos.map((logo, i) => (
+          <div
+            key={`logo-1-${i}`}
+            className="flex-shrink-0 mx-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+          >
+            <Image
+              src={getCDNUrl(logo.src)}
+              alt={logo.alt}
+              width={80}
+              height={24}
+              className="h-6 w-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        ))}
+        {/* Duplicate set for seamless loop */}
+        {logos.map((logo, i) => (
+          <div
+            key={`logo-2-${i}`}
+            className="flex-shrink-0 mx-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+            aria-hidden="true"
+          >
+            <Image
+              src={getCDNUrl(logo.src)}
+              alt=""
+              width={80}
+              height={24}
+              className="h-6 w-auto object-contain"
+              loading="lazy"
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
