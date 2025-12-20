@@ -40,6 +40,7 @@ export default function TermsPage() {
                   <p>Secunderabad, Hyderabad, Telangana, India - 500015</p>
                   <p className="mt-2"><strong>CIN:</strong> U74999TG2021OPC156774</p>
                   <p><strong>PAN:</strong> AAICT9878J</p>
+                  <p><strong>GST:</strong> Under Process</p>
                 </div>
                 <p className="text-forest/80 leading-relaxed mt-4">
                   By registering for, accessing, or using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions. If you do not agree with these terms, you must not use our services.

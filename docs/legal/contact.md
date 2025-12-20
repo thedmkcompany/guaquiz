@@ -110,6 +110,7 @@ We value every interaction with our community, whether you are a long-time clien
 **Company Name:** THEDMK (OPC) Private Limited  
 **Corporate Identity Number (CIN):** U74999TG2021OPC156774  
 **PAN:** AAICT9878J  
+**GST:** Under Process  
 **TAN:** HYDT12037E  
 **Date of Incorporation:** November 9, 2021  
 **Registered Address:** Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC, Secunderabad, Hyderabad, Telangana, India - 500015

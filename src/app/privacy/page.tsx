@@ -39,6 +39,7 @@ export default function PrivacyPolicyPage() {
                   <p>Secunderabad, Hyderabad, Telangana, India - 500015</p>
                   <p className="mt-2"><strong>CIN:</strong> U74999TG2021OPC156774</p>
                   <p><strong>PAN:</strong> AAICT9878J</p>
+                  <p><strong>GST:</strong> Under Process</p>
                 </div>
               </section>
 
@@ -172,6 +173,30 @@ export default function PrivacyPolicyPage() {
                 <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Exercising Your Rights</h3>
                 <p className="text-forest/80 leading-relaxed">
                   To exercise any of these rights, please contact us using the contact information provided below. We will respond to your request within thirty days.
+                </p>
+              </section>
+
+              <section>
+                <h2 className="text-xl font-headline font-bold text-forest mb-4">GDPR Rights (For EEA Users)</h2>
+                <p className="text-forest/80 leading-relaxed mb-4">
+                  If you are a resident of the European Economic Area (EEA), you have certain data protection rights under the General Data Protection Regulation (GDPR). We aim to take reasonable steps to allow you to correct, amend, delete, or limit the use of your Personal Data.
+                </p>
+                <p className="text-forest/80 leading-relaxed mb-4">
+                  If you wish to be informed what Personal Data we hold about you and if you want it to be removed from our systems, please contact us.
+                </p>
+                <p className="text-forest/80 leading-relaxed mb-4">
+                  In certain circumstances, you have the following data protection rights:
+                </p>
+                <ul className="list-disc list-inside text-forest/80 space-y-2 mb-4">
+                  <li><strong>The right to access, update or to delete the information we have on you.</strong> Whenever made possible, you can access, update or request deletion of your Personal Data directly within your account settings section. If you are unable to perform these actions yourself, please contact us to assist you.</li>
+                  <li><strong>The right of rectification.</strong> You have the right to have your information rectified if that information is inaccurate or incomplete.</li>
+                  <li><strong>The right to object.</strong> You have the right to object to our processing of your Personal Data.</li>
+                  <li><strong>The right of restriction.</strong> You have the right to request that we restrict the processing of your personal information.</li>
+                  <li><strong>The right to data portability.</strong> You have the right to be provided with a copy of the information we have on you in a structured, machine-readable and commonly used format.</li>
+                  <li><strong>The right to withdraw consent.</strong> You also have the right to withdraw your consent at any time where we relied on your consent to process your personal information.</li>
+                </ul>
+                <p className="text-forest/80 leading-relaxed">
+                  Please note that we may ask you to verify your identity before responding to such requests. You have the right to complain to a Data Protection Authority about our collection and use of your Personal Data. For more information, please contact your local data protection authority in the European Economic Area (EEA).
                 </p>
               </section>
 

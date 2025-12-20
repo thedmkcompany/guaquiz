@@ -39,6 +39,7 @@ export default function RefundPolicyPage() {
                   <p>Secunderabad, Hyderabad, Telangana, India - 500015</p>
                   <p className="mt-2"><strong>CIN:</strong> U74999TG2021OPC156774</p>
                   <p><strong>PAN:</strong> AAICT9878J</p>
+                  <p><strong>GST:</strong> Under Process</p>
                 </div>
                 <p className="text-forest/80 leading-relaxed mt-4">
                   This Refund Policy should be read in conjunction with our Terms and Conditions and Privacy Policy. By enrolling in our programs, you acknowledge and agree to this Refund Policy.

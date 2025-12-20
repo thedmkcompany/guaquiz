@@ -11,7 +11,8 @@ THEDMK (OPC) Private Limited
 Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,  
 Secunderabad, Hyderabad, Telangana, India - 500015  
 **CIN:** U74999TG2021OPC156774  
-**PAN:** AAICT9878J
+**PAN:** AAICT9878J  
+**GST:** Under Process
 
 This Refund Policy should be read in conjunction with our Terms and Conditions and Privacy Policy. By enrolling in our programs, you acknowledge and agree to this Refund Policy.
 
