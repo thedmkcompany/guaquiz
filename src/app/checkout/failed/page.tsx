@@ -107,7 +107,7 @@ export default function CheckoutFailedPage() {
         <p className="mt-8 text-sm text-forest/60 font-body">
           Need help?{" "}
           <a
-            href="mailto:support@thedmk.in"
+            href="mailto:hello@thedmk.online"
             className="text-wine font-semibold hover:underline font-subheader"
           >
             Contact Support

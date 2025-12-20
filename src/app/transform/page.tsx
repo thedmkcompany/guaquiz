@@ -7,16 +7,11 @@ import { Footer } from "@/components/ui/footer";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
 import {
   Check,
-  Flame,
   Sparkles,
-  Wallet,
   Crown,
-  ChevronLeft,
   ChevronRight,
-  Heart,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { getCDNUrl } from "@/lib/cdn";
 
 // =============================================================================
@@ -85,8 +80,7 @@ const testimonials = [
     location: "Mumbai",
     profession: "Strategy Consultant",
     quote:
-      "My husband asked me if I'd changed my skincare routine. I hadn't. I'd changed my entire system—fitness, sleep, nutrition, confidence. TRANSFORM gave me the structure I'd been missing. Within 8 weeks, people at work started asking what was different. By month 6, I'd been promoted.",
-    image: getCDNUrl("/images/transform/Akancha Sharma.jpg"),
+      "My husband asked me if I'd changed my skincare routine. I hadn't. I'd changed my entire system: fitness, sleep, nutrition, confidence. TRANSFORM gave me the structure I'd been missing. Within 8 weeks, people at work started asking what was different. By month 6, I'd been promoted.",
   },
   {
     name: "Anjali R.",
@@ -94,15 +88,13 @@ const testimonials = [
     profession: "Tech Executive",
     quote:
       "I spent ₹2.5L on a Chanel bag last year without hesitation. When I told my husband I was investing ₹2L in TRANSFORM, I expected pushback. Instead, he said: 'Finally, you're prioritizing yourself the way you prioritize everyone else.' Three months in, he notices how much more present I am with our kids.",
-    image: getCDNUrl("/images/transform/Jinal in 3 Months.jpg"),
   },
   {
     name: "Kavya S.",
     location: "London",
     profession: "Finance Manager - NRI",
     quote:
-      "I'd see women at events who just had that energy—that presence. I wanted to be her. Circle gave me community, but TRANSFORM gave me the personal blueprint. Now I'm the woman other women ask about. Worth every single pound I invested.",
-    image: getCDNUrl("/images/transform/Akancha Sharma.jpg"),
+      "I'd see women at events who just had that energy, that presence. I wanted to be her. Circle gave me community, but TRANSFORM gave me the personal blueprint. Now I'm the woman other women ask about. Worth every single pound I invested.",
   },
 ];
 
@@ -248,18 +240,18 @@ function MobileStickyCTA({ visible }: { visible: boolean }) {
       {/* Decorative top border */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gold/50 via-gold to-gold/50" />
 
-      <div className="flex items-center justify-between h-full px-5">
-        <div>
-          <p className="text-gold/80 text-xs font-body uppercase tracking-wider">
+      <div className="flex items-center justify-between h-full px-3 sm:px-5 gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-gold/80 text-xs font-body uppercase tracking-wider truncate">
             TRANSFORM Program
           </p>
-          <p className="text-ivory text-lg font-headline">
+          <p className="text-ivory text-base sm:text-lg font-headline truncate">
             Book Strategy Session
           </p>
         </div>
         <Link
           href="/checkout?program=transform-strategy-call"
-          className="bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-body font-semibold text-base px-6 py-3 rounded-full h-auto shadow-lg inline-flex items-center gap-1"
+          className="bg-gradient-to-r from-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-body font-semibold text-sm sm:text-base px-4 sm:px-6 py-2.5 sm:py-3 rounded-full h-auto shadow-lg inline-flex items-center gap-1 flex-shrink-0 whitespace-nowrap"
         >
           Book Now →
         </Link>
@@ -298,7 +290,7 @@ export default function TransformLandingPage() {
       {/* =========================================================================
           SECTION 1: HERO (ABOVE FOLD)
           ========================================================================= */}
-      <section ref={heroRef} className="relative min-h-screen flex items-center px-4 md:px-8 pt-16 pb-20 md:pt-24 md:pb-32 overflow-hidden">
+      <section ref={heroRef} className="relative flex items-center px-4 md:px-8 py-12 sm:py-16 md:py-20 overflow-hidden">
         {/* Animated background gradient */}
         <div className="absolute inset-0 bg-gradient-to-br from-ivory via-beige-light/50 to-ivory" />
 
@@ -323,7 +315,7 @@ export default function TransformLandingPage() {
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
           {/* Premium Badge */}
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-forest/5 via-forest/10 to-forest/5 backdrop-blur-sm border border-gold/40 rounded-full text-sm font-body font-semibold text-forest mb-10 shadow-lg">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-forest/5 via-forest/10 to-forest/5 backdrop-blur-sm border border-gold/40 rounded-full text-sm font-body font-semibold text-forest mb-6 sm:mb-8 md:mb-10 shadow-lg">
             <div className="flex items-center gap-1">
               <span className="w-2 h-2 bg-gold rounded-full animate-pulse" />
               <span className="w-2 h-2 bg-gold/60 rounded-full animate-pulse delay-150" />
@@ -336,18 +328,17 @@ export default function TransformLandingPage() {
           </div>
 
           {/* Hero Headline */}
-          <h1 className="font-headline text-[40px] leading-[1.1] md:text-6xl lg:text-7xl md:leading-[1.05] font-bold mb-8">
-            <span className="bg-gradient-to-r from-forest via-forest to-forest-light bg-clip-text text-transparent">
+          <h1 className="font-headline text-[40px] leading-[1.1] md:text-6xl lg:text-7xl md:leading-[1.05] font-bold mb-4 sm:mb-6 md:mb-8 px-4">
+            <span className="bg-gradient-to-r from-forest via-forest to-forest-light bg-clip-text text-transparent block">
               While Other Women Hesitate,
             </span>
-            <br />
-            <span className="bg-gradient-to-r from-wine via-wine to-wine-light bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-wine via-wine to-wine-light bg-clip-text text-transparent block">
               You TRANSFORM
             </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="font-accent text-lg md:text-2xl text-forest/70 mb-8 leading-relaxed max-w-[850px] mx-auto px-4">
+          <p className="font-accent text-lg md:text-2xl text-forest/70 mb-4 sm:mb-6 md:mb-8 leading-relaxed max-w-[850px] mx-auto px-4">
             You&apos;ve invested in your career, your home, your wardrobe.
             You&apos;ve spent ₹3L on a handbag without blinking. Now it&apos;s
             time to invest that same confidence in becoming the woman everyone
@@ -355,7 +346,7 @@ export default function TransformLandingPage() {
           </p>
 
           {/* Microcopy above CTA */}
-          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 backdrop-blur-sm rounded-3xl p-6 md:p-8 mb-10 max-w-3xl mx-auto border border-gold/20 shadow-lg">
+          <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-4 sm:mx-auto border border-gold/20 shadow-lg">
             <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
               Women like you have invested in Chanel bags (₹2.5L), fancy lehngas (₹4L), cosmetic treatments (₹5L+).{" "}
               <span className="font-headline font-bold text-wine">
@@ -368,7 +359,7 @@ export default function TransformLandingPage() {
           </div>
 
           {/* Hero Image */}
-          <div className="mb-12 max-w-sm md:max-w-xl mx-auto px-2">
+          <div className="mb-6 sm:mb-8 md:mb-12 max-w-sm md:max-w-xl mx-auto px-2">
             <div className="relative group">
               <div className="absolute inset-0 bg-gradient-to-r from-gold/20 via-wine/20 to-gold/20 rounded-[2.5rem] blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500" />
 
@@ -403,13 +394,13 @@ export default function TransformLandingPage() {
           <div className="space-y-4 px-4">
             <Link
               href="/checkout?program=transform-strategy-call"
-              className="group inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-base md:text-lg font-bold px-8 md:px-12 py-5 md:py-7 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              className="group inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-sm md:text-base font-semibold px-5 sm:px-6 md:px-8 py-3 md:py-4 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 max-w-full"
             >
-              <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
-              <span className="whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
+              <span className="text-center">
                 Invest ₹9,999 in Your Strategy Session
               </span>
-              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+              <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </Link>
 
             <p className="font-body text-sm text-forest/50">
@@ -499,7 +490,7 @@ export default function TransformLandingPage() {
             </ul>
             <p className="font-headline text-xl md:text-2xl text-wine font-bold text-center">
               <TransformBrand className="text-xl md:text-2xl" /> isn&apos;t
-              selfish. It&apos;s strategic.
+              selfish. <br/> It&apos;s strategic.
             </p>
           </div>
         </div>
@@ -780,7 +771,7 @@ export default function TransformLandingPage() {
               your secret?&rdquo;
             </p>
             <p className="font-body text-lg md:text-xl text-forest/80 leading-relaxed">
-              ...Seems to have it all together—body, career, presence, energy?
+              ...Seems to have it all together: body, career, presence, energy?
             </p>
           </div>
 
@@ -898,8 +889,44 @@ export default function TransformLandingPage() {
             If you hired these experts separately:
           </p>
 
-          {/* Services Breakdown Table */}
-          <div className="bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-gold/10 mb-10 overflow-x-auto">
+          {/* Services Breakdown - Mobile: Stacked Cards */}
+          <div className="md:hidden space-y-4 mb-10">
+            {separateServicesBreakdown.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white/80 backdrop-blur-sm rounded-2xl p-5 shadow-md border border-gold/20"
+              >
+                <h4 className="font-headline text-lg font-bold text-forest mb-3">
+                  {item.service}
+                </h4>
+                <div className="space-y-2">
+                  <p className="font-body text-sm text-forest/70">
+                    <span className="font-semibold">Cost:</span> {item.cost}
+                  </p>
+                  <p className="font-headline text-base font-bold text-wine">
+                    <span className="font-body font-normal text-forest/70">Total:</span>{" "}
+                    {item.total}
+                  </p>
+                  <p className="font-body text-xs text-forest/60 italic pt-2 border-t border-forest/10">
+                    {item.what}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {/* Total Card */}
+            <div className="bg-gradient-to-br from-wine/10 to-gold/10 rounded-2xl p-5 shadow-lg border-2 border-wine/20">
+              <p className="font-headline text-base font-bold text-forest mb-2">
+                Total if hired separately:
+              </p>
+              <p className="font-headline text-2xl text-forest/40 line-through">
+                ₹7,38,000<span className="text-base">/6 months</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Services Breakdown - Desktop: Table */}
+          <div className="hidden md:block bg-white/60 backdrop-blur-sm rounded-3xl md:rounded-[2rem] p-6 md:p-8 shadow-xl border border-gold/10 mb-10 overflow-x-auto">
             <div className="min-w-[600px]">
               {/* Header */}
               <div className="grid grid-cols-4 gap-4 pb-4 mb-4 border-b border-forest/10">
@@ -978,13 +1005,13 @@ export default function TransformLandingPage() {
           </div>
 
           {/* CTA */}
-          <div className="text-center">
+          <div className="text-center px-4">
             <Link
               href="/checkout?program=transform-strategy-call"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-base md:text-lg font-semibold px-8 md:px-10 py-4 md:py-5 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-sm md:text-base font-semibold px-5 sm:px-6 md:px-8 py-3 md:py-4 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 max-w-full"
             >
-              <Sparkles className="w-4 h-4 md:w-5 md:h-5 mr-2 flex-shrink-0" />
-              <span className="whitespace-nowrap">Book Your Strategy Session</span>
+              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">Book Your Strategy Session</span>
             </Link>
           </div>
         </div>
@@ -1017,14 +1044,8 @@ export default function TransformLandingPage() {
                     &ldquo;{testimonial.quote}&rdquo;
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full overflow-hidden ring-2 ring-gold/20 flex-shrink-0">
-                      <Image
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        width={64}
-                        height={64}
-                        className="object-cover w-full h-full"
-                      />
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center text-charcoal font-bold text-xl md:text-2xl shadow-md flex-shrink-0">
+                      {testimonial.name.charAt(0)}
                     </div>
                     <div>
                       <p className="font-headline text-base md:text-lg text-forest">
@@ -1430,13 +1451,13 @@ export default function TransformLandingPage() {
           ========================================================================= */}
       <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
         <div className="max-w-4xl mx-auto relative z-10">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-4">
             <Link
               href="/checkout?program=transform-strategy-call"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg md:text-xl font-bold px-10 md:px-14 py-6 md:py-8 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-sm md:text-base font-semibold px-5 sm:px-6 md:px-8 py-3 md:py-4 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 max-w-full"
             >
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-3 flex-shrink-0" />
-              <span className="whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">
                 Invest ₹9,999 in Your Strategy Session
               </span>
             </Link>
@@ -1724,13 +1745,13 @@ export default function TransformLandingPage() {
           </div>
 
           {/* Final CTA */}
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 px-4">
             <Link
               href="/checkout?program=transform-strategy-call"
-              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-lg md:text-xl font-bold px-10 md:px-14 py-6 md:py-8 h-auto rounded-full shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              className="inline-flex items-center justify-center bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:via-gold hover:to-gold text-forest font-body text-sm md:text-base font-semibold px-5 sm:px-6 md:px-8 py-3 md:py-4 h-auto rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 max-w-full"
             >
-              <Sparkles className="w-5 h-5 md:w-6 md:h-6 mr-3 flex-shrink-0" />
-              <span className="whitespace-nowrap">
+              <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 flex-shrink-0" />
+              <span className="text-center">
                 Invest ₹9,999 in Your Strategy Session
               </span>
             </Link>

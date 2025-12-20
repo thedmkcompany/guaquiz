@@ -10,7 +10,7 @@ Whether you have questions about our programs, need support with your current en
 
 For general questions about our programs, enrollment information, or any other inquiries, please reach out to us at:
 
-**Email:** hello@thedmk.in  
+**Email:** hello@thedmk.online  
 **Phone:** [Your Business Phone Number]
 
 Our customer support team is available Monday through Friday, nine AM to six PM Indian Standard Time. We strive to respond to all emails within twenty-four hours during business days.
@@ -19,7 +19,7 @@ Our customer support team is available Monday through Friday, nine AM to six PM 
 
 Ready to begin your transformation journey? Our enrollment team is here to help you find the perfect program for your goals and circumstances.
 
-**Enrollment Email:** enroll@thedmk.in  
+**Enrollment Email:** hello@thedmk.online  
 **Phone:** [Your Enrollment Phone Number]
 
 We will guide you through the enrollment process, answer questions about program options, discuss payment plans if needed, and ensure you have everything you need to start strong.
@@ -28,7 +28,7 @@ We will guide you through the enrollment process, answer questions about program
 
 Already enrolled and need assistance? Our dedicated support team is here to help with technical issues with our app or platform, questions about your program schedule, accessing resources and materials, payment or billing inquiries, and any other concerns related to your enrollment.
 
-**Support Email:** support@thedmk.in  
+**Support Email:** hello@thedmk.online  
 **WhatsApp:** [Your Support WhatsApp Number]
 
 For urgent matters requiring immediate attention, please call our support line during business hours or reach out via WhatsApp for faster response times.
@@ -37,13 +37,13 @@ For urgent matters requiring immediate attention, please call our support line d
 
 Interested in partnering with The DMK or exploring collaboration opportunities? We welcome inquiries from corporate wellness programs seeking employee fitness solutions, brands aligned with our wellness mission, media outlets interested in featuring our story or expertise, and fitness or wellness professionals interested in joining our team.
 
-**Partnerships Email:** partnerships@thedmk.in
+**Partnerships Email:** hello@thedmk.online
 
 ### Media and Press
 
 For media inquiries, interview requests, or press-related questions, please contact our media team.
 
-**Media Email:** media@thedmk.in
+**Media Email:** hello@thedmk.online
 
 We are happy to provide expert commentary on fitness and wellness topics, share client success stories with permission, discuss our approach to women's wellness, and collaborate on content that empowers our community.
 
@@ -85,7 +85,7 @@ You can also submit your question using our online contact form available on our
 For formal complaints or grievances related to our services, data privacy, or any other serious concerns, please contact our designated Grievance Officer in accordance with the Information Technology Act, 2000.
 
 **Grievance Officer:** [Grievance Officer Name]  
-**Email:** grievances@thedmk.in  
+**Email:** hello@thedmk.online  
 **Address:** THEDMK (OPC) Private Limited, Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC, Secunderabad, Hyderabad, Telangana, India - 500015
 
 All grievances will be acknowledged within forty-eight hours and addressed within thirty days of receipt.
@@ -118,7 +118,7 @@ We value every interaction with our community, whether you are a long-time clien
 
 We respect your privacy and protect your personal information. Any information you share when contacting us will be handled in accordance with our Privacy Policy. We will never share your contact details with third parties without your explicit consent.
 
-For questions about how we handle your data, please refer to our Privacy Policy or contact our data protection team at privacy@thedmk.in.
+For questions about how we handle your data, please refer to our Privacy Policy or contact our data protection team at hello@thedmk.online.
 
 ## We Look Forward to Hearing From You
 
@@ -132,7 +132,7 @@ Do not hesitate to reach out. We are excited to connect with you and explore how
 
 Contact us today to learn more about our programs and take the first step toward the confident, energized, empowered version of yourself you have been dreaming of becoming.
 
-**Email:** hello@thedmk.in  
+**Email:** hello@thedmk.online  
 **Phone:** [Your Business Phone Number]
 
 We cannot wait to meet you and support your transformation.

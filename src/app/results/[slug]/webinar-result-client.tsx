@@ -11,10 +11,8 @@ import { FAQAccordion } from "@/components/ui/faq-accordion";
 import { Footer } from "@/components/ui/footer";
 import {
   Check,
-  Lock,
   Sparkles,
   ArrowRight,
-  Instagram,
   Clock,
   Calendar,
   ShieldCheck,

@@ -83,7 +83,7 @@ function getWixHeaders(): HeadersInit {
 async function makeRequest(endpoint: string, options: RequestInit = {}): Promise<{
   ok: boolean;
   status: number;
-  data: any;
+  data: unknown;
   error?: string;
 }> {
   try {
@@ -291,7 +291,14 @@ async function testContactUpdate(contactId: string): Promise<boolean> {
   const customerLabelKey = labelResult.data?.label?.key;
 
   // Update contact with payment data
-  const updatePayload: any = {
+  const updatePayload: {
+    info: {
+      extendedFields: {
+        items: Record<string, string>;
+      };
+    };
+    revision?: string;
+  } = {
     info: {
       extendedFields: {
         items: {
@@ -399,7 +406,7 @@ async function testPricingPlanAssignment(memberId: string): Promise<boolean> {
   };
 
   const configuredPlans = Object.entries(planIds)
-    .filter(([_, id]) => id)
+    .filter(([, id]) => id)
     .map(([name, id]) => ({ name, id }));
 
   if (configuredPlans.length === 0) {
@@ -445,7 +452,7 @@ async function testPricingPlanAssignment(memberId: string): Promise<boolean> {
   return true;
 }
 
-async function cleanupTestData(contactId: string): Promise<void> {
+async function cleanupTestData(): Promise<void> {
   logSection('Cleanup');
 
   log(`Note: Test contact ${TEST_EMAIL} was created`, 'info');

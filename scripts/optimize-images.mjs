@@ -6,7 +6,7 @@
  */
 
 import sharp from 'sharp';
-import { readdir, stat, mkdir, unlink } from 'fs/promises';
+import { readdir, stat } from 'fs/promises';
 import { join, extname, basename, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -52,7 +52,7 @@ async function getFilesRecursive(dir) {
         files.push(fullPath);
       }
     }
-  } catch (err) {
+  } catch {
     console.warn(`Could not read directory: ${dir}`);
   }
   return files;

@@ -37,7 +37,7 @@ export const siteConfig = {
   },
 
   contact: {
-    email: "hello@glowupacademy.in",
+    email: "hello@thedmk.online",
     phone: "+91-XXXX-XXXXXX", // Update with actual number
   },
 

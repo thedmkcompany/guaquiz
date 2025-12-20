@@ -1,9 +1,9 @@
 import Image from 'next/image';
-import { getCDNUrl } from '@/lib/cdn';
 
 /**
  * Partner/Brand logos displayed in the mobile logo loop
  * These are corporate clients/partners where Disha has conducted sessions
+ * NOTE: Brand logos served from public folder (Vercel CDN) - next/image handles optimization
  */
 const logos = [
   { src: '/brand-logos/Bosch-Logo.png', alt: 'Bosch' },
@@ -46,12 +46,13 @@ export function MobileLogoLoop({ className = '' }: MobileLogoLoopProps) {
             className="flex-shrink-0 mx-4 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
           >
             <Image
-              src={getCDNUrl(logo.src)}
+              src={logo.src}
               alt={logo.alt}
               width={80}
               height={24}
               className="h-6 w-auto object-contain"
               loading="lazy"
+              quality={75}
             />
           </div>
         ))}
@@ -63,12 +64,13 @@ export function MobileLogoLoop({ className = '' }: MobileLogoLoopProps) {
             aria-hidden="true"
           >
             <Image
-              src={getCDNUrl(logo.src)}
+              src={logo.src}
               alt=""
               width={80}
               height={24}
               className="h-6 w-auto object-contain"
               loading="lazy"
+              quality={75}
             />
           </div>
         ))}

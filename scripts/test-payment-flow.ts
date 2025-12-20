@@ -71,7 +71,8 @@ function generateRazorpaySignature(
   return signature;
 }
 
-// Helper function to generate subscription signature
+// Helper function to generate subscription signature (unused but kept for reference)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function generateSubscriptionSignature(
   subscriptionId: string,
   paymentId: string,
@@ -299,7 +300,7 @@ async function testHealthCheck() {
       error(`API health check failed: ${response.status}`);
       return false;
     }
-  } catch (err) {
+  } catch {
     error(`Cannot reach API at ${TEST_CONFIG.API_BASE_URL}`);
     error(`Make sure your dev server is running: npm run dev`);
     return false;

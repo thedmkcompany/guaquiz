@@ -371,6 +371,11 @@ export function Quiz() {
   if (screen === "intro") {
     return (
       <div className="quiz-fullscreen quiz-intro-bg flex flex-col items-center justify-center px-6 text-center">
+        {/* Brand Mark */}
+        <p className="absolute top-6 left-1/2 -translate-x-1/2 font-accent text-gold text-lg tracking-wide italic">
+          Glow Up Academy
+        </p>
+
         <div className="max-w-xl mx-auto">
           {/* Headline */}
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl text-ivory font-bold mb-4 leading-tight">
@@ -409,6 +414,11 @@ export function Quiz() {
   if (screen === "transition-after-q3") {
     return (
       <div className="quiz-fullscreen quiz-transition-bg flex flex-col items-center justify-center px-6 text-center">
+        {/* Brand Mark */}
+        <p className="absolute top-6 left-1/2 -translate-x-1/2 font-accent text-gold text-lg tracking-wide italic">
+          Glow Up Academy
+        </p>
+
         <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl text-ivory font-bold mb-6">
           Understanding your path...
         </h2>
@@ -432,6 +442,11 @@ export function Quiz() {
 
     return (
       <div className="quiz-fullscreen quiz-loading-bg flex flex-col items-center justify-center px-6 text-center">
+        {/* Brand Mark */}
+        <p className="absolute top-6 left-1/2 -translate-x-1/2 font-accent text-gold text-lg tracking-wide italic z-20">
+          Glow Up Academy
+        </p>
+
         {/* Gold geometric pattern animation */}
         <div className="quiz-loading-pattern absolute inset-0 pointer-events-none" />
 
@@ -457,6 +472,11 @@ export function Quiz() {
   if (screen === "lead-capture") {
     return (
       <div className="quiz-fullscreen quiz-lead-capture-bg flex flex-col items-center justify-center px-6">
+        {/* Brand Mark */}
+        <p className="absolute top-6 left-1/2 -translate-x-1/2 font-accent text-gold text-lg tracking-wide italic">
+          Glow Up Academy
+        </p>
+
         <div className="w-full max-w-md mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
@@ -596,9 +616,13 @@ export function Quiz() {
             style={{ width: `${progress}%` }}
           />
         </div>
-        <div className="px-4 py-3">
-          <p className="text-sm font-body text-forest/80 text-center">
-            Question {currentQuestionIndex + 1} of {TOTAL_QUESTIONS}
+        <div className="px-4 py-3 flex items-center justify-between">
+          {/* Brand Mark */}
+          <p className="font-accent text-wine text-sm tracking-wide italic">
+            Glow Up Academy
+          </p>
+          <p className="text-sm font-body text-forest/80">
+            {currentQuestionIndex + 1} / {TOTAL_QUESTIONS}
           </p>
         </div>
       </div>

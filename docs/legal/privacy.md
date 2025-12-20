@@ -127,7 +127,7 @@ We may update this Privacy Policy from time to time to reflect changes in our pr
 
 If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
 
-**Email:** hello@thedmk.in  
+**Email:** hello@thedmk.online  
 **Phone:** [Your Business Phone Number]  
 **Mailing Address:**  
 THEDMK (OPC) Private Limited  
@@ -139,7 +139,7 @@ Secunderabad, Hyderabad, Telangana, India - 500015
 In accordance with the Information Technology Act, 2000, and rules made thereunder, the contact details of our Grievance Officer are:
 
 **Name:** [Grievance Officer Name]  
-**Email:** grievances@thedmk.in  
+**Email:** hello@thedmk.online  
 **Address:** THEDMK (OPC) Private Limited, Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC, Secunderabad, Hyderabad, Telangana, India - 500015
 
 The Grievance Officer will respond to your concerns within thirty days of receipt.

@@ -19,7 +19,7 @@ This Refund Policy should be read in conjunction with our Terms and Conditions a
 
 We offer limited refunds based on the timing of your cancellation request and the extent of your participation in the program. Refunds are processed to the original payment method used during enrollment. Processing time for approved refunds is typically seven to fourteen business days from the date of approval, though this may vary depending on your financial institution.
 
-All refund requests must be submitted in writing through email to hello@thedmk.in or through our designated customer support channels. Verbal requests or messages in WhatsApp groups will not be considered valid cancellation requests.
+All refund requests must be submitted in writing through email to hello@thedmk.online or through our designated customer support channels. Verbal requests or messages in WhatsApp groups will not be considered valid cancellation requests.
 
 ## Refund Eligibility Criteria
 
@@ -63,7 +63,7 @@ If you have previously received a refund for any of our programs, you may not be
 
 ### How to Request a Refund
 
-To request a refund, please send an email to hello@thedmk.in with the subject line "Refund Request - [Your Full Name]" and include your full name as registered, email address used during enrollment, program name and enrollment date, reason for requesting a refund, and any supporting documentation if applicable.
+To request a refund, please send an email to hello@thedmk.online with the subject line "Refund Request - [Your Full Name]" and include your full name as registered, email address used during enrollment, program name and enrollment date, reason for requesting a refund, and any supporting documentation if applicable.
 
 ### Review Process
 
@@ -109,7 +109,7 @@ Chargebacks may result in your permanent ban from future enrollment in any of ou
 
 ## Refunds for Technical Issues
 
-If you experience technical difficulties preventing access to our services, please contact our support team immediately at hello@thedmk.in. We will work diligently to resolve technical issues within forty-eight hours.
+If you experience technical difficulties preventing access to our services, please contact our support team immediately at hello@thedmk.online. We will work diligently to resolve technical issues within forty-eight hours.
 
 If we are unable to resolve technical issues that prevent your participation within a reasonable timeframe, we may offer a prorated refund, program extension, or program credit at our discretion.
 
@@ -123,7 +123,7 @@ We reserve the right to modify this Refund Policy at any time. Changes will be p
 
 We are committed to addressing your concerns and finding fair solutions. If you have questions about this Refund Policy or need assistance with a refund request, please contact us:
 
-**Email:** hello@thedmk.in  
+**Email:** hello@thedmk.online  
 **Phone:** [Your Business Phone Number]  
 **Mailing Address:**  
 THEDMK (OPC) Private Limited  

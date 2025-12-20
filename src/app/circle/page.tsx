@@ -553,7 +553,7 @@ export default function CircleLandingPage() {
               ))}
             </div>
             <p className="text-sm text-forest/70">
-              <span className="font-semibold text-wine">100+</span> women rising together
+              <span className="font-semibold text-wine">1000+</span> women rising together
             </p>
           </div>
 
@@ -656,7 +656,7 @@ export default function CircleLandingPage() {
                     <span className="text-2xl text-wine">◆</span>
                   </div>
                   <p className="font-semibold text-forest text-sm mb-1">Wake up excited</p>
-                  <p className="text-xs text-forest/60 leading-relaxed">4 LIVE sessions that make mornings worth it</p>
+                  <p className="text-xs text-forest/60 leading-relaxed">4 LIVE workouts weekly make mornings worth it</p>
                 </div>
 
                 {/* Benefit 2 */}
@@ -1162,7 +1162,7 @@ export default function CircleLandingPage() {
             <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-5 py-3 rounded-full border border-beige/40 shadow-soft">
               <span className="text-gold">✧</span>
               <p className="text-sm text-forest/70 italic">
-                Missed a session? All classes recorded for 48 hours.
+                Missed a session? Recordimgs are available for 48 hours.
               </p>
             </div>
           </div>

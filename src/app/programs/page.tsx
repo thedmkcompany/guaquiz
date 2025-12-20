@@ -127,7 +127,7 @@ export default function ProgramsPage() {
   );
 }
 
-function ProgramCard({ program, index }: { program: Program; index: number }) {
+function ProgramCard({ program }: { program: Program; index: number }) {
   const programLink = program.slug === 'circle'
     ? '/circle'
     : program.slug === 'transform'

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Mail, Clock, Instagram } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { MobileLogoLoop } from "@/components/MobileLogoLoop";
@@ -105,16 +104,6 @@ export default function ContactPage() {
             </p>
           </div>
 
-          {/* FAQ Link */}
-          <div className="mt-8 text-center">
-            <p className="text-forest/70 mb-2 font-body">Looking for quick answers?</p>
-            <Link
-              href="/#faq"
-              className="text-wine font-semibold hover:text-wine-light hover:underline font-subheader"
-            >
-              Check our FAQ section
-            </Link>
-          </div>
         </div>
       </main>
 

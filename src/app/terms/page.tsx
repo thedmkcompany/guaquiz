@@ -274,7 +274,7 @@ export default function TermsPage() {
                   For questions about these Terms and Conditions, please contact us:
                 </p>
                 <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
-                  <p><strong>Email:</strong> hello@thedmk.in</p>
+                  <p><strong>Email:</strong> hello@thedmk.online</p>
                   <p className="mt-2"><strong>Mailing Address:</strong></p>
                   <p>THEDMK (OPC) Private Limited</p>
                   <p>Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,</p>

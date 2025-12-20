@@ -181,7 +181,7 @@ We shall not be liable for any failure or delay in performing our obligations du
 
 For questions about these Terms and Conditions, please contact us at:
 
-**Email:** hello@thedmk.in  
+**Email:** hello@thedmk.online  
 **Phone:** [Your Business Phone Number]  
 **Mailing Address:**  
 THEDMK (OPC) Private Limited  

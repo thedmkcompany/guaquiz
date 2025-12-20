@@ -25,11 +25,9 @@ import {
 import { MobileLogoLoop } from "@/components/MobileLogoLoop";
 import {
   Check,
-  Lock,
   Sparkles,
   ArrowRight,
   Calendar,
-  Instagram,
 } from "lucide-react";
 
 interface ResultPageClientProps {
