@@ -7,8 +7,6 @@ import {
   TestimonialCard,
   StatBlock,
 } from "@/components/landing";
-import { Footer } from "@/components/ui/footer";
-import { ArrowRight, Star } from "lucide-react";
 import { StructuredData } from "@/components/seo/StructuredData";
 import {
   generateOrganizationSchema,
@@ -16,12 +14,47 @@ import {
   combineSchemas,
 } from "@/lib/structured-data";
 import { getCDNUrl } from "@/lib/cdn";
+import { MobileLogoLoop } from "@/components/MobileLogoLoop";
 
 // Lazy load below-fold components
-const MobileLogoLoop = dynamic(
-  () => import("@/components/MobileLogoLoop").then((m) => m.MobileLogoLoop),
+const Footer = dynamic(
+  () => import("@/components/ui/footer").then((m) => m.Footer),
   { ssr: true }
 );
+
+// Inline SVG icons to avoid lucide-react bundle
+function StarIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="currentColor"
+      strokeWidth="0"
+      className={className}
+    >
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M5 12h14" />
+      <path d="m12 5 7 7-7 7" />
+    </svg>
+  );
+}
 
 /*
   HIGH-END SOFT UI DESIGN TOKENS:
@@ -101,7 +134,7 @@ export default function Home() {
                 <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-2.5 mb-6 sm:mb-8 rounded-full bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] animate-fade-in">
                   <div className="flex items-center gap-1">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-gold text-gold" />
+                      <StarIcon key={i} className="w-3.5 h-3.5 fill-gold text-gold" />
                     ))}
                   </div>
                   <span className="h-4 w-px bg-forest/20" />
@@ -144,7 +177,7 @@ export default function Home() {
                     {/* Shimmer effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
                     <span className="relative z-10">Take the Quiz</span>
-                    <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1.5 transition-transform duration-300" />
+                    <ArrowRightIcon className="w-5 h-5 relative z-10 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </a>
 
                   <p className="text-xs sm:text-sm text-forest/45 font-medium tracking-wide">

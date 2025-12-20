@@ -1,6 +1,3 @@
-"use client";
-
-import { memo } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +45,7 @@ interface TestimonialCardProps {
   variant?: "default" | "featured";
 }
 
-export const TestimonialCard = memo(function TestimonialCard({
+export function TestimonialCard({
   testimonial,
   quote: quoteProp,
   name: nameProp,
@@ -136,9 +133,6 @@ export const TestimonialCard = memo(function TestimonialCard({
               fill
               className="object-cover"
               sizes="88px"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
             />
             <div className="absolute inset-0 bg-gradient-to-br from-beige-light/20 to-forest/10 rounded-full" />
           </div>
@@ -201,4 +195,4 @@ export const TestimonialCard = memo(function TestimonialCard({
       {cardContent}
     </div>
   );
-});
+}

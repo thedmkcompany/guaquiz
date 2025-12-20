@@ -62,6 +62,26 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // Cache static pages at edge for faster TTFB
+        source: "/",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
+        // Cache other static pages
+        source: "/(about|privacy|terms|refund|contact|programs|circle|transform|book-call)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=86400, stale-while-revalidate=604800",
+          },
+        ],
+      },
+      {
         // Cache static assets aggressively
         source: "/:all*(svg|jpg|jpeg|png|gif|ico|webp|avif|mp4|webm)",
         headers: [

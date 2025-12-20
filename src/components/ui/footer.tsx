@@ -1,6 +1,25 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram } from "lucide-react";
+
+// Inline SVG to avoid lucide-react bundle
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </svg>
+  );
+}
 
 interface FooterProps {
   variant?: "default" | "minimal";
@@ -73,7 +92,7 @@ export function Footer({ variant = "default", className = "" }: FooterProps) {
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-gold hover:text-white hover:bg-white/20 transition-all duration-300 font-semibold text-sm mb-8 hover:scale-105"
         >
-          <Instagram className="w-4 h-4" />
+          <InstagramIcon className="w-4 h-4" />
           @thedmkco
         </a>
 
