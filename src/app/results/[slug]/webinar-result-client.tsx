@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
@@ -213,15 +213,58 @@ const preparationItems = [
   "An open mind",
 ];
 
+function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string }) {
+  return (
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-500 ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+      }`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="bg-gradient-to-r from-forest via-forest to-forest-light h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
+        <div className="flex-1">
+          <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
+            LIVE WEBINAR
+          </p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹499<span className="text-sm font-body font-normal text-ivory/70"> one-time</span></p>
+        </div>
+        <Link
+          href={ctaHref}
+          className="flex-shrink-0 h-12 px-7 bg-gradient-to-r from-gold to-gold-light text-forest font-semibold text-base rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.4)] active:scale-[0.96] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.5)] flex items-center"
+        >
+          Book Now →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function WebinarResultClient({ program }: WebinarResultClientProps) {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [webinarSessionDate, setWebinarSessionDate] = useState<WebinarSessionDateSelection | undefined>();
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
 
   // Calculate webinar session date on mount
   useEffect(() => {
     const selection = calculateWebinarSessionDate();
     console.log('[Webinar Result] Calculated session date:', selection);
     setWebinarSessionDate(selection);
+  }, []);
+
+  // Handle sticky bar visibility using IntersectionObserver
+  useEffect(() => {
+    if (!heroRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
   }, []);
 
   const toggleFaq = (index: number) => {
@@ -235,7 +278,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
         <DecorativeBlobs />
 
         {/* PERSONALIZED HERO SECTION - Feminine Elegance */}
-        <section className="relative">
+        <section ref={heroRef} className="relative">
           {/* Soft decorative curves */}
           <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-beige/20 to-transparent pointer-events-none" />
           <div className="absolute top-20 right-0 w-64 h-64 bg-gold/5 rounded-full blur-3xl pointer-events-none" />
@@ -996,6 +1039,12 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
           </div>
         </section>
       </main>
+
+      {/* Sticky CTA Bar */}
+      <StickyCTABar visible={showStickyBar} ctaHref={`/checkout?program=${program.slug}`} />
+
+      {/* Add padding at bottom for sticky bar */}
+      <div className="h-20 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
 
       <Footer />
     </>

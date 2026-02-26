@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
@@ -60,6 +60,32 @@ const renderHTML = (htmlString: string) => {
   return <span dangerouslySetInnerHTML={{ __html: htmlString }} />;
 };
 
+function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string }) {
+  return (
+    <div
+      className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-500 ${
+        visible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+      }`}
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <div className="bg-gradient-to-r from-forest via-forest to-forest-light h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
+        <div className="flex-1">
+          <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
+            ESSENTIALS
+          </p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹83<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
+        </div>
+        <Link
+          href={ctaHref}
+          className="flex-shrink-0 h-12 px-7 bg-gradient-to-r from-gold to-gold-light text-forest font-semibold text-base rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.4)] active:scale-[0.96] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.5)] flex items-center"
+        >
+          Start Now →
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export function EssentialsResultClient({ program }: EssentialsResultClientProps) {
   const [quizAnswers] = useState<QuizAnswers>(() => {
     // Migrate any legacy sessionStorage data
@@ -76,6 +102,23 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
     }
   });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  // Handle sticky bar visibility using IntersectionObserver
+  useEffect(() => {
+    if (!heroRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '0px' }
+    );
+
+    observer.observe(heroRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   const content: ProgramContent = getProgramContent(program.id);
 
@@ -101,7 +144,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
         <FloatingDecor />
 
         {/* HERO SECTION - Soft, inviting feminine design */}
-        <section className="relative overflow-hidden">
+        <section ref={heroRef} className="relative overflow-hidden">
           <div className="container mx-auto px-6 md:px-8 lg:px-10 py-14 md:py-24 lg:py-28">
             <div className="max-w-4xl mx-auto">
               {/* Badge with sparkles */}
@@ -637,6 +680,12 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
           </div>
         </section>
       </main>
+
+      {/* Sticky CTA Bar */}
+      <StickyCTABar visible={showStickyBar} ctaHref={`/checkout?program=${program.slug}`} />
+
+      {/* Add padding at bottom for sticky bar */}
+      <div className="h-20 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
 
       <Footer />
     </>
