@@ -8,6 +8,11 @@
  */
 
 /**
+ * Union type for all valid program identifiers.
+ */
+export type ProgramId = 'essentials' | 'webinar' | 'circle' | 'transform' | 'transform-strategy';
+
+/**
  * Program definition representing a transformation program offering.
  *
  * Programs are the core product offerings with pricing, features,
@@ -62,9 +67,7 @@ export interface QuizOption {
   /** Optional description shown below the option text */
   description?: string;
   /** Scoring weights for each program (can be negative) */
-  scores: {
-    [programId: string]: number;
-  };
+  scores: Partial<Record<ProgramId, number>>;
 }
 
 /**
@@ -88,7 +91,7 @@ export interface QuizResult {
   /** Highest score achieved */
   score: number;
   /** All program scores for debugging/analytics */
-  allScores: { [programId: string]: number };
+  allScores: Partial<Record<ProgramId, number>>;
 }
 
 /**

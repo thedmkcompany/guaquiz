@@ -83,7 +83,6 @@ export function Header({
                 width={180}
                 height={60}
                 className="h-12 sm:h-14 w-auto"
-                priority
               />
             </Link>
             <p className="font-body text-xs sm:text-sm text-forest/80 italic">
@@ -124,7 +123,6 @@ export function Header({
               width={180}
               height={60}
               className="h-12 md:h-14 w-auto"
-              priority
             />
           </Link>
         </div>

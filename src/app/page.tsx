@@ -402,7 +402,7 @@ export default function Home() {
               {testimonials.map((testimonial) => (
                 <div
                   key={testimonial.name}
-                  className="flex-shrink-0 w-[280px] sm:w-[320px] snap-center"
+                  className="flex-shrink-0 w-[280px] sm:w-[320px] lg:w-[380px] snap-center"
                 >
                   <TestimonialCard
                     {...testimonial}

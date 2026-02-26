@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database, Tables } from './database.types';
+import { maskEmail } from './validation';
 
 // Supabase configuration
 const SUPABASE_URL = process.env.SUPABASE_URL || '';
@@ -256,7 +257,7 @@ export async function updateLeadPaymentStatus(data: PaymentUpdateData): Promise<
     if (!lead) {
       // Lead doesn't exist - create a minimal record for tracking
       // This can happen if someone pays directly without taking the quiz
-      console.log(`[Supabase] No lead found for ${data.email}, creating payment record`);
+      console.log(`[Supabase] No lead found for ${maskEmail(data.email)}, creating payment record`);
 
       const { data: newLead, error: insertError } = await supabase
         .from('quiz_leads')
@@ -276,6 +277,7 @@ export async function updateLeadPaymentStatus(data: PaymentUpdateData): Promise<
           start_date_option: data.startDateOption || null,
           wix_sync_status: 'pending',
           wix_sync_attempts: 0,
+          ...(data.status === 'paid' && { wix_payment_sync_status: 'pending' as const }),
         })
         .select('id')
         .single();
@@ -302,6 +304,8 @@ export async function updateLeadPaymentStatus(data: PaymentUpdateData): Promise<
         paid_at: data.status === 'paid' ? new Date().toISOString() : null,
         program_start_date: data.programStartDate || null,
         updated_at: new Date().toISOString(),
+        // Queue Wix payment sync retry for paid leads
+        ...(data.status === 'paid' && { wix_payment_sync_status: 'pending' as const }),
       })
       .eq('id', lead.id);
 
@@ -476,7 +480,7 @@ export async function storeWixIds(
       return { success: false, error: error.message };
     }
 
-    console.log(`[Supabase] Stored Wix IDs for ${email}: order=${wixOrderId}, member=${wixMemberId}`);
+    console.log(`[Supabase] Stored Wix IDs for ${maskEmail(email)}: order=${wixOrderId}, member=${wixMemberId}`);
     return { success: true };
   } catch (error) {
     return {
@@ -494,4 +498,113 @@ export async function getWixOrderIdForSubscription(subscriptionId: string): Prom
 
   const lead = await findLeadBySubscriptionId(subscriptionId);
   return lead?.wix_order_id || null;
+}
+
+// ============================================
+// PAYMENT WIX SYNC TRACKING
+// ============================================
+
+export type PaymentSyncStatus = 'pending' | 'synced' | 'failed';
+
+/**
+ * Update lead's post-payment Wix sync status
+ * Called after syncToWixCRM succeeds or fails for a paid lead
+ */
+export async function updatePaymentSyncStatus(
+  leadId: string,
+  status: PaymentSyncStatus,
+  error?: string
+): Promise<void> {
+  if (!supabase) return;
+
+  try {
+    const { data: current } = await supabase
+      .from('quiz_leads')
+      .select('wix_payment_sync_attempts')
+      .eq('id', leadId)
+      .single();
+
+    const updateData: Partial<QuizLeadRecord> = {
+      wix_payment_sync_status: status,
+      wix_payment_sync_attempts: (current?.wix_payment_sync_attempts || 0) + 1,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (error) {
+      updateData.wix_payment_sync_error = error;
+    }
+
+    // Clear error on success
+    if (status === 'synced') {
+      updateData.wix_payment_sync_error = null;
+    }
+
+    await supabase
+      .from('quiz_leads')
+      .update(updateData)
+      .eq('id', leadId);
+  } catch (err) {
+    console.error('[Supabase] Failed to update payment sync status:', err);
+  }
+}
+
+/**
+ * Get paid leads that need Wix payment sync retry
+ * (member creation + pricing plan assignment failed)
+ */
+export async function getPendingPaymentSyncLeads(
+  limit: number = 20
+): Promise<QuizLeadRecord[]> {
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('quiz_leads')
+      .select('*')
+      .eq('payment_status', 'paid')
+      .in('wix_payment_sync_status', ['pending', 'failed'])
+      .lt('wix_payment_sync_attempts', 10)
+      .order('paid_at', { ascending: true })
+      .limit(limit);
+
+    if (error) {
+      console.error('[Supabase] Failed to get pending payment sync leads:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[Supabase] Error getting pending payment sync leads:', error);
+    return [];
+  }
+}
+
+/**
+ * Get leads that have exhausted all retry attempts (need manual intervention)
+ * Quiz leads: >= 5 attempts. Payment sync: >= 10 attempts.
+ */
+export async function getEscalationLeads(limit: number = 50): Promise<QuizLeadRecord[]> {
+  if (!supabase) return [];
+
+  try {
+    const { data, error } = await supabase
+      .from('quiz_leads')
+      .select('*')
+      .or(
+        'and(wix_sync_status.eq.failed,wix_sync_attempts.gte.5),' +
+        'and(wix_payment_sync_status.eq.failed,wix_payment_sync_attempts.gte.10)'
+      )
+      .order('updated_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[Supabase] Failed to get escalation leads:', error);
+      return [];
+    }
+
+    return data || [];
+  } catch (error) {
+    console.error('[Supabase] Error getting escalation leads:', error);
+    return [];
+  }
 }

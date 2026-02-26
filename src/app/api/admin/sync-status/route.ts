@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
@@ -9,11 +10,22 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase';
  */
 
 // Basic auth credentials from environment
-const ADMIN_USER = process.env.ADMIN_USER || 'admin';
+const ADMIN_USER = process.env.ADMIN_USER || '';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
 
 /**
- * Verify basic auth header
+ * Timing-safe string comparison to prevent timing attacks
+ */
+function timingSafeCompare(a: string, b: string): boolean {
+  try {
+    return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Verify basic auth header (timing-safe)
  */
 function verifyAuth(request: NextRequest): boolean {
   const authHeader = request.headers.get('authorization');
@@ -22,9 +34,9 @@ function verifyAuth(request: NextRequest): boolean {
     return false;
   }
 
-  // Require ADMIN_PASSWORD to be set
-  if (!ADMIN_PASSWORD) {
-    console.error('[Admin API] ADMIN_PASSWORD not configured');
+  // Require both ADMIN_USER and ADMIN_PASSWORD to be set
+  if (!ADMIN_USER || !ADMIN_PASSWORD) {
+    console.error('[Admin API] ADMIN_USER or ADMIN_PASSWORD not configured');
     return false;
   }
 
@@ -32,7 +44,7 @@ function verifyAuth(request: NextRequest): boolean {
   const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
   const [user, pass] = credentials.split(':');
 
-  return user === ADMIN_USER && pass === ADMIN_PASSWORD;
+  return timingSafeCompare(user, ADMIN_USER) && timingSafeCompare(pass, ADMIN_PASSWORD);
 }
 
 export async function GET(request: NextRequest) {
@@ -55,56 +67,55 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get sync status counts
-    const { data: statusCounts, error: countError } = await supabase
-      .from('quiz_leads')
-      .select('wix_sync_status, payment_status')
-      .then(async (result) => {
-        if (result.error) throw result.error;
+    // Get sync status counts using parallel queries instead of fetching all rows
+    const [
+      totalResult, pendingResult, syncedResult, failedResult,
+      paidResult, paymentFailedResult,
+      paymentSyncPendingResult, paymentSyncFailedResult, paymentSyncSyncedResult,
+    ] = await Promise.all([
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_sync_status', 'pending'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_sync_status', 'synced'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_sync_status', 'failed'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('payment_status', 'paid'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('payment_status', 'failed'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_payment_sync_status', 'pending'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_payment_sync_status', 'failed'),
+      supabase.from('quiz_leads').select('id', { count: 'exact', head: true }).eq('wix_payment_sync_status', 'synced'),
+    ]);
 
-        const counts = {
-          pending: 0,
-          synced: 0,
-          failed: 0,
-          total: result.data?.length || 0,
-          // Payment stats
-          paid: 0,
-          unpaid: 0,
-          paymentFailed: 0,
-        };
-
-        result.data?.forEach((lead) => {
-          // Sync status
-          if (lead.wix_sync_status === 'pending') counts.pending++;
-          else if (lead.wix_sync_status === 'synced') counts.synced++;
-          else if (lead.wix_sync_status === 'failed') counts.failed++;
-
-          // Payment status
-          if (lead.payment_status === 'paid') counts.paid++;
-          else if (lead.payment_status === 'failed') counts.paymentFailed++;
-          else counts.unpaid++;
-        });
-
-        return { data: counts, error: null };
-      });
-
-    if (countError) throw countError;
+    const statusCounts = {
+      total: totalResult.count ?? 0,
+      pending: pendingResult.count ?? 0,
+      synced: syncedResult.count ?? 0,
+      failed: failedResult.count ?? 0,
+      paid: paidResult.count ?? 0,
+      paymentFailed: paymentFailedResult.count ?? 0,
+      unpaid: (totalResult.count ?? 0) - (paidResult.count ?? 0) - (paymentFailedResult.count ?? 0),
+      paymentSync: {
+        pending: paymentSyncPendingResult.count ?? 0,
+        failed: paymentSyncFailedResult.count ?? 0,
+        synced: paymentSyncSyncedResult.count ?? 0,
+      },
+    };
 
     // Get recent leads (last 50)
     const { data: recentLeads, error: leadsError } = await supabase
       .from('quiz_leads')
-      .select('id, name, email, recommendation, wix_sync_status, wix_sync_attempts, wix_sync_error, payment_status, payment_id, payment_amount, program_purchased, payment_gateway, paid_at, created_at, updated_at')
+      .select('id, name, email, recommendation, wix_sync_status, wix_sync_attempts, wix_sync_error, wix_payment_sync_status, wix_payment_sync_attempts, wix_payment_sync_error, payment_status, payment_id, payment_amount, program_purchased, payment_gateway, paid_at, created_at, updated_at')
       .order('created_at', { ascending: false })
       .limit(50);
 
     if (leadsError) throw leadsError;
 
-    // Get failed leads that need attention
+    // Get failed leads that need attention (exhausted quiz or payment sync retries)
     const { data: failedLeads, error: failedError } = await supabase
       .from('quiz_leads')
-      .select('id, name, email, wix_sync_status, wix_sync_attempts, wix_sync_error, created_at')
-      .eq('wix_sync_status', 'failed')
-      .gte('wix_sync_attempts', 5) // Exhausted retries
+      .select('id, name, email, wix_sync_status, wix_sync_attempts, wix_sync_error, wix_payment_sync_status, wix_payment_sync_attempts, wix_payment_sync_error, payment_status, created_at')
+      .or(
+        'and(wix_sync_status.eq.failed,wix_sync_attempts.gte.5),' +
+        'and(wix_payment_sync_status.eq.failed,wix_payment_sync_attempts.gte.10)'
+      )
       .order('created_at', { ascending: false })
       .limit(20);
 

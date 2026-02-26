@@ -33,7 +33,7 @@ export default function TermsPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   These Terms and Conditions constitute a legally binding agreement between you and THEDMK (OPC) Private Limited (&quot;Company,&quot; &quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) governing your access to and use of our fitness and wellness services, including all programs offered under the brands &quot;The DMK,&quot; &quot;The Inner Circle,&quot; and &quot;The Confidence Club.&quot;
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p className="font-semibold text-forest mb-2">Registered Office:</p>
                   <p>THEDMK (OPC) Private Limited</p>
                   <p>Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,</p>
@@ -274,7 +274,7 @@ export default function TermsPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   For questions about these Terms and Conditions, please contact us:
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p><strong>Email:</strong> hello@thedmk.online</p>
                   <p className="mt-2"><strong>Mailing Address:</strong></p>
                   <p>THEDMK (OPC) Private Limited</p>

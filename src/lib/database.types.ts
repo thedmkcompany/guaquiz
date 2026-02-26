@@ -43,6 +43,10 @@ export type Database = {
           subscription_end_at: string | null
           last_renewal_at: string | null
           renewal_count: number
+          // Payment Wix sync tracking
+          wix_payment_sync_status: 'pending' | 'synced' | 'failed' | null
+          wix_payment_sync_attempts: number
+          wix_payment_sync_error: string | null
           created_at: string
           updated_at: string
         }
@@ -75,6 +79,10 @@ export type Database = {
           subscription_end_at?: string | null
           last_renewal_at?: string | null
           renewal_count?: number
+          // Payment Wix sync tracking
+          wix_payment_sync_status?: 'pending' | 'synced' | 'failed' | null
+          wix_payment_sync_attempts?: number
+          wix_payment_sync_error?: string | null
           created_at?: string
           updated_at?: string
         }
@@ -107,6 +115,10 @@ export type Database = {
           subscription_end_at?: string | null
           last_renewal_at?: string | null
           renewal_count?: number
+          // Payment Wix sync tracking
+          wix_payment_sync_status?: 'pending' | 'synced' | 'failed' | null
+          wix_payment_sync_attempts?: number
+          wix_payment_sync_error?: string | null
           created_at?: string
           updated_at?: string
         }

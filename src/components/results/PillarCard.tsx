@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { Dumbbell, Sparkles, Wallet, Crown, LucideIcon } from "lucide-react";
 import { ProgramPillar } from "@/lib/results-data";

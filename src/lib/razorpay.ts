@@ -314,7 +314,7 @@ export function verifyWebhookSignature(
  * Generate unique receipt/transaction ID
  */
 export function generateReceiptId(): string {
-  return `rcpt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return `rcpt_${Date.now()}_${crypto.randomUUID().slice(0, 9)}`;
 }
 
 /**

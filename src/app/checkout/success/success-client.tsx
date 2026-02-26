@@ -10,7 +10,8 @@ import { TransformThankYou } from "@/components/checkout/TransformThankYou";
 export function SuccessPageClient() {
   const searchParams = useSearchParams();
   const programSlug = searchParams.get("program") || "";
-  const customerEmail = searchParams.get("email") || "your email";
+  // Email is no longer passed via URL for privacy - use generic reference
+  const customerEmail = "your registered email";
   const startDateParam = searchParams.get("start_date");
 
   const program = programSlug ? getProgramBySlug(programSlug) : null;

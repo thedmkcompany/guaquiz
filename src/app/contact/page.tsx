@@ -25,7 +25,7 @@ export default function ContactPage() {
       <main className="pb-12 px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-center min-h-[calc(100vh-60px)] relative overflow-hidden">
         <DecorativeBlobs />
 
-        <div className="max-w-2xl w-full relative z-10">
+        <div className="max-w-2xl w-full relative z-10 animate-fade-in">
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl font-headline font-bold text-forest mb-4">
@@ -57,13 +57,13 @@ export default function ContactPage() {
                     during business hours.
                   </p>
                   <a
-                    href="https://instagram.com/thedmkco"
+                    href="https://www.instagram.com/glowupacademy.dmk"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 w-full sm:w-auto rounded-full bg-gradient-to-r from-wine to-wine-dark hover:from-wine-dark hover:to-wine text-white shadow-md font-semibold px-6 py-3 transition-all"
                   >
                     <Instagram className="w-5 h-5" />
-                    Message @thedmkco
+                    Message @glowupacademy.dmk
                   </a>
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function ContactPage() {
           </div>
 
           {/* Response Time */}
-          <div className="mt-8 bg-white/40 backdrop-blur-sm rounded-xl p-6 text-center border border-white/30">
+          <div className="mt-8 bg-white/40 backdrop-blur-sm rounded-[2rem] p-6 text-center border border-white/30 hover:bg-white/60 hover:shadow-soft transition-all duration-300">
             <div className="flex items-center justify-center gap-2 text-forest/80 mb-2 font-subheader">
               <Clock className="w-5 h-5" />
               <span className="font-medium">Average Response Time</span>

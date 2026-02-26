@@ -111,12 +111,13 @@ export async function checkRateLimit(
 ): Promise<{ allowed: boolean; remaining: number; resetIn: number }> {
   const client = getRedisClient();
 
-  // Fail-open: If Redis unavailable, allow request
+  // If Redis unavailable, deny payment-critical requests (fail-closed)
   if (!client) {
+    console.warn('[Rate Limit] Redis unavailable - fail-closed for security');
     return {
-      allowed: true,
-      remaining: config.maxRequests,
-      resetIn: config.windowMs,
+      allowed: false,
+      remaining: 0,
+      resetIn: 60000,
     };
   }
 
@@ -160,13 +161,13 @@ export async function checkRateLimit(
       resetIn: config.windowMs,
     };
   } catch (error) {
-    console.error('[Rate Limit] Redis error, allowing request (fail-open):', error);
+    console.error('[Rate Limit] Redis error - fail-closed for security:', error);
 
-    // Fail-open: On Redis error, allow the request
+    // Fail-closed: On Redis error, deny the request for safety
     return {
-      allowed: true,
-      remaining: config.maxRequests,
-      resetIn: config.windowMs,
+      allowed: false,
+      remaining: 0,
+      resetIn: 60000,
     };
   }
 }

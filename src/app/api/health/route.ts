@@ -10,45 +10,34 @@ const WIX_SITE_ID = process.env.WIX_SITE_ID || '';
  * GET /api/health
  *
  * Health check endpoint to verify all integrations are working.
- * Use this to test your setup before going live.
+ * Returns minimal info to avoid leaking internal configuration.
  */
 export async function GET(_request: NextRequest) {
   const results = {
     timestamp: new Date().toISOString(),
-    supabase: { configured: false, connected: false, error: null as string | null },
-    wix: { configured: false, connected: false, error: null as string | null },
-    environment: {
-      nodeEnv: process.env.NODE_ENV,
-      hasRazorpay: !!(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET),
-      hasPayU: !!(process.env.PAYU_MERCHANT_KEY && process.env.PAYU_SALT),
-    },
+    supabase: { connected: false },
+    wix: { connected: false },
   };
 
   // Test Supabase connection
-  results.supabase.configured = isSupabaseConfigured();
-  if (results.supabase.configured && supabase) {
+  if (isSupabaseConfigured() && supabase) {
     try {
-      // Simple query to test connection
       const { error } = await supabase
         .from('quiz_leads')
         .select('id')
         .limit(1);
 
-      if (error) {
-        results.supabase.error = error.message;
-      } else {
+      if (!error) {
         results.supabase.connected = true;
       }
-    } catch (err) {
-      results.supabase.error = err instanceof Error ? err.message : 'Connection failed';
+    } catch {
+      // Connection failed - connected stays false
     }
   }
 
   // Test Wix CRM connection
-  results.wix.configured = isWixConfigured();
-  if (results.wix.configured) {
+  if (isWixConfigured()) {
     try {
-      // Query labels endpoint (lightweight check)
       const response = await fetch(`${WIX_API_BASE}/contacts/v4/labels/query`, {
         method: 'POST',
         headers: {
@@ -61,12 +50,9 @@ export async function GET(_request: NextRequest) {
 
       if (response.ok) {
         results.wix.connected = true;
-      } else {
-        const errorText = await response.text();
-        results.wix.error = `HTTP ${response.status}: ${errorText.slice(0, 200)}`;
       }
-    } catch (err) {
-      results.wix.error = err instanceof Error ? err.message : 'Connection failed';
+    } catch {
+      // Connection failed - connected stays false
     }
   }
 

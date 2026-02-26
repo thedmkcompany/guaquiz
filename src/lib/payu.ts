@@ -104,7 +104,7 @@ export function verifyPaymentHash(params: {
  * Generate unique transaction ID
  */
 export function generateTxnId(): string {
-  return `TXN${Date.now()}${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  return `TXN${Date.now()}${crypto.randomUUID().slice(0, 9).toUpperCase()}`;
 }
 
 /**
@@ -117,13 +117,20 @@ export function getPayUUrl(): string {
 }
 
 /**
- * Verify webhook authorization header
+ * Verify webhook authorization header (timing-safe)
  */
 export function verifyWebhookAuth(authHeader: string | null): boolean {
   if (!authHeader) return false;
   const webhookSecret = process.env.PAYU_WEBHOOK_SECRET;
   if (!webhookSecret) return false;
-  return authHeader === webhookSecret;
+  try {
+    return crypto.timingSafeEqual(
+      Buffer.from(authHeader),
+      Buffer.from(webhookSecret)
+    );
+  } catch {
+    return false;
+  }
 }
 
 /**

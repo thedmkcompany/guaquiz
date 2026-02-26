@@ -100,7 +100,6 @@ export function CheckoutPageClient() {
   useEffect(() => {
     if (isEssentialsProgram) {
       const selection = calculateEssentialsStartDate();
-      console.log('[Essentials Checkout] Calculated start date:', selection);
       setEssentialsStartDate(selection);
     }
   }, [isEssentialsProgram]);
@@ -109,7 +108,6 @@ export function CheckoutPageClient() {
   useEffect(() => {
     if (isWebinarProgram) {
       const selection = calculateWebinarSessionDate();
-      console.log('[Webinar Checkout] Calculated session date:', selection);
       setWebinarSessionDate(selection);
     }
   }, [isWebinarProgram]);
@@ -203,7 +201,6 @@ export function CheckoutPageClient() {
     const params = new URLSearchParams({
       program: program.slug,
       paymentId: data.paymentId,
-      email: customerInfo.email,
     });
 
     // Add Circle start date if applicable
@@ -383,24 +380,18 @@ export function CheckoutPageClient() {
                   )}
 
                   {/* Essentials Start Date Selector */}
-                  {(() => {
-                    console.log('[Essentials Checkout Render]', { isEssentialsProgram, essentialsStartDate, step });
-                    return isEssentialsProgram && essentialsStartDate && (
-                      <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
-                        <EssentialsStartDateSelector startDate={essentialsStartDate} />
-                      </div>
-                    );
-                  })()}
+                  {isEssentialsProgram && essentialsStartDate && (
+                    <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
+                      <EssentialsStartDateSelector startDate={essentialsStartDate} />
+                    </div>
+                  )}
 
                   {/* Webinar Session Selector */}
-                  {(() => {
-                    console.log('[Webinar Checkout Render]', { isWebinarProgram, webinarSessionDate, step });
-                    return isWebinarProgram && webinarSessionDate && (
-                      <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
-                        <WebinarSessionSelector sessionDate={webinarSessionDate} />
-                      </div>
-                    );
-                  })()}
+                  {isWebinarProgram && webinarSessionDate && (
+                    <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
+                      <WebinarSessionSelector sessionDate={webinarSessionDate} />
+                    </div>
+                  )}
 
                   {/* Razorpay Checkout */}
                   <RazorpayCheckout

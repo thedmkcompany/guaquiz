@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   THEDMK (OPC) Private Limited (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;) operates fitness and wellness programs under the brands &quot;The DMK,&quot; &quot;The Inner Circle,&quot; and &quot;The Confidence Club.&quot; We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our services, including our websites, mobile applications, and transformation programs.
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p className="font-semibold text-forest mb-2">Registered Office:</p>
                   <p>THEDMK (OPC) Private Limited</p>
                   <p>Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,</p>
@@ -233,7 +233,7 @@ export default function PrivacyPolicyPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p><strong>Email:</strong> hello@thedmk.online</p>
                   <p className="mt-2"><strong>Mailing Address:</strong></p>
                   <p>THEDMK (OPC) Private Limited</p>
@@ -247,7 +247,7 @@ export default function PrivacyPolicyPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   In accordance with the Information Technology Act, 2000, and rules made thereunder, the contact details of our Grievance Officer are:
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p><strong>Email:</strong> hello@thedmk.online</p>
                   <p><strong>Address:</strong> THEDMK (OPC) Private Limited, Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC, Secunderabad, Hyderabad, Telangana, India - 500015</p>
                 </div>

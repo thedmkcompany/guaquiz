@@ -63,13 +63,6 @@ export default function RootLayout({
         />
         {/* Preconnect to Vercel Blob CDN for faster image loading */}
         <link rel="preconnect" href="https://ktgyku22jawoj5vt.public.blob.vercel-storage.com" />
-        {/* Preload LCP hero image to eliminate resource load delay */}
-        <link
-          rel="preload"
-          as="image"
-          href="/_next/image?url=https%3A%2F%2Fktgyku22jawoj5vt.public.blob.vercel-storage.com%2Fimages%2FDMK%2FHero%2520Image%2520Disha%25202.png&w=640&q=80"
-          type="image/webp"
-        />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
         {/* Theme color for mobile browsers */}

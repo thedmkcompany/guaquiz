@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/lib/programs';
 
 interface PayUCheckoutProps {
   amount: number;
@@ -59,14 +60,6 @@ export function PayUCheckout({
       formRef.current.submit();
     }
   }, [paymentData]);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
 
   const handlePayment = async () => {
     setLoading(true);

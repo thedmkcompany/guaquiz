@@ -15,6 +15,30 @@ interface WebhookEvent {
 // Event retention: 24 hours
 const EVENT_RETENTION_SECONDS = 24 * 60 * 60;
 
+// In-memory fallback for webhook deduplication when Redis is unavailable
+const inMemoryEventCache = new Map<string, number>();
+const IN_MEMORY_MAX_SIZE = 1000;
+const IN_MEMORY_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+function checkInMemoryDedup(eventId: string): boolean {
+  // Evict expired entries periodically
+  if (inMemoryEventCache.size > IN_MEMORY_MAX_SIZE) {
+    const now = Date.now();
+    for (const [key, timestamp] of inMemoryEventCache) {
+      if (now - timestamp > IN_MEMORY_TTL_MS) {
+        inMemoryEventCache.delete(key);
+      }
+    }
+  }
+
+  if (inMemoryEventCache.has(eventId)) {
+    return false; // Already processed
+  }
+
+  inMemoryEventCache.set(eventId, Date.now());
+  return true; // First time
+}
+
 /**
  * Redis client for webhook event deduplication.
  * @internal
@@ -62,9 +86,10 @@ export async function tryMarkEventProcessed(
 ): Promise<boolean> {
   const client = getRedisClient();
 
-  // Fail-open: If Redis unavailable, allow processing (idempotent operations)
+  // If Redis unavailable, use in-memory fallback for deduplication
   if (!client) {
-    return true;
+    console.warn('[Webhook Store] Redis unavailable - using in-memory dedup fallback');
+    return checkInMemoryDedup(eventId);
   }
 
   try {
@@ -84,9 +109,8 @@ export async function tryMarkEventProcessed(
 
     return result === 'OK';
   } catch (error) {
-    console.error('[Webhook Store] Redis error, allowing processing:', error);
-    // Fail-open: Allow processing since webhook handlers are idempotent
-    return true;
+    console.error('[Webhook Store] Redis error - using in-memory fallback:', error);
+    return checkInMemoryDedup(eventId);
   }
 }
 

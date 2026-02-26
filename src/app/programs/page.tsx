@@ -145,6 +145,18 @@ function ProgramCard({ program }: { program: Program; index: number }) {
         ? 'border-wine/30 hover:border-wine'
         : 'border-forest/10 hover:border-forest/30'
     }`}>
+      {/* Badges */}
+      {isWebinar && (
+        <div className="absolute -top-3 left-8 bg-wine text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md font-subheader tracking-wide">
+          Most Popular
+        </div>
+      )}
+      {isTransform && (
+        <div className="absolute -top-3 left-8 bg-gradient-to-r from-gold to-gold-light text-forest text-xs font-semibold px-4 py-1.5 rounded-full shadow-md font-subheader tracking-wide">
+          Premium
+        </div>
+      )}
+
       {/* Subtle gradient overlay */}
       <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
         isTransform
@@ -165,6 +177,9 @@ function ProgramCard({ program }: { program: Program; index: number }) {
           isTransform ? 'text-gold' : 'text-forest'
         }`}>
           {formatPrice(program.price)}
+          {program.isSubscription && (
+            <span className="text-base font-body font-normal text-forest/50">/month</span>
+          )}
         </div>
 
         {/* Tagline - Bold */}

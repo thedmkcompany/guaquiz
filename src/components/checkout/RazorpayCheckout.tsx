@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/lib/programs';
 import type { CircleStartDateSelection, EssentialsStartDateSelection, WebinarSessionDateSelection } from '@/types';
 
 interface RazorpayCheckoutProps {
@@ -87,14 +88,6 @@ export function RazorpayCheckout({
   const [loading, setLoading] = useState(false);
   const [scriptLoaded, setScriptLoaded] = useState(false);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
   const handlePayment = async () => {
     if (!scriptLoaded) {
       onError('Payment system is loading. Please try again.');
@@ -112,7 +105,6 @@ export function RazorpayCheckout({
         const baseUrl = window.location.origin;
         const successParams = new URLSearchParams({
           program: programId,
-          email: customerEmail,
           ...(programStartDate?.isoString && { start_date: programStartDate.isoString }),
         });
         const callbackUrl = `${baseUrl}/checkout/success?${successParams.toString()}`;

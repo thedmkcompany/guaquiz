@@ -87,13 +87,13 @@ export function Footer({ variant = "default", className = "" }: FooterProps) {
 
         {/* Instagram Link */}
         <a
-          href="https://instagram.com/thedmkco"
+          href="https://www.instagram.com/glowupacademy.dmk"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/10 text-gold hover:text-white hover:bg-white/20 transition-all duration-300 font-semibold text-sm mb-8 hover:scale-105"
         >
           <InstagramIcon className="w-4 h-4" />
-          @thedmkco
+          @glowupacademy.dmk
         </a>
 
         {/* Legal Links */}

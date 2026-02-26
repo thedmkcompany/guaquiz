@@ -13,6 +13,8 @@ import {
   markPaymentFailed,
   storeWixIds,
   updateSubscriptionStatus,
+  updatePaymentSyncStatus,
+  findLeadByEmail,
 } from '@/lib/supabase';
 import { tryMarkEventProcessed } from '@/lib/webhook-store';
 import { parseCustomerName } from '@/lib/payment-api';
@@ -59,6 +61,8 @@ export async function POST(request: NextRequest) {
         console.log(`[Razorpay Webhook] Duplicate event ignored: ${eventId}`);
         return NextResponse.json({ received: true, duplicate: true });
       }
+    } else {
+      console.warn('[Razorpay Webhook] Event received without x-razorpay-event-id header - dedup skipped');
     }
 
     console.log(`[Razorpay Webhook] Processing: ${payload.event} (ID: ${eventId})`);
@@ -74,8 +78,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('[Razorpay Webhook] Error:', error instanceof Error ? error.message : 'Unknown error');
-    // Return 200 to prevent retries for parsing errors
-    return NextResponse.json({ received: true, error: 'Processing error' });
+    // Return 500 so the gateway retries delivery
+    return NextResponse.json({ error: 'Processing error' }, { status: 500 });
   }
 }
 
@@ -166,13 +170,13 @@ async function handleSubscriptionCharged(payload: RazorpayWebhookPayload): Promi
       console.error('[Razorpay Webhook] CRITICAL: Failed to extend Wix order - user may lose access:', {
         subscriptionId: subscription.id,
         wixOrderId: lead.wix_order_id,
-        email: lead.email,
+        email: maskEmail(lead.email),
       });
     }
   } else {
     console.warn('[Razorpay Webhook] No wix_order_id found - cannot extend order:', {
       subscriptionId: subscription.id,
-      email: lead?.email,
+      email: lead?.email ? maskEmail(lead.email) : 'unknown',
     });
   }
 
@@ -496,8 +500,28 @@ async function syncPaymentToCRM(payment: RazorpayPaymentEntity): Promise<void> {
         wixMemberId: result.memberId,
       });
     }
+
+    // Record payment sync status for cron retry tracking
+    const lead = await findLeadByEmail(email);
+    if (lead?.id) {
+      if (result.success && !result.planAssignmentFailed) {
+        await updatePaymentSyncStatus(lead.id, 'synced');
+      } else {
+        const syncError = result.error || (result.planAssignmentFailed ? 'Plan assignment failed' : 'Unknown sync error');
+        await updatePaymentSyncStatus(lead.id, 'failed', syncError);
+      }
+    }
   } catch (error) {
     console.error('[Razorpay Webhook] Failed to sync to Wix CRM:', error);
+    // Mark for cron retry
+    const lead = await findLeadByEmail(email);
+    if (lead?.id) {
+      await updatePaymentSyncStatus(
+        lead.id,
+        'failed',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
   }
 }
 
@@ -598,7 +622,27 @@ async function syncSubscriptionToCRM(subscription: RazorpaySubscriptionEntity): 
         wixMemberId: result.memberId,
       });
     }
+
+    // Record payment sync status for cron retry tracking
+    const lead = await findLeadByEmail(email);
+    if (lead?.id) {
+      if (result.success && !result.planAssignmentFailed) {
+        await updatePaymentSyncStatus(lead.id, 'synced');
+      } else {
+        const syncError = result.error || (result.planAssignmentFailed ? 'Plan assignment failed' : 'Unknown sync error');
+        await updatePaymentSyncStatus(lead.id, 'failed', syncError);
+      }
+    }
   } catch (error) {
     console.error('[Razorpay Webhook] Failed to sync subscription to Wix CRM:', error);
+    // Mark for cron retry
+    const lead = await findLeadByEmail(email);
+    if (lead?.id) {
+      await updatePaymentSyncStatus(
+        lead.id,
+        'failed',
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+    }
   }
 }

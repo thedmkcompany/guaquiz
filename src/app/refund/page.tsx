@@ -32,7 +32,7 @@ export default function RefundPolicyPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   At THEDMK (OPC) Private Limited, we are committed to delivering high-quality fitness and wellness transformation programs. We understand that circumstances may arise requiring you to reconsider your enrollment. This Refund Policy outlines the terms and conditions under which refunds may be requested and processed.
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p className="font-semibold text-forest mb-2">Registered Office:</p>
                   <p>THEDMK (OPC) Private Limited</p>
                   <p>Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,</p>
@@ -199,7 +199,7 @@ export default function RefundPolicyPage() {
                 <p className="text-forest/80 leading-relaxed mb-4">
                   We are committed to addressing your concerns and finding fair solutions. If you have questions about this Refund Policy or need assistance with a refund request, please contact us:
                 </p>
-                <div className="bg-cream/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
+                <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
                   <p><strong>Email:</strong> hello@thedmk.online</p>
                   <p className="mt-2"><strong>Mailing Address:</strong></p>
                   <p>THEDMK (OPC) Private Limited</p>

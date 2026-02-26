@@ -8,12 +8,18 @@ import {
   isSupabaseConfigured,
 } from '@/lib/supabase';
 import { sendQuizWelcome } from '@/lib/aisensy';
+import { checkRateLimit, getClientIP, rateLimitResponse } from '@/lib/rate-limit';
+import { maskEmail } from '@/lib/validation';
 
 // Email validation regex (compiled once, reused)
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Environment check
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+
+// Rate limit presets for quiz submission
+const QUIZ_RATE_LIMIT_IP = { windowMs: 15 * 60 * 1000, maxRequests: 10 };
+const QUIZ_RATE_LIMIT_EMAIL = { windowMs: 60 * 60 * 1000, maxRequests: 3 };
 
 /**
  * POST /api/quiz/submit
@@ -33,6 +39,13 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
 
   try {
+    // Rate limit by IP
+    const clientIP = getClientIP(request);
+    const ipLimit = await checkRateLimit(`quiz_submit_${clientIP}`, QUIZ_RATE_LIMIT_IP);
+    if (!ipLimit.allowed) {
+      return rateLimitResponse(ipLimit.resetIn);
+    }
+
     const body = await request.json();
 
     // Fast validation - fail fast on missing fields
@@ -53,8 +66,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Normalize data
+    // Rate limit by email
     const normalizedEmail = email.trim().toLowerCase();
+    const emailLimit = await checkRateLimit(`quiz_email_${normalizedEmail}`, QUIZ_RATE_LIMIT_EMAIL);
+    if (!emailLimit.allowed) {
+      return rateLimitResponse(emailLimit.resetIn);
+    }
     const normalizedName = name.trim();
     const normalizedWhatsapp = whatsapp.trim();
 
@@ -111,7 +128,7 @@ export async function POST(request: NextRequest) {
     // Log in non-production or if explicitly enabled
     if (!IS_PRODUCTION || process.env.DEBUG_QUIZ_SUBMIT) {
       console.log('📥 Quiz submission received:', {
-        email: normalizedEmail,
+        email: maskEmail(normalizedEmail),
         recommendation,
         leadId,
         duration: `${Date.now() - startTime}ms`,
@@ -185,11 +202,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Quiz submit error:', error instanceof Error ? error.message : error);
 
-    // Return success to not block user experience
-    // Even if everything fails, the user can proceed to the results page
+    // Return 500 but with a user-friendly message
+    // The client should still allow navigation to results
     return NextResponse.json({
-      success: true,
-      warning: 'Lead processing in background',
-    });
+      success: false,
+      error: 'Submission failed. Please try again.',
+    }, { status: 500 });
   }
 }

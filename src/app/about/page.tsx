@@ -73,6 +73,14 @@ export default function AboutPage() {
             </div>
           </div>
 
+          {/* Pull Quote Divider */}
+          <div className="text-center py-6 mb-8">
+            <p className="font-accent text-xl sm:text-2xl italic text-wine/80 max-w-2xl mx-auto leading-relaxed">
+              &ldquo;True transformation goes beyond the physical &mdash; it&apos;s a complete reinvention of how you show up in life.&rdquo;
+            </p>
+            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mt-6" />
+          </div>
+
           {/* Our Mission */}
           <div className="glass-card rounded-[2rem] shadow-medium p-6 sm:p-10 lg:p-12 mb-8">
             <h2 className="text-2xl font-headline font-bold text-forest mb-6 flex items-center gap-3">
@@ -89,78 +97,190 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* Our Approach */}
+          {/* Our Approach - Icon Grid */}
           <div className="glass-card rounded-[2rem] shadow-medium p-6 sm:p-10 lg:p-12 mb-8">
-            <h2 className="text-2xl font-headline font-bold text-forest mb-6 flex items-center gap-3">
+            <h2 className="text-2xl font-headline font-bold text-forest mb-8 flex items-center gap-3">
               <Users className="w-7 h-7 text-wine" />
               Our Approach
             </h2>
 
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Personalized Coaching</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  We understand that every woman&apos;s journey is unique. That is why we never use cookie-cutter programs or one-size-fits-all solutions. When you join The DMK, you receive a personalized fitness plan tailored to your current fitness level, health conditions, and specific goals. Your nutrition guidance considers your dietary preferences, cultural food choices, and lifestyle while teaching you sustainable habits. Our mindset coaching addresses your specific challenges, limiting beliefs, and personal circumstances to help you build lasting confidence.
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Personalized Coaching */}
+              <div className="border-l-4 border-wine bg-white/40 rounded-r-2xl p-5 sm:p-6 hover:shadow-float hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-wine/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Heart className="w-5 h-5 text-wine" />
+                  </div>
+                  <h3 className="text-lg font-subheader font-semibold text-forest">Personalized Coaching</h3>
+                </div>
+                <p className="text-forest/80 leading-relaxed text-sm mb-3">
+                  Every woman&apos;s journey is unique. We never use cookie-cutter programs or one-size-fits-all solutions.
                 </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Fitness plans tailored to your level and goals</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Nutrition guidance for Indian dietary preferences</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Mindset coaching for lasting confidence</span>
+                  </li>
+                </ul>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Community Support</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  Transformation is not meant to be a solitary journey. Our programs include access to vibrant WhatsApp communities where you connect with like-minded women, live group training sessions that bring energy and accountability, coach-led check-ins and support throughout your journey, and celebration of wins, both big and small, in a judgment-free environment.
+              {/* Community Support */}
+              <div className="border-l-4 border-gold bg-white/40 rounded-r-2xl p-5 sm:p-6 hover:shadow-float hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Users className="w-5 h-5 text-gold-dark" />
+                  </div>
+                  <h3 className="text-lg font-subheader font-semibold text-forest">Community Support</h3>
+                </div>
+                <p className="text-forest/80 leading-relaxed text-sm mb-3">
+                  Transformation is not meant to be a solitary journey. Our community keeps you motivated and accountable.
                 </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Vibrant WhatsApp communities</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Live group training sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Coach-led check-ins and celebrations</span>
+                  </li>
+                </ul>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Holistic Wellness</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  We take a comprehensive approach to your wellbeing that addresses all aspects of health. Our programs integrate fitness training that strengthens your body and improves overall health, nutritional guidance that nourishes you from the inside out, sleep optimization strategies for better recovery and energy, stress management techniques to support mental wellness, and confidence building practices that transform how you show up in all areas of life.
+              {/* Holistic Wellness */}
+              <div className="border-l-4 border-wine bg-white/40 rounded-r-2xl p-5 sm:p-6 hover:shadow-float hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-wine/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-wine" />
+                  </div>
+                  <h3 className="text-lg font-subheader font-semibold text-forest">Holistic Wellness</h3>
+                </div>
+                <p className="text-forest/80 leading-relaxed text-sm mb-3">
+                  A comprehensive approach addressing all aspects of your wellbeing, not just physical fitness.
                 </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Fitness training and nutritional guidance</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Sleep optimization and stress management</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-wine/60 flex-shrink-0 mt-0.5" />
+                    <span>Confidence building practices</span>
+                  </li>
+                </ul>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Technology-Enabled</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  We leverage technology to make your transformation journey seamless and accessible. You gain access to our mobile application for on-the-go workout access and progress tracking, live Zoom sessions that bring our coaching directly to you wherever you are, recorded class libraries for flexibility in your schedule, and digital resources including meal plans, workout guides, and educational content.
+              {/* Technology-Enabled */}
+              <div className="border-l-4 border-gold bg-white/40 rounded-r-2xl p-5 sm:p-6 hover:shadow-float hover:-translate-y-1 transition-all duration-300">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-gold/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Award className="w-5 h-5 text-gold-dark" />
+                  </div>
+                  <h3 className="text-lg font-subheader font-semibold text-forest">Technology-Enabled</h3>
+                </div>
+                <p className="text-forest/80 leading-relaxed text-sm mb-3">
+                  We leverage technology to make your transformation journey seamless and accessible from anywhere.
                 </p>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Mobile app for on-the-go workouts</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Live Zoom coaching sessions</span>
+                  </li>
+                  <li className="flex items-start gap-2 text-sm text-forest/70">
+                    <CheckCircle2 className="w-4 h-4 text-gold-dark/60 flex-shrink-0 mt-0.5" />
+                    <span>Recorded class library and digital resources</span>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
 
-          {/* What Makes Us Different */}
+          {/* What Makes Us Different - Numbered Feature Cards */}
           <div className="glass-card rounded-[2rem] shadow-medium p-6 sm:p-10 lg:p-12 mb-8">
-            <h2 className="text-2xl font-headline font-bold text-forest mb-6 flex items-center gap-3">
+            <h2 className="text-2xl font-headline font-bold text-forest mb-8 flex items-center gap-3">
               <Award className="w-7 h-7 text-gold-dark" />
               What Makes Us Different
             </h2>
 
-            <div className="space-y-8">
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Cultural Relevance</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  We understand Indian women because we are Indian women. Our programs incorporate Bollywood dance, traditional movements, and culturally relevant fitness activities. Our nutrition plans celebrate Indian cuisine and work within Indian dietary patterns and preferences. We recognize the unique challenges faced by Indian women balancing family, career, and personal wellness.
-                </p>
+            <div className="space-y-6">
+              {/* Cultural Relevance */}
+              <div className="border-t-4 border-gold bg-gradient-to-br from-white/60 to-beige-light/30 rounded-2xl p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="font-headline font-bold text-gold-dark text-sm">01</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-subheader font-semibold text-forest mb-2">Cultural Relevance</h3>
+                    <p className="text-forest/80 leading-relaxed text-sm">
+                      We understand Indian women because we are Indian women. Our programs incorporate Bollywood dance, traditional movements, and Indian cuisine-friendly nutrition plans. We recognize the unique challenges of balancing family, career, and personal wellness.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Expert Team</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  Our team comprises certified fitness coaches with specialized training in women&apos;s health, nutrition specialists who understand Indian dietary patterns, mindset coaches dedicated to building confidence and resilience, and support staff committed to making your experience exceptional. Every team member is carefully selected not just for their expertise but for their genuine passion for empowering women.
-                </p>
+              {/* Expert Team */}
+              <div className="border-t-4 border-gold bg-gradient-to-br from-white/60 to-beige-light/30 rounded-2xl p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="font-headline font-bold text-gold-dark text-sm">02</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-subheader font-semibold text-forest mb-2">Expert Team</h3>
+                    <p className="text-forest/80 leading-relaxed text-sm">
+                      Certified fitness coaches specializing in women&apos;s health, nutrition specialists who understand Indian dietary patterns, and mindset coaches dedicated to building confidence. Every team member is selected for their expertise and genuine passion for empowering women.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Proven Results</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  We have helped hundreds of women achieve remarkable transformations, not just in their bodies but in their entire lives. Our clients report increased energy and vitality, improved confidence in personal and professional settings, sustainable weight management without restrictive dieting, better relationships with food and exercise, enhanced mental clarity and emotional balance, and the inspiration to pursue goals they once thought impossible.
-                </p>
+              {/* Proven Results */}
+              <div className="border-t-4 border-gold bg-gradient-to-br from-white/60 to-beige-light/30 rounded-2xl p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="font-headline font-bold text-gold-dark text-sm">03</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-subheader font-semibold text-forest mb-2">Proven Results</h3>
+                    <p className="text-forest/80 leading-relaxed text-sm">
+                      Hundreds of women have achieved remarkable transformations &mdash; not just in their bodies but in their entire lives. Increased energy, improved confidence, sustainable weight management, and the inspiration to pursue goals they once thought impossible.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Premium Experience</h3>
-                <p className="text-forest/80 leading-relaxed">
-                  From your first interaction with us to your transformation celebration, we deliver a premium experience that reflects your worth and investment. Our programs feature high-quality content and resources designed with attention to detail, responsive coaching and support that makes you feel valued and heard, beautifully designed materials that inspire and motivate, and an elevated brand experience that matches your aspirations.
-                </p>
+              {/* Premium Experience */}
+              <div className="border-t-4 border-gold bg-gradient-to-br from-white/60 to-beige-light/30 rounded-2xl p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 bg-gold/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="font-headline font-bold text-gold-dark text-sm">04</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-subheader font-semibold text-forest mb-2">Premium Experience</h3>
+                    <p className="text-forest/80 leading-relaxed text-sm">
+                      From your first interaction to your transformation celebration, every touchpoint reflects your worth. High-quality content, responsive coaching, beautifully designed materials, and an elevated brand experience that matches your aspirations.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -224,7 +344,7 @@ export default function AboutPage() {
           {/* Company Information */}
           <div className="glass-card rounded-[2rem] shadow-medium p-6 sm:p-10 lg:p-12 mb-8">
             <h2 className="text-2xl font-headline font-bold text-forest mb-6">Company Information</h2>
-            <div className="bg-cream/50 rounded-xl p-5 text-sm text-forest/70 border border-forest/10">
+            <div className="bg-beige-light/50 rounded-[2rem] p-5 text-sm text-forest/70 border border-forest/10">
               <p className="font-semibold text-forest text-base mb-3">THEDMK (OPC) Private Limited</p>
               <p><strong>Registered Office:</strong> Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC, Secunderabad, Hyderabad, Telangana, India - 500015</p>
               <p className="mt-2"><strong>Corporate Identity Number:</strong> U74999TG2021OPC156774</p>
@@ -233,27 +353,33 @@ export default function AboutPage() {
             </div>
           </div>
 
-          {/* CTA */}
-          <div className="glass-card rounded-[2rem] shadow-medium p-6 sm:p-10 lg:p-12 text-center">
-            <h2 className="text-2xl font-headline font-bold text-forest mb-4">
-              Ready to Begin Your Transformation?
-            </h2>
-            <p className="text-forest/80 leading-relaxed mb-6 max-w-xl mx-auto">
-              Explore our programs and discover which path is right for you. Your transformation journey may begin with a single decision. We are here to support you every step of the way.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link
-                href="/programs"
-                className="inline-flex items-center gap-2 bg-wine text-white px-8 py-3 rounded-full font-semibold hover:bg-wine-light transition-all shadow-md hover:-translate-y-0.5"
-              >
-                Explore Programs
-              </Link>
-              <Link
-                href="/contact"
-                className="inline-flex items-center gap-2 bg-white/50 text-forest px-8 py-3 rounded-full font-semibold hover:bg-white transition-all shadow-md hover:-translate-y-0.5 border border-forest/20"
-              >
-                Contact Us
-              </Link>
+          {/* CTA - Dark Forest Treatment */}
+          <div className="rounded-[2rem] shadow-float p-6 sm:p-10 lg:p-12 text-center bg-forest text-ivory relative overflow-hidden">
+            {/* Background glow */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gold/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+            <div className="relative z-10">
+              <h2 className="text-2xl sm:text-3xl font-headline font-bold text-ivory mb-4">
+                Ready to Begin Your Transformation?
+              </h2>
+              <p className="text-ivory/70 leading-relaxed mb-8 max-w-xl mx-auto">
+                Explore our programs and discover which path is right for you. Your transformation journey begins with a single decision.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Link
+                  href="/programs"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-gold-light text-forest px-8 py-3.5 rounded-full font-bold hover:shadow-[0_10px_30px_rgba(212,175,55,0.3)] transition-all hover:-translate-y-0.5"
+                >
+                  Explore Programs
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 bg-white/10 text-ivory px-8 py-3.5 rounded-full font-semibold hover:bg-white/20 transition-all border border-white/20 hover:-translate-y-0.5"
+                >
+                  Contact Us
+                </Link>
+              </div>
             </div>
           </div>
 

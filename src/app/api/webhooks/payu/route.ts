@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error('[PayU Webhook] Error:', error instanceof Error ? error.message : 'Unknown error');
-    // Always return 200 to prevent retries for parsing errors
-    return NextResponse.json({ received: true });
+    // Return 500 so the gateway retries delivery
+    return NextResponse.json({ error: 'Processing error' }, { status: 500 });
   }
 }
 

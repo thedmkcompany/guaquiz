@@ -61,6 +61,51 @@ const nextConfig: NextConfig = {
   // ============================================
   async headers() {
     return [
+      // ============================================
+      // SECURITY HEADERS (all routes)
+      // ============================================
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com",
+              "font-src 'self' https://fonts.gstatic.com data:",
+              "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://www.googletagmanager.com https://www.google-analytics.com",
+              "frame-src https://checkout.razorpay.com https://test.payu.in https://secure.payu.in https://calendly.com",
+              "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://*.supabase.co https://www.google-analytics.com https://calendly.com https://assets.calendly.com",
+              "worker-src 'self' blob:",
+              "media-src 'self' https://*.public.blob.vercel-storage.com",
+            ].join("; "),
+          },
+        ],
+      },
+      // ============================================
+      // CACHING HEADERS
+      // ============================================
       {
         // Cache static pages at edge for faster TTFB
         source: "/",
