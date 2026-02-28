@@ -145,12 +145,12 @@ export async function createSubscriptionRegistrationLink(params: {
       contact: params.customerPhone,
     },
     type: 'link',
-    amount: params.maxAmount || 0, // 0 for registration, actual charge on first cycle
+    amount: Math.round((params.maxAmount || 0) * 100), // Convert rupees → paise
     currency: 'INR',
     description: `Subscription registration for ${params.planId}`,
     subscription_registration: {
       method: params.paymentMethod || 'emandate', // emandate allows multiple payment methods
-      max_amount: params.maxAmount, // Use program-specific mandate amount (required)
+      max_amount: Math.round((params.maxAmount || 0) * 100), // Convert rupees → paise (required)
       expire_at: params.expireBy || Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days
     },
     receipt: `reg_${Date.now()}`,
@@ -172,10 +172,10 @@ export async function createSubscriptionRegistrationLink(params: {
   // UPI-specific config - cap at RBI's ₹15,000 limit for UPI autopay
   if (params.paymentMethod === 'upi') {
     registrationConfig.subscription_registration.method = 'upi';
-    // UPI has RBI limit of ₹15,000, but we use program price if lower
+    // UPI has RBI limit of ₹15,000 (1,500,000 paise), cap the mandate at that
     registrationConfig.subscription_registration.max_amount = Math.min(
-      params.maxAmount || 0,
-      15000
+      Math.round((params.maxAmount || 0) * 100),
+      1500000 // ₹15,000 in paise
     );
   }
 

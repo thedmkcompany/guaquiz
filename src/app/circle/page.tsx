@@ -11,6 +11,7 @@ import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSe
 import { getComingMondayIST, getFollowingMondayIST, calculateCircleStartDate, getCurrentISTDate } from "@/lib/date-utils";
 import type { CircleStartDateOption } from "@/types";
 import { getCDNUrl } from "@/lib/cdn";
+import { getProgramById } from "@/lib/programs";
 
 // ============================================
 // DATA CONSTANTS
@@ -389,6 +390,7 @@ function ElegantButton({
 // ============================================
 
 export default function CircleLandingPage() {
+  const circleProgram = getProgramById('circle')!;
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [customerEmail, setCustomerEmail] = useState("");
@@ -1406,14 +1408,14 @@ export default function CircleLandingPage() {
               {/* Razorpay Checkout */}
               {customerName.trim() && customerEmail.trim() && customerEmail.includes('@') && customerPhone.trim() ? (
                 <RazorpayCheckout
-                  amount={3499}
-                  programId="circle"
-                  programName="Circle - Monthly Membership"
+                  amount={circleProgram.price}
+                  programId={circleProgram.id}
+                  programName={circleProgram.name}
                   customerEmail={customerEmail.trim()}
                   customerName={customerName.trim()}
                   customerPhone={customerPhone.trim()}
-                  isSubscription={true}
-                  razorpayPlanId={process.env.NEXT_PUBLIC_RAZORPAY_CIRCLE_PLAN_ID}
+                  isSubscription={circleProgram.isSubscription}
+                  razorpayPlanId={circleProgram.razorpayPlanId}
                   onSuccess={handlePaymentSuccess}
                   onError={handlePaymentError}
                   buttonText="Join CIRCLE Now"

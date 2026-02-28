@@ -90,7 +90,7 @@ Razorpay is primary. PayU is fallback. Prices are validated server-side against 
 |----|-------|------|
 | essentials | ₹1,999 | Subscription (monthly) |
 | webinar | ₹199 | One-time |
-| circle | ₹3,499 | One-time |
+| circle | ₹3,499 | Subscription (monthly) |
 | transform-strategy | ₹1,999 | One-time |
 | transform | ₹1,20,000 | One-time |
 

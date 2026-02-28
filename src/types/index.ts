@@ -10,7 +10,7 @@
 /**
  * Union type for all valid program identifiers.
  */
-export type ProgramId = 'essentials' | 'webinar' | 'circle' | 'transform' | 'transform-strategy';
+export type ProgramId = 'essentials' | 'webinar' | 'circle' | 'transform' | 'transform-strategy' | 'transform-strategy-call';
 
 /**
  * Program definition representing a transformation program offering.
