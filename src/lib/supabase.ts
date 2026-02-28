@@ -303,6 +303,7 @@ export async function updateLeadPaymentStatus(data: PaymentUpdateData): Promise<
         payment_gateway: data.gateway,
         paid_at: data.status === 'paid' ? new Date().toISOString() : null,
         program_start_date: data.programStartDate || null,
+        start_date_option: data.startDateOption || null,
         updated_at: new Date().toISOString(),
         // Queue Wix payment sync retry for paid leads
         ...(data.status === 'paid' && { wix_payment_sync_status: 'pending' as const }),

@@ -130,7 +130,7 @@ export const programMetadata = {
   essentials: {
     title: "Essentials - Build Your Foundation | Glow Up Academy",
     description:
-      "Transform on your timeline with Essentials. ₹2,499 for lifetime access to fitness, beauty, finance & confidence modules. Self-paced transformation for unstoppable women.",
+      "Transform on your timeline with Essentials. ₹1,999 for lifetime access to fitness, beauty, finance & confidence modules. Self-paced transformation for unstoppable women.",
     keywords: [
       "essentials program",
       "self-paced transformation",
@@ -143,7 +143,7 @@ export const programMetadata = {
   webinar: {
     title: "Webinar - Experience the Magic | Glow Up Academy",
     description:
-      "Try before you commit. 7-day webinar experience for ₹499. Sample modules, live session, and preview our transformation methodology risk-free.",
+      "Try before you commit. 7-day webinar experience for ₹199. Sample modules, live session, and preview our transformation methodology risk-free.",
     keywords: [
       "transformation webinar",
       "trial program",
@@ -156,7 +156,7 @@ export const programMetadata = {
   circle: {
     title: "Circle - Your Sisterhood to Unstoppable | Glow Up Academy",
     description:
-      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹4,499/month for community-driven transformation across fitness, beauty, finance & confidence.",
+      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹3,499/month for community-driven transformation across fitness, beauty, finance & confidence.",
     keywords: [
       "women fitness community",
       "live workouts India",
@@ -169,7 +169,7 @@ export const programMetadata = {
   transform: {
     title: "Transform - Complete 1:1 Transformation with Disha | Glow Up Academy",
     description:
-      "Premium 1:1 transformation with Disha. 6 months of personal coaching, custom plans, VIP support. ₹1,99,999 investment for complete life transformation.",
+      "Premium 1:1 transformation with Disha. 6 months of personal coaching, custom plans, VIP support. ₹1,20,000 investment for complete life transformation.",
     keywords: [
       "personal transformation coach",
       "1:1 coaching India",
@@ -182,7 +182,7 @@ export const programMetadata = {
   "transform-strategy-call": {
     title: "Transform Strategy Call - 60-Min Session with Disha | Glow Up Academy",
     description:
-      "Book your personal strategy session with Disha. ₹9,999 for 60-minute transformation assessment and roadmap design. Credited back if you enroll in full Transform program.",
+      "Book your personal strategy session with Disha. ₹1,999 for 60-minute transformation assessment and roadmap design. Credited back if you enroll in full Transform program.",
     keywords: [
       "strategy call",
       "transformation consultation",

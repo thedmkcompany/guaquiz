@@ -137,9 +137,9 @@ const transformClients = [
 
 const faqs = [
   {
-    question: "What if I can't afford ₹1,99,999 upfront?",
+    question: "What if I can't afford ₹1,20,000 upfront?",
     answer:
-      "We offer flexible payment plans through Razorpay. You can split the investment into EMI options that fit your budget. The strategy call (₹9,999) must be paid upfront, but it's credited back if you enroll.",
+      "We offer flexible payment plans through Razorpay. You can split the investment into EMI options that fit your budget. The strategy call (₹1,999) must be paid upfront, but it's credited back if you enroll.",
   },
   {
     question: "How is this different from Circle or Essentials?",
@@ -351,7 +351,7 @@ export default function TransformLandingPage() {
               Women like you have invested in Chanel bags (₹2.5L), fancy lehngas (₹4L), cosmetic treatments (₹5L+).{" "}
               <span className="font-headline font-bold text-wine">
                 <TransformBrand className="text-base md:text-lg" /> is
-                ₹1,99,999
+                ₹1,20,000
               </span>{" "}
               to become the woman who owns all of it - body, confidence, and
               presence.
@@ -398,7 +398,7 @@ export default function TransformLandingPage() {
             >
               <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 group-hover:scale-110 transition-transform flex-shrink-0" />
               <span className="text-center">
-                Invest ₹9,999 in Your Strategy Session
+                Invest ₹1,999 in Your Strategy Session
               </span>
               <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-2 group-hover:translate-x-1 transition-transform flex-shrink-0" />
             </Link>
@@ -560,7 +560,7 @@ export default function TransformLandingPage() {
           {/* The Real Comparison */}
           <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-3xl md:rounded-[2rem] p-8 md:p-12 max-w-3xl mx-auto shadow-xl border-2 border-gold/30">
             <p className="font-headline text-2xl md:text-4xl text-wine font-bold text-center mb-8">
-              ₹1,99,999 doesn&apos;t depreciate.
+              ₹1,20,000 doesn&apos;t depreciate.
               <br />
               <span className="text-gold">It compounds.</span>
             </p>
@@ -879,7 +879,7 @@ export default function TransformLandingPage() {
 
         <div className="max-w-5xl mx-auto relative z-10">
           <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-6 md:mb-8 px-2">
-            What ₹1,99,999 Gets You
+            What ₹1,20,000 Gets You
           </h2>
           <p className="font-accent text-lg md:text-xl text-wine text-center mb-12 max-w-2xl mx-auto">
             (And Why It&apos;s Worth More Than You&apos;re Paying)
@@ -1087,7 +1087,7 @@ export default function TransformLandingPage() {
           </p>
 
           <p className="font-accent text-lg md:text-xl text-wine text-center mb-12">
-            Let&apos;s be honest about what ₹1,99,999 represents:
+            Let&apos;s be honest about what ₹1,20,000 represents:
           </p>
 
           {/* Income Breakdown Cards */}
@@ -1244,7 +1244,7 @@ export default function TransformLandingPage() {
             </p>
             <p className="font-body text-base md:text-lg text-forest/80 text-center leading-relaxed mb-6">
               <TransformBrand className="text-base md:text-lg" /> costs
-              ₹1,99,999. You&apos;ve been spending more than that annually on
+              ₹1,20,000. You&apos;ve been spending more than that annually on
               things that don&apos;t compound.
             </p>
             <p className="font-accent text-lg md:text-2xl text-forest/85 text-center leading-relaxed">
@@ -1335,7 +1335,7 @@ export default function TransformLandingPage() {
           </h2>
 
           <p className="font-accent text-xl md:text-3xl text-wine text-center mb-12 leading-tight">
-            ...isn&apos;t paying ₹1,99,999 for{" "}
+            ...isn&apos;t paying ₹1,20,000 for{" "}
             <TransformBrand className="text-xl md:text-3xl" />.
             <br />
             It&apos;s staying exactly where you are.
@@ -1458,7 +1458,7 @@ export default function TransformLandingPage() {
             >
               <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 flex-shrink-0" />
               <span className="text-center">
-                Invest ₹9,999 in Your Strategy Session
+                Invest ₹1,999 in Your Strategy Session
               </span>
             </Link>
           </div>
@@ -1522,13 +1522,13 @@ export default function TransformLandingPage() {
                   <div className="space-y-2">
                     <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
                       <strong>If you&apos;re accepted into TRANSFORM:</strong>{" "}
-                      Your ₹9,999 is credited toward your ₹1,99,999 investment
+                      Your ₹1,999 is credited toward your ₹1,20,000 investment
                     </p>
                     <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
                       <strong>
                         If TRANSFORM isn&apos;t the right fit:
                       </strong>{" "}
-                      You keep the strategy session insights (₹9,999 value)
+                      You keep the strategy session insights (₹1,999 value)
                     </p>
                   </div>
                 </div>
@@ -1660,7 +1660,7 @@ export default function TransformLandingPage() {
               everything else.
             </p>
             <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
-              The ₹9,999 strategy session determines if you&apos;re one of this
+              The ₹1,999 strategy session determines if you&apos;re one of this
               year&apos;s 14.
             </p>
             <p className="font-accent text-lg md:text-xl text-wine leading-relaxed">
@@ -1752,7 +1752,7 @@ export default function TransformLandingPage() {
             >
               <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2 flex-shrink-0" />
               <span className="text-center">
-                Invest ₹9,999 in Your Strategy Session
+                Invest ₹1,999 in Your Strategy Session
               </span>
             </Link>
             <p className="font-accent text-base md:text-lg text-wine mt-6">

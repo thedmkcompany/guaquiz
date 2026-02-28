@@ -32,7 +32,7 @@ function ArrowRight({ className = "" }: { className?: string }) {
 export const metadata = getPageMetadata({
   title: "Our Programs - Find Your Perfect Transformation Path",
   description:
-    "Explore Glow Up Academy's transformation programs for Indian women. From ₹499 webinar to ₹1,99,999 premium 1:1 coaching. Choose your path: Essentials, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
+    "Explore Glow Up Academy's transformation programs for Indian women. From ₹199 webinar to ₹1,20,000 premium 1:1 coaching. Choose your path: Essentials, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
   keywords: [
     "transformation programs India",
     "women fitness programs",
@@ -215,7 +215,7 @@ function ProgramCard({ program }: { program: Program; index: number }) {
         {isTransform && (
           <div className="mb-8 p-4 bg-gold/10 rounded-2xl border border-gold/30">
             <p className="text-base font-bold text-forest">
-              Starts with: ₹9,999 strategy call
+              Starts with: ₹1,999 strategy call
             </p>
           </div>
         )}

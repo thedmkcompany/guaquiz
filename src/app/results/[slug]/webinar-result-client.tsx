@@ -140,7 +140,7 @@ const whyWebinarWorksBenefits = [
   {
     headline: "SEE IF THIS IS YOUR MISSING PIECE",
     description:
-      "Maybe you don't need another program. Maybe you need THIS program. By the end of 90 minutes, you'll know. And that clarity is worth far more than ₹499.",
+      "Maybe you don't need another program. Maybe you need THIS program. By the end of 90 minutes, you'll know. And that clarity is worth far more than ₹199.",
   },
 ];
 
@@ -198,7 +198,7 @@ const webinarFaqs = [
       "Amazing! You'll get special webinar member pricing (₹500/month discount) if you join within 48 hours of your session. We'll email you all the details.",
   },
   {
-    question: "Is this really worth ₹499?",
+    question: "Is this really worth ₹199?",
     answer:
       "You're not paying for 90 minutes. You're paying for clarity. By the end, you'll know exactly what you need to become unstoppable-and whether Glow Up Academy is it. That's priceless.",
   },
@@ -226,7 +226,7 @@ function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string 
           <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
             LIVE WEBINAR
           </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹499<span className="text-sm font-body font-normal text-ivory/70"> one-time</span></p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹199<span className="text-sm font-body font-normal text-ivory/70"> one-time</span></p>
         </div>
         <Link
           href={ctaHref}
@@ -556,7 +556,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
                         ₹999
                       </span>
                       <span className="font-headline text-5xl sm:text-6xl md:text-7xl text-forest">
-                        ₹499
+                        ₹199
                       </span>
                     </div>
                     <div className="inline-flex items-center gap-2 bg-gold/15 px-4 py-1.5 rounded-full">
@@ -715,7 +715,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
               <div className="space-y-4 text-sm md:text-base text-charcoal/75 font-body leading-relaxed">
                 <p>
                   At the end of the 90-minute experience, we&apos;ll invite you to join our ongoing
-                  transformation community <span className="font-semibold text-forest">(₹4,499/month)</span> with a special webinar member discount.
+                  transformation community <span className="font-semibold text-forest">(₹3,499/month)</span> with a special webinar member discount.
                 </p>
 
                 <div className="flex flex-wrap gap-3 md:gap-4 my-6">

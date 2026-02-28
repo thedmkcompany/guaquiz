@@ -312,10 +312,10 @@ It works. Because transformation isn't about perfection. It's about consistency.
 
   // Investment Section
   investmentHeadline: "Your Investment in Becoming Unstoppable",
-  pricePerDay: "₹83/day",
+  pricePerDay: "₹67/day",
   priceComparison: "less than a meal delivery or salon visit",
   investmentDescription:
-    "Not just workouts. Complete transformation - body, beauty, finance, confidence. The woman you're becoming is worth far more than ₹83/day.",
+    "Not just workouts. Complete transformation - body, beauty, finance, confidence. The woman you're becoming is worth far more than ₹67/day.",
   ctaText: "Start Your Transformation",
   trustSignals: [
     "Cancel anytime - no commitments, just results",
@@ -501,11 +501,11 @@ This isn't theory. It's proven. It's what works.`,
   dishaCredentials: "Corporate Wellness Expert for Greenko, Gold's Gym, and leading organizations",
 
   investmentHeadline: "Your 7-Day Investment",
-  pricePerDay: "₹71/day",
+  pricePerDay: "₹28/day",
   priceComparison: "less than a coffee",
   investmentDescription:
     "7 days of full access to prove we're the real deal. No risk. No pressure. Just experience.",
-  ctaText: "Try For ₹499",
+  ctaText: "Try For ₹199",
   trustSignals: [
     "No automatic billing after webinar",
     "You choose whether to continue",
@@ -518,7 +518,7 @@ This isn't theory. It's proven. It's what works.`,
     {
       headline: "ZERO RISK, REAL EXPERIENCE",
       description:
-        "₹499 gives you 7 full days of our methodology. No tricks, no hidden fees, no automatic upgrades. Just honest experience.",
+        "₹199 gives you 7 full days of our methodology. No tricks, no hidden fees, no automatic upgrades. Just honest experience.",
     },
     {
       headline: "PROOF BEFORE COMMITMENT",
@@ -573,7 +573,7 @@ This isn't theory. It's proven. It's what works.`,
     {
       question: "Why is the webinar so affordable?",
       answer:
-        "We want you to experience the DMK difference without risk. The ₹499 covers our operational costs while giving you genuine value. It's our way of saying 'try us, you'll love us.'",
+        "We want you to experience the DMK difference without risk. The ₹199 covers our operational costs while giving you genuine value. It's our way of saying 'try us, you'll love us.'",
     },
     {
       question: "Can I do the webinar if I'm a complete beginner?",
@@ -582,7 +582,7 @@ This isn't theory. It's proven. It's what works.`,
     },
   ],
 
-  finalCtaHeadline: "7 Days. ₹499. Zero Risk.",
+  finalCtaHeadline: "7 Days. ₹199. Zero Risk.",
   finalCtaSubheadline: "Your transformation could start today.",
   finalCtaButtonText: "Start Your Webinar",
   trustReminder: "No automatic billing. You decide what's next.",
@@ -669,7 +669,7 @@ This is where you stop doing it alone.`,
   dishaCredentials: "Founder & Transformation Architect | Featured in Telangana Today • Corporate Wellness Expert",
 
   investmentHeadline: "Your Investment in Community Transformation",
-  pricePerDay: "₹150/day",
+  pricePerDay: "₹117/day",
   priceComparison: "less than a gym membership you'll actually use",
   investmentDescription:
     "Live sessions, accountability partners, community support, and complete transformation. The sisterhood that changes everything.",
@@ -856,7 +856,7 @@ And it starts with a 45-minute strategy call -just you and me.`,
   dishaCredentials: "Master's in Applied Finance • Corporate Wellness Expert • Multi-Business Entrepreneur",
 
   investmentHeadline: "Your Investment in Complete Transformation",
-  pricePerDay: "₹1,667/day",
+  pricePerDay: "₹667/day",
   priceComparison: "the cost of becoming the woman you're meant to be",
   investmentDescription:
     "3 months of 1:1 coaching, custom everything, VIP support. The investment that changes your entire life trajectory.",

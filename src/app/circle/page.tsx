@@ -194,7 +194,7 @@ function StickyCTABar({ visible, onScrollToPayment }: { visible: boolean; onScro
           <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
             CIRCLE Membership
           </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹150<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹117<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
         </div>
         <button
           onClick={onScrollToPayment}
@@ -1342,7 +1342,7 @@ export default function CircleLandingPage() {
               </p>
 
               <div className="mb-5 md:mb-8">
-                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹4,499</p>
+                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹3,499</p>
                 <p className="text-xs md:text-sm text-ivory/60">per month • Cancel anytime</p>
               </div>
 
@@ -1406,7 +1406,7 @@ export default function CircleLandingPage() {
               {/* Razorpay Checkout */}
               {customerName.trim() && customerEmail.trim() && customerEmail.includes('@') && customerPhone.trim() ? (
                 <RazorpayCheckout
-                  amount={4499}
+                  amount={3499}
                   programId="circle"
                   programName="Circle - Monthly Membership"
                   customerEmail={customerEmail.trim()}

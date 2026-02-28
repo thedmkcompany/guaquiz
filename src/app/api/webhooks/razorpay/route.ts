@@ -537,23 +537,28 @@ async function syncSubscriptionToCRM(subscription: RazorpaySubscriptionEntity): 
   const startDateOption = notes.startDateOption || '';
 
   const { firstName, lastName } = parseCustomerName(customerName);
-  const email = customerEmail;
+  const email = customerEmail || subscription.notes?.customer_email || '';
 
   // Validate we have minimum required data
   if (!email) {
     console.error('[Razorpay Webhook] Cannot sync subscription - no email found:', {
       subscriptionId: subscription.id,
       hasNotes: !!subscription.notes,
+      noteKeys: Object.keys(subscription.notes || {}),
     });
     return;
   }
+
+  // Resolve subscription amount from program price (not 0)
+  const program = getProgramById(programId);
+  const amount = program?.price || 0;
 
   // Sync to Supabase (primary record)
   try {
     const supabaseResult = await updateLeadPaymentStatus({
       email,
       paymentId: subscription.id,
-      amount: 0, // Subscription amount handled separately
+      amount,
       programId: programId || '',
       gateway: 'razorpay',
       subscriptionId: subscription.id,
@@ -574,9 +579,9 @@ async function syncSubscriptionToCRM(subscription: RazorpaySubscriptionEntity): 
       lastName,
       phone: customerPhone,
       programId: programId || '',
-      programName: programName || '',
+      programName: programName || program?.name || '',
       paymentId: subscription.id,
-      amount: 0,
+      amount,
       isSubscription: true,
       subscriptionId: subscription.id,
       programStartDate: programStartDate || undefined,
@@ -587,7 +592,6 @@ async function syncSubscriptionToCRM(subscription: RazorpaySubscriptionEntity): 
 
     // Send AISensy payment confirmation for subscription (non-blocking)
     try {
-      const program = getProgramById(programId);
       if (program && customerPhone) {
         await sendPaymentConfirmation({
           phone: customerPhone,
@@ -596,7 +600,7 @@ async function syncSubscriptionToCRM(subscription: RazorpaySubscriptionEntity): 
           programName: programName || program.name,
           programId: programId, // For campaign selection
           programTier: program.tier,
-          amount: 0, // First subscription charge - amount in separate webhook
+          amount,
           paymentId: subscription.id,
           isSubscription: true,
           startDateOption: startDateOption || undefined, // For Essentials date selection

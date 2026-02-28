@@ -63,7 +63,11 @@ Razorpay is primary. PayU is fallback. Prices are validated server-side against 
 - `src/lib/payment-api.ts` — Shared payment validation and utilities
 - `src/lib/rate-limit.ts` — IP and email-based rate limiting
 - `src/lib/validation.ts` — Zod schemas for all inputs
-- `src/lib/design-tokens.ts` — Brand spacing, colors, and typography tokens
+- `src/lib/cdn.ts` — `getCDNUrl()` for Vercel Blob image serving with local fallback
+- `src/lib/aisensy.ts` — AISensy WhatsApp messaging (welcome, payment confirmations, reminders)
+- `src/lib/seo-config.ts` — Site metadata and SEO configuration
+- `src/lib/structured-data.ts` — JSON-LD structured data for pages
+- `src/app/globals.css` — Design system: CSS custom properties for brand colors, typography, spacing
 
 ## Tech Stack
 
@@ -84,11 +88,11 @@ Razorpay is primary. PayU is fallback. Prices are validated server-side against 
 
 | ID | Price | Type |
 |----|-------|------|
-| essentials | ₹2,499 | Subscription (monthly) |
-| webinar | ₹499 | One-time |
-| circle | ₹4,499 | One-time |
-| transform-strategy | ₹9,999 | One-time |
-| transform | ₹1,99,999 | One-time |
+| essentials | ₹1,999 | Subscription (monthly) |
+| webinar | ₹199 | One-time |
+| circle | ₹3,499 | One-time |
+| transform-strategy | ₹1,999 | One-time |
+| transform | ₹1,20,000 | One-time |
 
 Program definitions are the single source of truth for pricing validation.
 
@@ -100,8 +104,10 @@ Program definitions are the single source of truth for pricing validation.
 - Rate limits: payment create 10/15min (IP), payment verify 20/15min (IP), payment 5/hr (email), webhooks 100/min
 - Admin routes (`/api/admin/*`) use basic auth; cron routes use Bearer token from `CRON_SECRET`
 - Webhook handlers verify HMAC-SHA256 signatures and deduplicate via `src/lib/webhook-store.ts`
-- Brand fonts: Roca Two (headlines), Be Vietnam Pro (body), The Seasons (accent quotes)
-- Brand colors: Forest Green (#012D26), Wine (#800000), Gold (#D4AF37)
+- Brand fonts: Roca Two (`--font-roca-two`, headlines), Be Vietnam Pro (`--font-be-vietnam`, body), The Seasons (`--font-the-seasons`, accent quotes)
+- Brand colors: Forest Green `--color-forest` (#012D26), Wine `--color-wine` (#800000), Gold `--color-gold` (#D4AF37)
+- Images: use `getCDNUrl('/images/...')` from `@/lib/cdn` — serves from Vercel Blob CDN with local fallback
+- Classname merging: use `cn()` from `@/lib/utils` (clsx + tailwind-merge)
 
 ## Environment Variables
 

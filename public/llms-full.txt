@@ -1,0 +1,348 @@
+# Glow Up Academy — Complete Site Reference
+
+> This document provides comprehensive information about Glow Up Academy for AI assistants, language models, and automated systems. Last updated: 2026-02-28.
+
+**Website**: https://glowupacademy.in
+**Short name**: GUA
+**Also known as**: TheDMK
+**Domain**: glowupacademy.in
+**Locale**: India (en_IN), prices in INR (₹)
+
+---
+
+## Table of Contents
+
+1. [About Glow Up Academy](#about)
+2. [Founder](#founder)
+3. [Programs — Detailed](#programs)
+4. [Quiz System](#quiz)
+5. [Pages & Routes](#pages)
+6. [User Journeys](#journeys)
+7. [Payment & Checkout](#payment)
+8. [Support & Contact](#contact)
+9. [Legal](#legal)
+10. [Technical Notes](#technical)
+
+---
+
+## 1. About Glow Up Academy {#about}
+
+Glow Up Academy (also known as TheDMK) is India's premier women's holistic transformation platform. It helps women become "hot and unstoppable" — a brand term referring to confidence, physical fitness, financial empowerment, and emotional resilience.
+
+The platform addresses four pillars of transformation:
+- **Fitness** — Workouts, body composition, movement
+- **Beauty** — Self-image, personal style, outer confidence
+- **Finance** — Financial literacy, wealth mindset, money confidence
+- **Confidence** — Mindset, boundaries, emotional strength
+
+**Key stats**:
+- 2,500+ women transformed
+- 5,000+ transformation sessions delivered
+- 95% success rate
+
+---
+
+## 2. Founder {#founder}
+
+**Name**: Disha Methi Khandelwal
+**Role**: Transformation Coach & Founder
+**Credentials**: Master's in Applied Finance; 5,000+ transformation sessions
+**Philosophy**: Transformation is not a fitness journey — it is a complete life overhaul covering body, mind, beauty, and wealth.
+
+---
+
+## 3. Programs — Detailed {#programs}
+
+All five programs are recommended via the quiz. Each program result page is at `/results/[slug]`.
+
+---
+
+### 3.1 Essentials
+
+**Slug**: `essentials`
+**URL**: https://glowupacademy.in/results/essentials
+**Price**: ₹1,999/month (recurring subscription, cancel anytime)
+**Type**: Self-paced, on-demand
+**Tagline**: Structure on your schedule.
+**Description**: The complete system for women who rise on their own time. Everything you need, exactly when you need it.
+
+**Features**:
+- 24 recorded workouts (on-demand library)
+- Meal guides & habit trackers
+- Self-paced structure with no rigid schedule
+- Cancel anytime
+
+**Best for**: Women who need flexibility, beginners, those on a budget who prefer self-directed learning.
+
+---
+
+### 3.2 Webinar
+
+**Slug**: `webinar`
+**URL**: https://glowupacademy.in/results/webinar
+**Price**: ₹199 (one-time)
+**Type**: Live 90-minute experience
+**Tagline**: Your first step into hot and unstoppable.
+**Description**: Experience DMK live. Test the energy, meet the method, and decide if this is your tribe.
+
+**Features**:
+- 90-minute live transformation session
+- Full-body workout + mindset coaching
+- Community energy and group experience
+- Direct path to Circle if ready to upgrade
+
+**Best for**: First-timers who want to try before committing. Women who have started and stopped programs before. Low-risk entry point.
+
+**Upsell path**: Webinar → Circle (encouraged after completion)
+
+---
+
+### 3.3 Circle
+
+**Slug**: `circle`
+**URL**: https://glowupacademy.in/results/circle
+**Also**: https://glowupacademy.in/circle (dedicated landing page)
+**Price**: ₹3,499 (one-time, per cycle)
+**Type**: Live group coaching + community
+**Tagline**: Your tribe. Your transformation.
+**Description**: Accountability meets sisterhood. Live workouts, weekly check-ins, and a community of unstoppable women.
+
+**Features**:
+- 6 live sessions weekly
+- Weekly group coaching calls
+- Private Circle community access
+- Nutrition & habit coaching
+- Monthly body composition tracking
+- Priority WhatsApp support
+
+**Best for**: Women who thrive with accountability, community energy, and group sisterhood. Ready to commit.
+
+---
+
+### 3.4 Transform Strategy Call
+
+**Slug**: `transform-strategy-call`
+**URL**: https://glowupacademy.in/results/transform-strategy-call
+**Price**: ₹1,999 (one-time; fully credited toward Transform enrollment)
+**Type**: 1:1 private session with Disha
+**Tagline**: 60-minute strategy session with Disha
+**Description**: Book a personal strategy session with Disha to design your transformation roadmap.
+
+**Features**:
+- 60-minute private strategy session via Zoom
+- Complete transformation assessment
+- Personalized roadmap across fitness, beauty, finance & confidence
+- Q&A with Disha directly
+- ₹1,999 credited if you enroll in full Transform program
+
+**Best for**: Women seriously considering the full Transform program who want to meet Disha first.
+
+**Note**: This is the entry point to the high-ticket Transform program. The ₹1,999 fee is a full credit.
+
+---
+
+### 3.5 Transform
+
+**Slug**: `transform`
+**URL**: https://glowupacademy.in/results/transform
+**Also**: https://glowupacademy.in/transform (dedicated landing page)
+**Price**: ₹1,20,000 (one-time)
+**Type**: Premium 1:1 personal coaching
+**Tagline**: Your personal transformation architect.
+**Description**: 1-on-1 with Disha. Custom everything. This is where complete transformation happens.
+
+**Features**:
+- 24 weeks of personalized training
+- Weekly 1:1 sessions with Disha
+- Custom workout & nutrition plans
+- Mindset, beauty & finance coaching
+- Direct access to coaches
+- Post-program maintenance plan
+
+**Best for**: Women ready for total, bespoke transformation with dedicated personal guidance.
+
+**Purchase flow**: Requires a Transform Strategy Call first (₹1,999). High-ticket; no direct online checkout.
+
+---
+
+## 4. Quiz System {#quiz}
+
+**URL**: https://glowupacademy.in/quiz
+
+The personalization quiz is the primary entry point for new users. It determines which program best fits each woman's needs.
+
+### Quiz Structure
+
+- **8 questions**, single-select per question
+- Takes approximately 3–4 minutes to complete
+- Personalized result at the end
+
+### Quiz Questions Overview
+
+| # | Question Theme | What It Measures |
+|---|---------------|-----------------|
+| Q1 | Current life era | Baseline energy and readiness |
+| Q2 | What "unstoppable" means | Goal priorities (body, confidence, lifestyle) |
+| Q3 | How you rise best | Learning style (self-paced, community, 1:1) |
+| Q4 | Weekly time available | Schedule commitment level |
+| Q5 | Ideal transformation experience | Program format preferences |
+| Q6 | History with programs | Experience level and what has/hasn't worked |
+| Q7 | Investment level comfortable | Budget qualification |
+| Q8 | When ready to start | Urgency and commitment timing |
+
+### How Recommendations Work
+
+Answers are scored across four program buckets (essentials, webinar, circle, transform). The highest-scoring program becomes the recommendation. Edge case logic ensures budget/time fit. Results link directly to the matching program page.
+
+---
+
+## 5. Pages & Routes {#pages}
+
+### Public Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Homepage — brand story, social proof, CTA to quiz |
+| `/quiz` | 8-question personalization quiz |
+| `/results/essentials` | Essentials program result page |
+| `/results/webinar` | Webinar program result page |
+| `/results/circle` | Circle program result page |
+| `/results/transform-strategy-call` | Transform Strategy Call result page |
+| `/results/transform` | Transform program result page |
+| `/programs` | All programs overview and comparison |
+| `/circle` | Dedicated Circle landing page |
+| `/transform` | Dedicated Transform landing page |
+| `/about` | About Disha and the Glow Up Academy story |
+| `/book-call` | Book a Calendly consultation |
+| `/contact` | Contact form and support |
+| `/checkout` | Purchase/checkout flow |
+| `/checkout/success` | Post-payment success page |
+| `/checkout/failed` | Payment failure page |
+| `/privacy` | Privacy Policy |
+| `/terms` | Terms of Service |
+| `/refund` | Refund Policy |
+
+### Non-Public Routes (not for AI indexing)
+
+- `/admin/*` — Internal admin panel (authentication required)
+- `/api/*` — Backend API routes (not user-facing content)
+
+---
+
+## 6. User Journeys {#journeys}
+
+### Journey 1: Discovery via Quiz (primary)
+1. Land on homepage `/`
+2. Click "Take the Quiz" CTA
+3. Complete 8 questions at `/quiz`
+4. See personalized result at `/results/[program]`
+5. Click "Join Now" → `/checkout`
+6. Complete payment via Razorpay or PayU
+7. Land on `/checkout/success` with next steps
+
+### Journey 2: Direct Program Discovery
+1. Land on `/programs` or `/circle` or `/transform`
+2. Read program details
+3. Click CTA → `/checkout`
+4. Complete purchase
+
+### Journey 3: High-Ticket (Transform)
+1. Complete quiz → recommended Transform
+2. View `/results/transform`
+3. Book Transform Strategy Call (₹1,999)
+4. Complete 60-min session with Disha
+5. Enroll in full Transform program (₹1,999 credited)
+
+---
+
+## 7. Payment & Checkout {#payment}
+
+### Payment Gateways
+
+- **Razorpay** — Primary payment processor (UPI, cards, net banking, wallets)
+- **PayU** — Fallback payment processor
+
+### Supported Methods (via Razorpay)
+- UPI (Google Pay, PhonePe, Paytm, etc.)
+- Credit/Debit Cards (Visa, Mastercard, RuPay)
+- Net Banking
+- Digital Wallets
+
+### Checkout Flow
+1. User selects program and clicks "Join Now"
+2. Enters name, email, phone
+3. Selects session/start date (if applicable)
+4. Payment processed via Razorpay modal
+5. Signature verified server-side (HMAC-SHA256)
+6. Lead stored and CRM updated
+7. Redirect to `/checkout/success`
+
+### Pricing (authoritative)
+
+| Program | Price | Billing |
+|---------|-------|---------|
+| Essentials | ₹1,999 | Monthly subscription |
+| Webinar | ₹199 | One-time |
+| Circle | ₹3,499 | One-time (per cohort) |
+| Transform Strategy Call | ₹1,999 | One-time |
+| Transform | ₹1,20,000 | One-time |
+
+---
+
+## 8. Support & Contact {#contact}
+
+| Channel | Details |
+|---------|---------|
+| Email | hello@thedmk.online |
+| Instagram | [@thedmk](https://instagram.com/thedmk) |
+| Twitter/X | [@thedmk_official](https://twitter.com/thedmk_official) |
+| Facebook | [glowupacademy](https://facebook.com/glowupacademy) |
+| LinkedIn | [company/glow-up-academy](https://linkedin.com/company/glow-up-academy) |
+| WhatsApp | Available to active program members (Priority support for Circle+) |
+| Book a Call | https://glowupacademy.in/book-call (Calendly) |
+
+---
+
+## 9. Legal {#legal}
+
+| Document | URL |
+|----------|-----|
+| Privacy Policy | https://glowupacademy.in/privacy |
+| Terms of Service | https://glowupacademy.in/terms |
+| Refund Policy | https://glowupacademy.in/refund |
+
+**Jurisdiction**: India
+**Currency**: Indian Rupee (INR)
+**GST**: Applicable as per Indian law
+
+---
+
+## 10. Technical Notes {#technical}
+
+This section is for AI systems and developers. End users do not need to read this.
+
+### Stack
+- **Framework**: Next.js 16 (App Router), React 19
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 4
+- **Database**: Supabase (PostgreSQL)
+- **CRM**: Wix CRM
+- **Payments**: Razorpay + PayU
+- **Hosting**: Vercel
+- **CDN**: Vercel Blob
+
+### Robots / Crawling
+
+This site respects standard `robots.txt` conventions. AI crawlers are welcome on all public pages listed in Section 5. Admin routes and API routes are not intended for AI consumption.
+
+### Structured Data
+
+The site implements JSON-LD structured data (Organization, WebSite, BreadcrumbList, FAQPage, Course) on relevant pages.
+
+### Sitemap
+
+XML sitemap is available at: https://glowupacademy.in/sitemap.xml
+
+---
+
+*This file is maintained by the Glow Up Academy development team. For corrections or updates, contact hello@thedmk.online. Review schedule: quarterly.*

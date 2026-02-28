@@ -50,7 +50,7 @@
  *   programId: 'circle',
  *   programName: 'Circle',
  *   paymentId: 'pay_123',
- *   amount: 4499,
+ *   amount: 3499,
  *   isSubscription: false
  * });
  * ```

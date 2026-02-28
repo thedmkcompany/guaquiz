@@ -1,0 +1,67 @@
+# Glow Up Academy
+
+> India's premier women's transformation platform — body, mind, beauty, and wealth.
+
+**Website**: https://glowupacademy.in
+**Also known as**: TheDMK
+**Founder**: Disha Methi Khandelwal — Transformation Coach, Master's in Applied Finance, 5,000+ transformation sessions
+**Tagline**: Where Unstoppable Becomes Your Identity
+**Audience**: Women in India seeking holistic personal transformation
+**Stats**: 2,500+ women transformed, 5,000+ sessions, 95% success rate
+
+---
+
+## Core User Journey
+
+1. Take the free 8-question personalization quiz at `/quiz`
+2. Receive a program recommendation tailored to your goals, lifestyle, and investment level
+3. Review the detailed results page at `/results/[program]`
+4. Purchase via Razorpay (primary) or PayU (fallback)
+5. Join your program and begin transformation
+
+---
+
+## Programs
+
+| Program | Price | Type | Best For |
+|---------|-------|------|----------|
+| Essentials | ₹1,999/month | Subscription | Self-paced beginners needing flexibility |
+| Webinar | ₹199 | One-time | First-timers who want to experience before committing |
+| Circle | ₹3,499 | One-time | Community-driven women ready to commit |
+| Transform Strategy Call | ₹1,999 | One-time | Women exploring the full Transform program |
+| Transform | ₹1,20,000 | One-time | All-in 1:1 transformation seekers |
+
+---
+
+## Main Pages
+
+- [Home](https://glowupacademy.in/) — Brand story, social proof, program overview
+- [Quiz](https://glowupacademy.in/quiz) — Free 8-question transformation quiz
+- [Programs](https://glowupacademy.in/programs) — All program comparison
+- [Circle](https://glowupacademy.in/circle) — Deep dive into the Circle community
+- [Transform](https://glowupacademy.in/transform) — Deep dive into the Transform program
+- [About](https://glowupacademy.in/about) — Disha's story and credentials
+- [Book a Call](https://glowupacademy.in/book-call) — Schedule a Calendly consultation
+- [Contact](https://glowupacademy.in/contact) — Support and enquiries
+
+## Legal Pages
+
+- [Privacy Policy](https://glowupacademy.in/privacy)
+- [Terms of Service](https://glowupacademy.in/terms)
+- [Refund Policy](https://glowupacademy.in/refund)
+
+---
+
+## Contact & Social
+
+- **Email**: hello@thedmk.online
+- **Instagram**: [@thedmk](https://instagram.com/thedmk)
+- **Twitter/X**: [@thedmk_official](https://twitter.com/thedmk_official)
+- **Facebook**: [glowupacademy](https://facebook.com/glowupacademy)
+
+---
+
+## Full Documentation
+
+For comprehensive site details, API information, and complete program specs, see:
+[https://glowupacademy.in/llms-full.txt](https://glowupacademy.in/llms-full.txt)

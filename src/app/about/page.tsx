@@ -3,6 +3,8 @@ import { Heart, Users, Sparkles, Award, CheckCircle2 } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import { Footer } from "@/components/ui/footer";
 import { getPageMetadata, siteConfig } from "@/lib/seo-config";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { generateOrganizationSchema, generatePersonSchema, combineSchemas } from "@/lib/structured-data";
 
 export const metadata = getPageMetadata({
   title: "About Us - Meet Disha & The Glow Up Academy Story",
@@ -21,8 +23,14 @@ export const metadata = getPageMetadata({
 });
 
 export default function AboutPage() {
+  const schemas = combineSchemas(
+    generateOrganizationSchema(),
+    generatePersonSchema()
+  );
+
   return (
     <div className="min-h-screen bg-gradient-pastel font-body text-forest">
+      <StructuredData data={schemas} />
       {/* Main Content */}
       <main className="pb-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <DecorativeBlobs />

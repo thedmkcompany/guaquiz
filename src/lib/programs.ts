@@ -10,11 +10,11 @@
  *
  * | Tier | Price | Description |
  * |------|-------|-------------|
- * | Essentials | ₹2,499 | Entry-level, self-paced |
- * | Webinar | ₹499 | Low-commitment taster (upsells to Circle) |
- * | Circle | ₹4,499 | Community-driven group coaching |
- * | Transform Strategy | ₹9,999 | 1:1 strategy session |
- * | Transform | ₹1,99,999 | High-ticket 1:1 transformation |
+ * | Essentials | ₹1,999 | Entry-level, self-paced |
+ * | Webinar | ₹199 | Low-commitment taster (upsells to Circle) |
+ * | Circle | ₹3,499 | Community-driven group coaching |
+ * | Transform Strategy | ₹1,999 | 1:1 strategy session |
+ * | Transform | ₹1,20,000 | 1:1 transformation |
  *
  * ## Usage
  *
@@ -25,7 +25,7 @@
  * const program = getProgramById('circle');
  * if (program) {
  *   console.log(`${program.name}: ${formatPrice(program.price)}`);
- *   // Output: "Circle: ₹4,499"
+ *   // Output: "Circle: ₹3,499"
  * }
  * ```
  */
@@ -48,7 +48,7 @@ export const programs: Program[] = [
     name: "Essentials",
     tagline: "Structure on your schedule.",
     description: "The complete system for women who rise on their own time. Everything you need, exactly when you need it.",
-    price: 2499,
+    price: 1999,
     currency: "INR",
     tier: "essentials",
     features: [
@@ -69,7 +69,7 @@ export const programs: Program[] = [
     name: "Webinar",
     tagline: "Your first step into hot and unstoppable.",
     description: "Experience DMK live. Test the energy, meet the method, and decide if this is your tribe.",
-    price: 499,
+    price: 199,
     currency: "INR",
     tier: "webinar",
     features: [
@@ -89,7 +89,7 @@ export const programs: Program[] = [
     name: "Circle",
     tagline: "Your tribe. Your transformation.",
     description: "Accountability meets sisterhood. Live workouts, weekly check-ins, and a community of unstoppable women.",
-    price: 4499,
+    price: 3499,
     currency: "INR",
     tier: "circle",
     features: [
@@ -110,7 +110,7 @@ export const programs: Program[] = [
     name: "Transform Strategy Call",
     tagline: "60-minute strategy session with Disha",
     description: "Book a personal strategy session with Disha to design your transformation roadmap. This fee is credited back if you enroll in the full Transform program.",
-    price: 9999,
+    price: 1999,
     currency: "INR",
     tier: "transform-strategy",
     features: [
@@ -118,7 +118,7 @@ export const programs: Program[] = [
       "Complete transformation assessment",
       "Personalized roadmap across fitness, beauty, finance & confidence",
       "Q&A with Disha",
-      "₹9,999 credited to Transform enrollment",
+      "₹1,999 credited to Transform enrollment",
     ],
     isSubscription: false,
     schedulerUrl: "https://scheduler.zoom.us/teamdmk/strategy-call-with-disha",
@@ -131,7 +131,7 @@ export const programs: Program[] = [
     name: "Transform",
     tagline: "Your personal transformation architect.",
     description: "1-on-1 with Disha. Custom everything. This is where complete transformation happens.",
-    price: 199999,
+    price: 120000,
     currency: "INR",
     tier: "transform",
     features: [
@@ -143,7 +143,7 @@ export const programs: Program[] = [
       "Post-program maintenance plan",
     ],
     isSubscription: false,
-    requiresCall: true, // High-ticket requires strategy call (₹9,999)
+    requiresCall: true, // High-ticket requires strategy call (₹1,999)
     calendlyUrl: process.env.CALENDLY_URL_TRANSFORM || "",
     wixPlanId: process.env.WIX_PLAN_ID_TRANSFORM || "",
     razorpayPlanId: process.env.RAZORPAY_PLAN_ID_TRANSFORM || "",
@@ -179,7 +179,7 @@ const programsByTier = new Map<Program['tier'], Program>(
  * ```typescript
  * const program = getProgramById('circle');
  * if (program) {
- *   console.log(program.price); // 4499
+ *   console.log(program.price); // 3499
  * }
  * ```
  */
@@ -255,14 +255,14 @@ export function getHighTicketPrograms(): Program[] {
 /**
  * Formats a price for display with Indian locale formatting.
  *
- * @param price - The price in smallest currency unit (e.g., 4499 for ₹4,499)
+ * @param price - The price in smallest currency unit (e.g., 3499 for ₹3,499)
  * @param currency - ISO currency code (default: 'INR')
  * @returns Formatted price string with currency symbol
  *
  * @example
  * ```typescript
- * formatPrice(4499);        // "₹4,499"
- * formatPrice(199999);      // "₹1,99,999"
+ * formatPrice(3499);        // "₹3,499"
+ * formatPrice(120000);      // "₹1,20,000"
  * formatPrice(100, 'USD');  // "$100"
  * ```
  */

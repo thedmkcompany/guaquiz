@@ -73,7 +73,7 @@ function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string 
           <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
             ESSENTIALS
           </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹83<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
+          <p className="text-[22px] font-headline font-bold text-ivory">₹67<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
         </div>
         <Link
           href={ctaHref}

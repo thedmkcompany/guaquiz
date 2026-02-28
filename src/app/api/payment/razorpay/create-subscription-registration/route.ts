@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
 
     // Use program price as the mandate max amount
     // This ensures customers see the actual subscription amount, not a scary high number
-    // - Essentials: ₹2,499/month mandate
-    // - Circle: ₹4,499 mandate
+    // - Essentials: ₹1,999/month mandate
+    // - Circle: ₹3,499 mandate
     // Note: UPI has RBI limit of ₹15,000, but our programs are below this
     const maxAmount = program.price;
 
@@ -94,10 +94,12 @@ export async function POST(request: NextRequest) {
       totalCount: 12,
       callbackUrl: callbackUrl || undefined,
       notes: {
-        program_id: programId || '',
-        program_name: program.name,
-        program_price: String(program.price),
-        created_at: new Date().toISOString(),
+        programId: programId || '',
+        programName: program.name,
+        customerEmail: email,
+        customerName: name,
+        customerPhone: cleanPhone,
+        programPrice: String(program.price),
       },
     });
 

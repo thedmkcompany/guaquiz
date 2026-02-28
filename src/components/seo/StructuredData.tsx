@@ -1,11 +1,11 @@
 /**
  * StructuredData Component
  *
- * Injects JSON-LD structured data into the page head for SEO.
- * Supports single or multiple schemas.
+ * Injects JSON-LD structured data into the page using an inline <script> tag
+ * so that it is present in the initial HTML and immediately visible to crawlers.
+ * Do NOT use next/script here — strategy="afterInteractive" defers execution
+ * past hydration, which is suboptimal for structured data.
  */
-
-import Script from "next/script";
 
 interface StructuredDataProps {
   data: object | object[];
@@ -17,14 +17,12 @@ export function StructuredData({ data }: StructuredDataProps) {
   return (
     <>
       {schemaArray.map((schema, index) => (
-        <Script
+        <script
           key={index}
-          id={`structured-data-${index}`}
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(schema, null, 0),
+            __html: JSON.stringify(schema),
           }}
-          strategy="afterInteractive"
         />
       ))}
     </>

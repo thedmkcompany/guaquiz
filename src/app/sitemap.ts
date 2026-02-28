@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://thedmk.com";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://glowupacademy.in";
 
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -72,11 +72,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  // Only include result pages that don't redirect elsewhere.
+  // /results/circle → /circle (dedicated page, already in staticRoutes)
+  // /results/transform → /transform (dedicated page, already in staticRoutes)
   const resultSlugs = [
     "essentials",
     "webinar",
-    "circle",
-    "transform",
     "transform-strategy-call",
   ];
 

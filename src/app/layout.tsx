@@ -9,6 +9,7 @@ import {
 } from "@/components/analytics";
 import { Header } from "@/components/ui/header";
 import { defaultMetadata, siteConfig } from "@/lib/seo-config";
+import { generateWebSiteSchema } from "@/lib/structured-data";
 
 // Custom fonts from /public/fonts/
 // Brand Typography - Optimized for Performance:
@@ -51,9 +52,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en-IN">
       <head>
         <GoogleTagManager />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebSiteSchema()) }}
+        />
         {/* Preconnect for performance optimization */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

@@ -401,6 +401,8 @@ export function CheckoutPageClient() {
                     customerEmail={customerInfo.email}
                     customerName={customerInfo.name}
                     customerPhone={customerInfo.phone}
+                    isSubscription={program.isSubscription}
+                    razorpayPlanId={program.razorpayPlanId}
                     programStartDate={
                       isCircleProgram
                         ? circleStartDate
