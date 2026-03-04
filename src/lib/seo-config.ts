@@ -156,7 +156,7 @@ export const programMetadata = {
   circle: {
     title: "Circle - Your Sisterhood to Unstoppable | Glow Up Academy",
     description:
-      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹3,499/month for community-driven transformation across fitness, beauty, finance & confidence.",
+      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹3,999/month for community-driven transformation across fitness, beauty, finance & confidence.",
     keywords: [
       "women fitness community",
       "live workouts India",

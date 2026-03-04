@@ -12,7 +12,7 @@
  * |------|-------|-------------|
  * | Essentials | ₹1,999 | Entry-level, self-paced |
  * | Webinar | ₹199 | Low-commitment taster (upsells to Circle) |
- * | Circle | ₹3,499 | Community-driven group coaching |
+ * | Circle | ₹3,999 | Community-driven group coaching |
  * | Transform Strategy | ₹1,999 | 1:1 strategy session |
  * | Transform | ₹1,20,000 | 1:1 transformation |
  *
@@ -25,7 +25,7 @@
  * const program = getProgramById('circle');
  * if (program) {
  *   console.log(`${program.name}: ${formatPrice(program.price)}`);
- *   // Output: "Circle: ₹3,499"
+ *   // Output: "Circle: ₹3,999"
  * }
  * ```
  */
@@ -89,7 +89,7 @@ export const programs: Program[] = [
     name: "Circle",
     tagline: "Your tribe. Your transformation.",
     description: "Accountability meets sisterhood. Live workouts, weekly check-ins, and a community of unstoppable women.",
-    price: 3499,
+    price: 3999,
     currency: "INR",
     tier: "circle",
     features: [
@@ -180,7 +180,7 @@ const programsByTier = new Map<Program['tier'], Program>(
  * ```typescript
  * const program = getProgramById('circle');
  * if (program) {
- *   console.log(program.price); // 3499
+ *   console.log(program.price); // 3999
  * }
  * ```
  */
@@ -256,13 +256,13 @@ export function getHighTicketPrograms(): Program[] {
 /**
  * Formats a price for display with Indian locale formatting.
  *
- * @param price - The price in smallest currency unit (e.g., 3499 for ₹3,499)
+ * @param price - The price in smallest currency unit (e.g., 3999 for ₹3,999)
  * @param currency - ISO currency code (default: 'INR')
  * @returns Formatted price string with currency symbol
  *
  * @example
  * ```typescript
- * formatPrice(3499);        // "₹3,499"
+ * formatPrice(3999);        // "₹3,999"
  * formatPrice(120000);      // "₹1,20,000"
  * formatPrice(100, 'USD');  // "$100"
  * ```
