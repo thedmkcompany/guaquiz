@@ -87,6 +87,7 @@ function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string 
 }
 
 export function EssentialsResultClient({ program }: EssentialsResultClientProps) {
+  const [isMounted, setIsMounted] = useState(false);
   const [quizAnswers] = useState<QuizAnswers>(() => {
     // Migrate any legacy sessionStorage data
     migrateLegacyStorage();
@@ -120,6 +121,11 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
     return () => observer.disconnect();
   }, []);
 
+  // Prevent hydration mismatch: quiz personalization depends on client storage.
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const content: ProgramContent = getProgramContent(program.id);
 
   const personalization = useMemo(() => {
@@ -135,6 +141,15 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
     .replace("{personalization}", personalization.heroSubheadline);
   const whyWorksIntro = content.whyWorksIntroTemplate
     .replace("{reason}", personalization.whyThisWorksReason);
+
+  if (!isMounted) {
+    return (
+      <main className="bg-gradient-pastel relative overflow-hidden min-h-screen">
+        <FeminineBlobs />
+        <FloatingDecor />
+      </main>
+    );
+  }
 
   return (
     <>

@@ -9,6 +9,8 @@ import {
 import { parseCustomerName } from '@/lib/payment-api';
 import { sendPaymentConfirmation } from '@/lib/aisensy';
 import { getProgramById } from '@/lib/programs';
+import { sendWebinarPaymentEmails } from '@/lib/webinar-email';
+import { findLeadByEmail } from '@/lib/supabase';
 
 interface PayUWebhookPayload {
   txnid: string;
@@ -141,6 +143,23 @@ async function handleSuccessfulPayment(payload: PayUWebhookPayload): Promise<voi
     console.log('[PayU Webhook] Supabase sync result:', supabaseResult);
   } catch (error) {
     console.error('[PayU Webhook] Failed to sync to Supabase:', error);
+  }
+
+  // Send Webinar emails (customer + internal) after confirmed payment
+  if ((payload.udf1 || '').toLowerCase() === 'webinar') {
+    try {
+      const lead = await findLeadByEmail(payload.email);
+      await sendWebinarPaymentEmails({
+        customerEmail: payload.email,
+        customerName: payload.firstname,
+        customerPhone: payload.phone || '',
+        sessionDateIso: lead?.program_start_date ?? null,
+        paymentId: payload.mihpayid || payload.txnid,
+        gateway: 'payu',
+      });
+    } catch (error) {
+      console.error('[PayU Webhook] Webinar email failed:', error);
+    }
   }
 
   // Sync to Wix CRM

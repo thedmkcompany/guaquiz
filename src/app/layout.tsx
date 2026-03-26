@@ -8,6 +8,7 @@ import {
   GoogleTagManagerNoScript,
 } from "@/components/analytics";
 import { Header } from "@/components/ui/header";
+import SalesChatWidgetClientOnly from "@/components/ui/SalesChatWidgetClientOnly";
 import { defaultMetadata, siteConfig } from "@/lib/seo-config";
 import { generateWebSiteSchema } from "@/lib/structured-data";
 
@@ -84,6 +85,7 @@ export default function RootLayout({
         <Header variant="logo" />
         {children}
         <SpeedInsights />
+        <SalesChatWidgetClientOnly />
       </body>
     </html>
   );

@@ -1344,7 +1344,7 @@ export default function CircleLandingPage() {
               </p>
 
               <div className="mb-5 md:mb-8">
-                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹3,999</p>
+                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹4,999</p>
                 <p className="text-xs md:text-sm text-ivory/60">per month • Cancel anytime</p>
               </div>
 
@@ -1454,3 +1454,4 @@ export default function CircleLandingPage() {
     </main>
   );
 }
+

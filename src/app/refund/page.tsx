@@ -52,7 +52,7 @@ export default function RefundPolicyPage() {
                   We offer limited refunds based on the timing of your cancellation request and the extent of your participation in the program. Refunds are processed to the original payment method used during enrollment. Processing time for approved refunds is typically seven to fourteen business days from the date of approval, though this may vary depending on your financial institution.
                 </p>
                 <p className="text-forest/80 leading-relaxed">
-                  All refund requests must be submitted in writing through email to hello@thedmk.online or through our designated customer support channels. Verbal requests or messages in WhatsApp groups will not be considered valid cancellation requests.
+                  All refund requests must be submitted in writing through email to tech.thedmk@gmail.com or through our designated customer support channels. Verbal requests or messages in WhatsApp groups will not be considered valid cancellation requests.
                 </p>
               </section>
 
@@ -112,7 +112,7 @@ export default function RefundPolicyPage() {
 
                 <h3 className="text-lg font-subheader font-semibold text-forest mb-3">How to Request a Refund</h3>
                 <p className="text-forest/80 leading-relaxed mb-4">
-                  To request a refund, please send an email to hello@thedmk.online with the subject line &quot;Refund Request - [Your Full Name]&quot; and include your full name as registered, email address used during enrollment, program name and enrollment date, reason for requesting a refund, and any supporting documentation if applicable.
+                  To request a refund, please send an email to tech.thedmk@gmail.com with the subject line &quot;Refund Request - [Your Full Name]&quot; and include your full name as registered, email address used during enrollment, program name and enrollment date, reason for requesting a refund, and any supporting documentation if applicable.
                 </p>
 
                 <h3 className="text-lg font-subheader font-semibold text-forest mb-3">Review Process</h3>
@@ -177,7 +177,7 @@ export default function RefundPolicyPage() {
               <section>
                 <h2 className="text-xl font-headline font-bold text-forest mb-4">Refunds for Technical Issues</h2>
                 <p className="text-forest/80 leading-relaxed mb-4">
-                  If you experience technical difficulties preventing access to our services, please contact our support team immediately at hello@thedmk.online. We will work diligently to resolve technical issues within forty-eight hours.
+                  If you experience technical difficulties preventing access to our services, please contact our support team immediately at tech.thedmk@gmail.com. We will work diligently to resolve technical issues within forty-eight hours.
                 </p>
                 <p className="text-forest/80 leading-relaxed mb-4">
                   If we are unable to resolve technical issues that prevent your participation within a reasonable timeframe, we may offer a prorated refund, program extension, or program credit at our discretion.
@@ -200,7 +200,7 @@ export default function RefundPolicyPage() {
                   We are committed to addressing your concerns and finding fair solutions. If you have questions about this Refund Policy or need assistance with a refund request, please contact us:
                 </p>
                 <div className="bg-beige-light/50 rounded-xl p-4 text-sm text-forest/70 border border-forest/10">
-                  <p><strong>Email:</strong> hello@thedmk.online</p>
+                  <p><strong>Email:</strong> tech.thedmk@gmail.com</p>
                   <p className="mt-2"><strong>Mailing Address:</strong></p>
                   <p>THEDMK (OPC) Private Limited</p>
                   <p>Flat No. 102, Plot No. 57, Laxmi Nivas, Road No. 1, Jyothi Colony, Near AOC,</p>
@@ -230,3 +230,4 @@ export default function RefundPolicyPage() {
     </div>
   );
 }
+

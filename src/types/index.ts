@@ -181,7 +181,7 @@ export interface CircleStartDateSelection {
  * - 'coming-1st': The approaching 1st of the month (may be today if 1st before 6 AM IST)
  * - 'coming-15th': The approaching 15th of the month (may be today if 15th before 6 AM IST)
  */
-export type EssentialsStartDateOption = 'coming-1st' | 'coming-15th';
+export type ChallengeStartDateOption = 'coming-1st' | 'coming-15th';
 
 /**
  * Calculated Essentials start date with multiple formats.
@@ -194,9 +194,9 @@ export type EssentialsStartDateOption = 'coming-1st' | 'coming-15th';
  *
  * Similar to CircleStartDateSelection but for 1st/15th cadence.
  */
-export interface EssentialsStartDateSelection {
+export interface ChallengeStartDateSelection {
   /** Selected option (always the next upcoming date: 1st or 15th) */
-  option: EssentialsStartDateOption;
+  option: ChallengeStartDateOption;
   /** Date object for the selected 1st or 15th */
   date: Date;
   /** ISO 8601 string for API/database storage (UTC) */
@@ -206,6 +206,10 @@ export interface EssentialsStartDateSelection {
   /** True if the start date is today (1st or 15th before 6 AM IST) */
   isToday: boolean;
 }
+
+// Backward-compatible aliases while internal naming transitions from "Essentials" to "Challenge".
+export type EssentialsStartDateOption = ChallengeStartDateOption;
+export type EssentialsStartDateSelection = ChallengeStartDateSelection;
 
 /**
  * Webinar session date selection option.

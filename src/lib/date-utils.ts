@@ -9,7 +9,7 @@
  * @module date-utils
  */
 
-import type { CircleStartDateOption, CircleStartDateSelection, EssentialsStartDateOption, EssentialsStartDateSelection, WebinarSessionDateSelection } from '@/types';
+import type { CircleStartDateOption, CircleStartDateSelection, ChallengeStartDateOption, ChallengeStartDateSelection, WebinarSessionDateSelection } from '@/types';
 
 /**
  * IST timezone identifier for date calculations
@@ -349,7 +349,7 @@ export function getNext15thIST(): Date {
  * // Returns: February 1st, 2025 at 6:00 AM IST (comes before Feb 15th)
  * ```
  */
-export function getNextEssentialsDateIST(): Date {
+export function getNextChallengeDateIST(): Date {
   const next1st = getNext1stIST();
   const next15th = getNext15thIST();
 
@@ -375,7 +375,7 @@ export function getNextEssentialsDateIST(): Date {
  * formatEssentialsStartDate(date2, true); // "Today (1st)"
  * ```
  */
-export function formatEssentialsStartDate(date: Date, isToday?: boolean): string {
+export function formatChallengeStartDate(date: Date, isToday?: boolean): string {
   if (isToday) {
     const dayOfMonth = date.getDate();
     const suffix = dayOfMonth === 1 ? '1st' : '15th';
@@ -419,23 +419,28 @@ export function formatEssentialsStartDate(date: Date, isToday?: boolean): string
  * });
  * ```
  */
-export function calculateEssentialsStartDate(): EssentialsStartDateSelection {
-  const date = getNextEssentialsDateIST();
+export function calculateChallengeStartDate(): ChallengeStartDateSelection {
+  const date = getNextChallengeDateIST();
   const now = getCurrentISTDate();
   const isToday = isSameDay(date, now);
 
   // Determine which option this is based on the day of month
   const dayOfMonth = date.getDate();
-  const option: EssentialsStartDateOption = dayOfMonth === 1 ? 'coming-1st' : 'coming-15th';
+  const option: ChallengeStartDateOption = dayOfMonth === 1 ? 'coming-1st' : 'coming-15th';
 
   return {
     option,
     date,
     isoString: date.toISOString(),
-    displayString: formatEssentialsStartDate(date, isToday),
+    displayString: formatChallengeStartDate(date, isToday),
     isToday,
   };
 }
+
+// Backward-compatible exports for existing imports.
+export const getNextEssentialsDateIST = getNextChallengeDateIST;
+export const formatEssentialsStartDate = formatChallengeStartDate;
+export const calculateEssentialsStartDate = calculateChallengeStartDate;
 
 // ============================================================================
 // WEBINAR DATE UTILITIES

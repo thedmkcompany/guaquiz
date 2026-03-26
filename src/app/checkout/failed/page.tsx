@@ -107,7 +107,7 @@ export default function CheckoutFailedPage() {
         <p className="mt-8 text-sm text-forest/60 font-body">
           Need help?{" "}
           <a
-            href="mailto:hello@thedmk.online"
+            href="mailto:tech.thedmk@gmail.com"
             className="text-wine font-semibold hover:underline font-subheader"
           >
             Contact Support
@@ -117,3 +117,4 @@ export default function CheckoutFailedPage() {
     </div>
   );
 }
+

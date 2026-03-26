@@ -6,7 +6,7 @@ import Link from "next/link";
 import { getProgramBySlug, formatPrice } from "@/lib/programs";
 import { RazorpayCheckout } from "@/components/checkout";
 import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
-import { EssentialsStartDateSelector } from "@/components/checkout/EssentialsStartDateSelector";
+import { ChallengeStartDateSelector } from "@/components/checkout/EssentialsStartDateSelector";
 import { WebinarSessionSelector } from "@/components/checkout/WebinarSessionSelector";
 import { Shield, Lock } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
@@ -17,13 +17,13 @@ import {
 } from "@/lib/lead-storage";
 import {
   calculateCircleStartDate,
-  calculateEssentialsStartDate,
+  calculateChallengeStartDate,
   calculateWebinarSessionDate,
   getComingMondayIST,
   getFollowingMondayIST,
   getCurrentISTDate,
 } from "@/lib/date-utils";
-import type { CircleStartDateOption, CircleStartDateSelection, EssentialsStartDateSelection, WebinarSessionDateSelection } from "@/types";
+import type { CircleStartDateOption, CircleStartDateSelection, ChallengeStartDateSelection, WebinarSessionDateSelection } from "@/types";
 
 interface CustomerInfo {
   name: string;
@@ -57,7 +57,7 @@ export function CheckoutPageClient() {
 
   // Essentials program start date selection
   const isEssentialsProgram = programSlug === "essentials";
-  const [essentialsStartDate, setEssentialsStartDate] = useState<EssentialsStartDateSelection | undefined>();
+  const [essentialsStartDate, setEssentialsStartDate] = useState<ChallengeStartDateSelection | undefined>();
 
   // Webinar program session date
   const isWebinarProgram = programSlug === "webinar";
@@ -99,7 +99,7 @@ export function CheckoutPageClient() {
   // Calculate Essentials start date on mount
   useEffect(() => {
     if (isEssentialsProgram) {
-      const selection = calculateEssentialsStartDate();
+      const selection = calculateChallengeStartDate();
       setEssentialsStartDate(selection);
     }
   }, [isEssentialsProgram]);
@@ -382,7 +382,7 @@ export function CheckoutPageClient() {
                   {/* Essentials Start Date Selector */}
                   {isEssentialsProgram && essentialsStartDate && (
                     <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
-                      <EssentialsStartDateSelector startDate={essentialsStartDate} />
+                      <ChallengeStartDateSelector startDate={essentialsStartDate} />
                     </div>
                   )}
 

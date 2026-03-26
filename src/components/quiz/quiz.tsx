@@ -344,9 +344,27 @@ export function Quiz() {
           });
 
           if (!response.ok) {
-            // Log error but don't block user - data is saved locally
-            const errorText = await response.text().catch(() => 'Unknown error');
-            console.error("[Quiz] API sync failed:", response.status, errorText);
+            // Log error but don't block user - data is saved locally.
+            // 429 is expected when users retry quickly; treat as a soft warning.
+            const errorText = await response.text().catch(() => "Unknown error");
+            if (response.status === 429) {
+              if (process.env.NODE_ENV === "development") {
+                let retryAfterSeconds: number | null = null;
+                try {
+                  const parsed = JSON.parse(errorText) as { retryAfter?: number };
+                  retryAfterSeconds =
+                    typeof parsed.retryAfter === "number" ? parsed.retryAfter : null;
+                } catch {
+                  retryAfterSeconds = null;
+                }
+                const suffix = retryAfterSeconds
+                  ? ` Retry after ~${retryAfterSeconds}s.`
+                  : "";
+                console.warn("[Quiz] API sync rate-limited (non-blocking)." + suffix);
+              }
+            } else {
+              console.error("[Quiz] API sync failed:", response.status, errorText);
+            }
           }
         } catch (apiError) {
           // Network error - log but don't block user

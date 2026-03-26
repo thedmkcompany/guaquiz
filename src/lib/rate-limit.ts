@@ -19,6 +19,7 @@
  * | PAYMENT_VERIFY | 20 | 15 min | Payment verification per IP |
  * | PAYMENT_PER_EMAIL | 5 | 1 hour | Payment attempts per email |
  * | WEBHOOK | 100 | 1 min | Webhook endpoints |
+ * | CHAT | 30 | 15 min | Sales chat (Claude) per IP |
  *
  * @example
  * ```typescript
@@ -204,6 +205,11 @@ export const RATE_LIMITS = {
   PAYMENT_PER_EMAIL: {
     windowMs: 60 * 60 * 1000,
     maxRequests: 5,
+  },
+  /** Sales chat (Claude): 30 messages per 15 minutes per IP */
+  CHAT: {
+    windowMs: 15 * 60 * 1000,
+    maxRequests: 30,
   },
 } as const;
 

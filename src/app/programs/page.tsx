@@ -32,7 +32,7 @@ function ArrowRight({ className = "" }: { className?: string }) {
 export const metadata = getPageMetadata({
   title: "Our Programs - Find Your Perfect Transformation Path",
   description:
-    "Explore Glow Up Academy's transformation programs for Indian women. From ₹199 webinar to ₹1,20,000 premium 1:1 coaching. Choose your path: Essentials, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
+    "Explore Glow Up Academy's transformation programs for Indian women. From ₹199 webinar to premium 1:1 coaching. Choose your path: 24 Day Challenge, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
   keywords: [
     "transformation programs India",
     "women fitness programs",

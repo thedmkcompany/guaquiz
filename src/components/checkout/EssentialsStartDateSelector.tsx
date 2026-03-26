@@ -11,10 +11,10 @@
  */
 
 import { Calendar, Info } from 'lucide-react';
-import type { EssentialsStartDateSelection } from '@/types';
+import type { ChallengeStartDateSelection } from '@/types';
 
-interface EssentialsStartDateSelectorProps {
-  startDate: EssentialsStartDateSelection;
+interface ChallengeStartDateSelectorProps {
+  startDate: ChallengeStartDateSelection;
   className?: string;
 }
 
@@ -31,10 +31,10 @@ interface EssentialsStartDateSelectorProps {
  * <EssentialsStartDateSelector startDate={startDate} />
  * ```
  */
-export function EssentialsStartDateSelector({
+export function ChallengeStartDateSelector({
   startDate,
   className = '',
-}: EssentialsStartDateSelectorProps) {
+}: ChallengeStartDateSelectorProps) {
   const dayOfMonth = startDate.date.getDate();
   const isFirst = dayOfMonth === 1;
   const cohortName = isFirst ? '1st of Month' : '15th of Month';
@@ -88,3 +88,6 @@ export function EssentialsStartDateSelector({
     </div>
   );
 }
+
+// Backward-compatible export name.
+export const EssentialsStartDateSelector = ChallengeStartDateSelector;

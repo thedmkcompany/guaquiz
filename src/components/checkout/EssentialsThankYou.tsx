@@ -2,17 +2,17 @@
 
 import { Crown, Mail, Calendar } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
-import { formatEssentialsStartDate, getCurrentISTDate, isSameDay } from "@/lib/date-utils";
+import { formatChallengeStartDate, getCurrentISTDate, isSameDay } from "@/lib/date-utils";
 
-interface EssentialsThankYouProps {
+interface ChallengeThankYouProps {
   customerEmail: string;
   startDate?: Date | null;
 }
 
-export function EssentialsThankYou({ customerEmail, startDate }: EssentialsThankYouProps) {
+export function ChallengeThankYou({ customerEmail, startDate }: ChallengeThankYouProps) {
   const isStartingToday = startDate && isSameDay(startDate, getCurrentISTDate());
   const startDateFormatted = startDate
-    ? formatEssentialsStartDate(startDate, isStartingToday || undefined)
+    ? formatChallengeStartDate(startDate, isStartingToday || undefined)
     : null;
   return (
     <div className="min-h-screen bg-gradient-pastel font-body relative overflow-hidden flex items-center justify-center">
@@ -31,7 +31,7 @@ export function EssentialsThankYou({ customerEmail, startDate }: EssentialsThank
         {/* Main Content Card */}
         <div className="glass-card rounded-[2.5rem] shadow-float border border-white/60 p-8 md:p-12 text-center">
           <h1 className="text-3xl md:text-4xl font-bold font-headline text-forest mb-4">
-            Welcome to Essentials, Queen. <span className="text-3xl align-top">👑</span>
+            Welcome to 24 Day Challenge, Queen. <span className="text-3xl align-top">👑</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-wine font-medium font-subheader mb-6">
@@ -49,8 +49,8 @@ export function EssentialsThankYou({ customerEmail, startDate }: EssentialsThank
               </div>
               <p className="font-headline text-lg font-bold text-forest">
                 {isStartingToday
-                  ? "Your Essentials program unlocks today at 6 AM IST"
-                  : `Your Essentials program unlocks on ${startDateFormatted} at 6 AM IST`}
+                  ? "Your 24 Day Challenge program unlocks today at 6 AM IST"
+                  : `Your 24 Day Challenge program unlocks on ${startDateFormatted} at 6 AM IST`}
               </p>
               <p className="text-xs text-forest/60 mt-2 font-body">
                 All content will be accessible automatically on your start date
@@ -83,3 +83,6 @@ export function EssentialsThankYou({ customerEmail, startDate }: EssentialsThank
     </div>
   );
 }
+
+// Backward-compatible export name.
+export const EssentialsThankYou = ChallengeThankYou;

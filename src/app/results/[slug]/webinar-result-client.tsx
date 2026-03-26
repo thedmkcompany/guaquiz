@@ -715,7 +715,7 @@ export function WebinarResultClient({ program }: WebinarResultClientProps) {
               <div className="space-y-4 text-sm md:text-base text-charcoal/75 font-body leading-relaxed">
                 <p>
                   At the end of the 90-minute experience, we&apos;ll invite you to join our ongoing
-                  transformation community <span className="font-semibold text-forest">(₹3,999/month)</span> with a special webinar member discount.
+                  transformation community <span className="font-semibold text-forest">(₹4,999/month)</span> with a special webinar member discount.
                 </p>
 
                 <div className="flex flex-wrap gap-3 md:gap-4 my-6">

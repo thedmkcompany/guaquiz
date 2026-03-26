@@ -1,12 +1,5 @@
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import {
-  Section,
-  SectionHeading,
-  CTAButton,
-  TestimonialCard,
-  StatBlock,
-} from "@/components/landing";
 import { StructuredData } from "@/components/seo/StructuredData";
 import {
   generateOrganizationSchema,
@@ -14,29 +7,12 @@ import {
   combineSchemas,
 } from "@/lib/structured-data";
 import { getCDNUrl } from "@/lib/cdn";
-import { MobileLogoLoop } from "@/components/MobileLogoLoop";
 
 // Lazy load below-fold components
 const Footer = dynamic(
   () => import("@/components/ui/footer").then((m) => m.Footer),
   { ssr: true }
 );
-
-// Inline SVG icons to avoid lucide-react bundle
-function StarIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="0"
-      className={className}
-    >
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
-  );
-}
 
 function ArrowRightIcon({ className }: { className?: string }) {
   return (
@@ -56,52 +32,9 @@ function ArrowRightIcon({ className }: { className?: string }) {
   );
 }
 
-/*
-  HIGH-END SOFT UI DESIGN TOKENS:
-  - Super-rounded: rounded-[2rem] for cards, rounded-full for buttons
-  - Soft shadows: shadow-[0_20px_50px_rgba(0,0,0,0.06)]
-  - Glass effect: bg-white/70 backdrop-blur-xl border-white/40
-  - Floater layout: generous padding, frame borders
-*/
-
-// Testimonial data - images via CDN for optimization
-const testimonials = [
-  {
-    quote: "I went from inconsistent and unmotivated to unstoppable in 90 days. Disha taught me that discipline is the real luxury.",
-    name: "Mitali Sharma",
-    location: "Delhi",
-    role: "MBBS Student & Youtuber",
-    age: 23,
-    photoUrl: getCDNUrl("/images/misc/Photo of Woman in Confident Pose.png"),
-  },
-  {
-    quote: "Finally, I feel confident in my body AND my life. This isn't just fitness, it's complete transformation.",
-    name: "Aurvi Mishra",
-    location: "Pune",
-    role: "Purchase Executive",
-    age: 25,
-    photoUrl: getCDNUrl("/images/misc/Aurvi Before & After (empowered energy).png"),
-  },
-  {
-    quote: "The structure I needed without the pressure I dreaded. I show up for myself now, not from guilt, from love.",
-    name: "Dhreeti Vithlani",
-    location: "London",
-    role: "Actress",
-    age: 24,
-    photoUrl: getCDNUrl("/images/misc/Photo of woman, radiant smile.jpg"),
-  },
-];
-
-// Stats data - Updated with latest information
-const stats = [
-  { value: "5,000+", label: "Fitness sessions conducted" },
-  { value: "15,000+", label: "Women trained globally" },
-  { value: "40K+", label: "Instagram community" },
-];
-
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-pastel font-body text-forest">
+    <div className="min-h-screen bg-[#f7f3e8] font-body text-[#0f3c36]">
       {/* Structured Data for SEO */}
       <StructuredData
         data={combineSchemas(
@@ -111,345 +44,350 @@ export default function Home() {
       />
 
       <main>
-        {/* ============================================
-            HERO SECTION - Feminine & Aesthetic Design
-            ============================================ */}
-        <section className="relative min-h-[90svh] sm:min-h-[100svh] flex items-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 md:py-20 overflow-hidden">
-          {/* Dreamy Background - Simplified for Performance */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {/* Soft beige gradient orb - top right */}
-            <div className="absolute -top-32 -right-32 w-[600px] h-[600px] bg-gradient-to-br from-beige/60 via-beige-light/30 to-transparent rounded-full blur-3xl opacity-80" />
-            {/* Warm gold glow - left */}
-            <div className="absolute top-1/4 -left-20 w-[400px] h-[400px] bg-gradient-to-r from-gold/25 via-beige/20 to-transparent rounded-full blur-3xl" />
-            {/* Soft wine accent - bottom */}
-            <div className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-gradient-to-t from-wine/15 via-beige-light/10 to-transparent rounded-full blur-3xl" />
+        {/* Hero section */}
+        <section className="px-4 sm:px-6 lg:px-8 pt-12 sm:pt-16 pb-12">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-4xl mx-auto text-center">
+              <h1 className="font-accent italic text-4xl sm:text-6xl lg:text-7xl font-semibold leading-[1.08] sm:leading-[1.05] tracking-[0.005em] text-[#123b34]">
+                Ready to glow tf up?
+              </h1>
+              <p className="mt-4 px-2 sm:px-0 font-headline text-base sm:text-xl lg:text-2xl font-medium leading-[1.35] text-[#123b34]">
+                Made for Indian women juggling <span className="text-[#7e0f1d]">family</span>,{" "}
+                <span className="text-[#7e0f1d]">work</span>, and everything in between
+              </p>
+            </div>
+
+            <div className="mt-8 sm:mt-10 max-w-5xl mx-auto rounded-[1.75rem] overflow-hidden border border-[#0f3c36]/15 bg-[#efe7d6] shadow-[0_18px_40px_rgba(0,0,0,0.12)]">
+              <div className="relative aspect-video w-full">
+                <iframe
+                  className="h-full w-full"
+                  src="https://www.youtube.com/embed/mKAMswgUhxE?rel=0&modestbranding=1"
+                  title="Glow Up Academy Hero Video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
+              </div>
+            </div>
           </div>
+        </section>
 
-          {/* Main Content - Two Column Layout */}
-          <div className="relative z-10 w-full max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-12 items-center">
-              {/* Left Column - Text Content */}
-              <div className="text-center lg:text-left order-2 lg:order-1">
-                {/* Elegant Badge */}
-                <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-2.5 mb-6 sm:mb-8 rounded-full bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.06)] animate-fade-in">
-                  <div className="flex items-center gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <StarIcon key={i} className="w-3.5 h-3.5 fill-gold text-gold" />
-                    ))}
-                  </div>
-                  <span className="h-4 w-px bg-forest/20" />
-                  <span className="text-sm text-forest/70">
-                    Trusted by <span className="font-semibold text-forest">15,000+</span> women
-                  </span>
-                </div>
-
-                {/* Main Headline */}
-                <h1 className="font-headline text-3xl sm:text-4xl lg:text-5xl xl:text-[3.5rem] font-bold leading-tight sm:leading-[1.12] mb-5 sm:mb-6 md:mb-8">
-                  <span className="text-forest">Discover Your Path to</span>
-                  <br />
-                  <span className="relative inline-block">
-                    <span className="font-accent text-[1.1em] italic bg-gradient-to-r from-wine via-wine-light to-wine bg-clip-text text-transparent">
-                      Hot &amp; Unstoppable
-                    </span>
-                    {/* Decorative underline */}
-                    <svg className="absolute -bottom-1 left-0 w-full h-3 text-gold/40" viewBox="0 0 200 12" preserveAspectRatio="none">
-                      <path d="M0,8 Q50,0 100,8 T200,8" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
-                    </svg>
-                  </span>
-                  <br />
-                  <span className="text-forest">in 2 Minutes</span>
-                </h1>
-
-                {/* Subheadline */}
-                <p className="text-base sm:text-lg text-forest/70 max-w-lg mx-auto lg:mx-0 leading-relaxed mb-6 sm:mb-7 md:mb-8 font-body">
-                  <span className="font-semibold text-forest">15,000+ women</span> transformed their bodies, confidence, and lives.
-                  <span className="block mt-2 font-accent italic text-wine/70">
-                    Your personalized path starts here.
-                  </span>
+        {/* Reference-style system section (adapted to GUA brand/copy) */}
+        <section className="px-4 sm:px-6 lg:px-8 pb-20">
+          <div className="max-w-6xl mx-auto">
+            <div className="max-w-4xl mx-auto text-center px-6 sm:px-10 py-12 sm:py-16">
+              <div className="flex items-center justify-center gap-3 mb-8">
+                <span className="h-px w-8 sm:w-14 bg-[#c2a85a]/60" />
+                <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#0f3c36]/60">
+                  Women&apos;s Transformation System
                 </p>
+                <span className="h-px w-8 sm:w-14 bg-[#c2a85a]/60" />
+              </div>
 
-                {/* CTA Button */}
-                <div className="flex flex-col items-center lg:items-start gap-4 mb-9 sm:mb-12 md:mb-10">
-                  <a
-                    href="/quiz"
-                    className="group relative inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 bg-gradient-to-r from-wine via-wine to-wine-dark text-white font-semibold text-lg rounded-full shadow-[0_10px_40px_rgba(128,0,0,0.25)] hover:shadow-[0_15px_50px_rgba(128,0,0,0.35)] transition-all duration-500 hover:-translate-y-1.5 overflow-hidden"
-                  >
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                    <span className="relative z-10">Take the Quiz</span>
-                    <ArrowRightIcon className="w-5 h-5 relative z-10 group-hover:translate-x-1.5 transition-transform duration-300" />
-                  </a>
+              <h1 className="sm:hidden font-headline text-[2.5rem] leading-[1.08] tracking-[0.005em] text-[#123b34] mb-6 font-semibold">
+                <span className="block">You don&apos;t need more willpower.</span>
+                <span className="block">
+                  You need a <span className="font-accent italic text-[#7e0f1d]">system.</span>
+                </span>
+              </h1>
+              <h1 className="hidden sm:block font-headline text-5xl sm:text-6xl lg:text-7xl leading-[1.06] tracking-[0.01em] text-[#123b34] mb-6 font-semibold">
+                <span className="block">You don&apos;t need more willpower.</span>
+                <span className="block">
+                  You need a <span className="font-accent italic text-[#7e0f1d]">system.</span>
+                </span>
+              </h1>
 
-                  <p className="text-xs sm:text-sm text-forest/45 font-medium tracking-wide">
-                    Free • 2 Minutes • Personalized Results
+              <p className="max-w-3xl mx-auto text-base sm:text-xl leading-relaxed text-[#0f3c36]/75 mb-10">
+                GlowUp Academy&apos;s <strong>4-Pillar Integration Method</strong> helps you transform
+                your body, mindset, confidence, and lifestyle together, so results actually last.
+              </p>
+
+              <div className="max-w-4xl mx-auto mb-10 text-center">
+                <p className="font-subheader text-sm sm:text-base md:text-lg tracking-[0.04em] sm:tracking-[0.06em] text-[#0f3c36]/85 leading-relaxed flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:gap-x-4">
+                  <span><span className="font-headline text-[#0f3c36]">5,000+</span> <span>Sessions Conducted</span></span>
+                  <span className="hidden sm:inline text-[#0f3c36]/35">|</span>
+                  <span><span className="font-headline text-[#0f3c36]">98%</span> <span>stick with it</span></span>
+                  <span className="hidden sm:inline text-[#0f3c36]/35">|</span>
+                  <span><span className="font-headline text-[#0f3c36]">15,000+</span> <span>Women Transformed</span></span>
+                </p>
+              </div>
+
+              <a
+                href="#programs-section"
+                className="inline-flex items-center gap-2 bg-[#7e0f1d] text-[#f7f3e8] px-8 sm:px-10 py-4 text-xs sm:text-sm tracking-[0.2em] uppercase hover:bg-[#6b0c18] transition-colors"
+              >
+                Find Where I Start
+                <ArrowRightIcon className="w-4 h-4" />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Old-site style gallery section */}
+        <section className="px-4 sm:px-6 lg:px-8 pb-24">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-center font-headline text-3xl sm:text-4xl font-bold text-[#0f3c36] mb-8">
+              What Hot &amp; Unstoppable Looks Like
+            </h2>
+            <div className="flex gap-4 overflow-x-auto pb-2 snap-x snap-mandatory md:grid md:grid-cols-3 md:gap-5 md:overflow-visible">
+              {[
+                {
+                  src: "/images/misc/Photo of Woman in Confident Pose.png",
+                  alt: "Mitali transformation",
+                  quote:
+                    "I went from inconsistent and unmotivated to unstoppable in 90 days. Disha taught me that discipline is the real luxury.",
+                  name: "Mitali Sharma, Delhi",
+                  role: "MBBS Student & Youtuber, 23",
+                  initial: "M",
+                },
+                {
+                  src: "/images/misc/Aurvi Before & After (empowered energy).png",
+                  alt: "Aurvi transformation",
+                  objectPosition: "center 22%",
+                  quote:
+                    "Finally, I feel confident in my body AND my life. This isn't just fitness, it's complete transformation.",
+                  name: "Aurvi Mishra, Pune",
+                  role: "Purchase Executive, 25",
+                  initial: "A",
+                },
+                {
+                  src: "/images/misc/Photo of woman, radiant smile.jpg",
+                  alt: "Dhreeti transformation",
+                  quote:
+                    "The structure I needed without the pressure I dreaded. I show up for myself now, not from guilt, from love.",
+                  name: "Dhreeti Vithlani, London",
+                  role: "Actress, 24",
+                  initial: "D",
+                },
+              ].map((item) => (
+                <div key={item.src} className="snap-start shrink-0 w-[84vw] sm:w-[60vw] md:w-auto md:min-w-0 rounded-[1.75rem] overflow-hidden border border-[#0f3c36]/12 shadow-[0_16px_30px_rgba(0,0,0,0.08)] bg-white/70">
+                  <div className="relative aspect-[4/5] w-full">
+                    <Image
+                      src={getCDNUrl(item.src)}
+                      alt={item.alt}
+                      fill
+                      className="object-cover"
+                      style={item.objectPosition ? { objectPosition: item.objectPosition } : undefined}
+                      sizes="(max-width: 768px) 84vw, (max-width: 1024px) 60vw, 33vw"
+                    />
+                  </div>
+                  <div className="p-4 sm:p-5">
+                    <p className="text-[15px] leading-8 text-[#0f3c36]/85 italic min-h-[124px]">
+                      &ldquo;{item.quote}&rdquo;
+                    </p>
+                    <div className="h-px bg-[#0f3c36]/10 my-3" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-[#c2a85a]/80 text-[#0f3c36] font-semibold text-xs flex items-center justify-center">
+                        {item.initial}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-[#0f3c36] leading-tight">{item.name}</p>
+                        <p className="text-xs text-[#0f3c36]/55">{item.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Founder story section (reference-inspired split layout) */}
+        <section className="px-4 sm:px-6 lg:px-8 pb-24">
+          <div className="max-w-6xl mx-auto bg-[#f7f3e8] border border-[#0f3c36]/10">
+            <div className="grid lg:grid-cols-2">
+              <div className="p-4 sm:p-8 lg:p-10">
+                <div className="relative aspect-[4/5] w-full max-w-[420px] mx-auto rounded-[1.5rem] overflow-hidden">
+                  <Image
+                    src={getCDNUrl("/images/DMK/Disha Wine Blazer 2.png")}
+                    alt="Disha Methi Khandelwal, Founder of Glow Up Academy"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 1024px) 100vw, 420px"
+                  />
+                </div>
+                <div className="sm:hidden mt-3 max-w-[420px] mx-auto rounded-xl border border-[#c2a85a]/60 bg-[#fff8ea] px-3 py-2.5">
+                  <p className="text-xs leading-relaxed text-[#0f3c36]/90 font-semibold">
+                    Master&apos;s in Applied Finance | Health Coach | Certified STRONG Trainer | Corporate Wellness
+                    Expert | 10+ Years Experience
                   </p>
                 </div>
               </div>
 
-              {/* Right Column - DMK Image */}
-              <div className="flex justify-center lg:justify-end order-1 lg:order-2">
-                <div className="relative">
-                  {/* Decorative ring behind image */}
-                  <div className="absolute -inset-4 sm:-inset-6 rounded-full border-2 border-dashed border-gold/20 animate-spin-slow" />
-                  <div className="absolute -inset-8 sm:-inset-10 rounded-full border border-wine/10" />
+              <div className="px-4 sm:px-2 lg:px-2 py-4 sm:py-8 lg:py-12 flex flex-col justify-center">
+                <p className="font-accent italic text-[2.5rem] sm:text-5xl text-[#7e0f1d] mb-3">hello gorgeous</p>
+                <h3 className="font-headline text-3xl sm:text-5xl lg:text-6xl tracking-[0.015em] leading-[1.08] sm:leading-[1.03] text-[#7e0f1d] mb-5 sm:whitespace-nowrap">
+                  IT&apos;S YOUR FOUNDER,
+                </h3>
+                <div className="h-px w-24 bg-gradient-to-r from-[#c2a85a] to-transparent mb-4 sm:mb-7" />
 
-                  {/* Image container with elegant frame */}
-                  <div className="relative w-64 h-64 sm:w-80 sm:h-80 lg:w-[420px] lg:h-[420px] rounded-full overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.15)] ring-4 ring-white/80 ring-offset-4 ring-offset-transparent">
-                    {/* Hero Image - CDN optimized */}
-                    <Image
-                      src={getCDNUrl("/images/DMK/Hero Image Disha 2.png")}
-                      alt="Disha Methi Khandelwal - Transformation Architect"
-                      fill
-                      className="object-cover object-top"
-                      priority
-                      fetchPriority="high"
-                      sizes="(max-width: 640px) 256px, (max-width: 1024px) 320px, 420px"
-                      quality={80}
-                    />
-                    {/* Subtle vignette */}
-                    <div
-                      className="absolute inset-0 rounded-full pointer-events-none"
-                      style={{
-                        boxShadow: "inset 0 0 80px rgba(0,0,0,0.15)",
-                      }}
-                    />
-                  </div>
+                <div className="hidden sm:block space-y-4 font-subheader text-[15px] sm:text-[16px] leading-[1.7] tracking-[0.005em] text-[#0f3c36]/82 max-w-[62ch]">
+                  <p>
+                    Whether you found us through Instagram, transformations, or referrals, I&apos;m so glad you&apos;re here.
+                    Glow Up Academy was built because I kept asking myself: why are women expected to compromise on
+                    their body, confidence, and ambition?
+                  </p>
+                  <p>
+                    I left Chartered Accountancy to build this work. Since then, we&apos;ve delivered 5,000+ sessions
+                    and supported 15,000+ women globally with a method that integrates fitness, mindset, and lifestyle.
+                  </p>
+                  <p>
+                    This isn&apos;t about short-term motivation. It&apos;s a system designed to help you become strong,
+                    clear, and consistent in real life.
+                  </p>
+                  <p>
+                    If you&apos;re ready to become your next-level self, you&apos;re in the right place.
+                  </p>
+                </div>
+                <div className="sm:hidden max-w-[62ch] mt-1">
+                  <details className="rounded-xl border border-[#c2a85a]/50 bg-[#fff8ea]/70 px-4 py-3">
+                    <summary className="cursor-pointer list-none text-xs font-semibold uppercase tracking-[0.1em] text-[#7e0f1d]">
+                      Read more
+                    </summary>
+                    <div className="mt-3 space-y-3 font-subheader text-[15px] leading-[1.6] tracking-[0.005em] text-[#0f3c36]/82">
+                      <p>
+                        Whether you found us through Instagram, transformations, or referrals, I&apos;m so glad you&apos;re here.
+                        Glow Up Academy was built because I kept asking myself: why are women expected to compromise on
+                        their body, confidence, and ambition?
+                      </p>
+                      <p>
+                        I left Chartered Accountancy to build this work. Since then, we&apos;ve delivered 5,000+ sessions
+                        and supported 15,000+ women globally with a method that integrates fitness, mindset, and lifestyle.
+                      </p>
+                      <p>
+                        This isn&apos;t about short-term motivation. It&apos;s a system designed to help you become strong,
+                        clear, and consistent in real life.
+                      </p>
+                      <p>
+                        If you&apos;re ready to become your next-level self, you&apos;re in the right place.
+                      </p>
+                    </div>
+                  </details>
+                </div>
+                <div className="hidden sm:inline-flex mt-6 max-w-[62ch] rounded-2xl border border-[#c2a85a]/60 bg-[#fff8ea] px-4 sm:px-5 py-3 sm:py-3.5 shadow-[0_8px_20px_rgba(0,0,0,0.06)]">
+                  <p className="font-headline text-xs sm:text-sm font-bold tracking-[0.08em] text-[#0f3c36] uppercase leading-relaxed">
+                    Master&apos;s in Applied Finance | Health Coach | Certified STRONG Trainer | Corporate Wellness
+                    Expert | 10+ Years Experience
+                  </p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Mobile Logo Loop - Below Hero */}
-        <MobileLogoLoop className="mt-3" />
-
-        {/* ============================================
-            DISHA'S STORY SECTION
-            ============================================ */}
-        <Section maxWidth="3xl" className="relative py-10">
-          <SectionHeading className="text-forest">
-            Meet Disha, The Woman Who Chose Transformation Over Convention
-          </SectionHeading>
-
-          {/* Photo - Centered after headline */}
-          <div className="flex justify-center mb-8 sm:mb-10">
-            <div className="w-48 h-60 sm:w-56 sm:h-72 md:w-64 md:h-80 bg-forest rounded-[2rem] sm:rounded-[2.5rem] shadow-float overflow-hidden relative group">
-              <Image
-                src={getCDNUrl("/images/DMK/Disha Beige Blazer 2.png")}
-                alt="Disha Methi Khandelwal - Founder of Glow Up Academy"
-                fill
-                className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                sizes="(max-width: 640px) 192px, (max-width: 768px) 224px, 256px"
-                loading="lazy"
-                quality={75}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-forest/40 to-transparent" />
-            </div>
+        {/* Program tiers section */}
+        <section id="programs-section" className="px-4 sm:px-6 lg:px-8 pb-24">
+          <div className="max-w-6xl mx-auto mb-4 bg-[#047857] text-[#f7f3e8] text-center py-3 px-4 text-xs sm:text-sm uppercase tracking-[0.14em] font-semibold">
+              Limited slots available - book now
           </div>
-
-          {/* Text content - Glass card */}
-          <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] shadow-medium border border-white/40 overflow-hidden relative p-6 sm:p-8 md:p-10">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gold/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-
-            <div className="space-y-4 sm:space-y-5 text-forest/80 relative z-10">
-              <p className="text-lg sm:text-xl md:text-2xl font-medium text-forest font-headline">
-                Hi, I&apos;m Disha Methi Khandelwal, Founder of TheDMK &amp; Glow Up Academy.
-              </p>
-
-              <p className="text-sm sm:text-base leading-relaxed">
-                They called me crazy for leaving CA (Chartered Accountancy) to pursue fitness. CA is the ultimate safe career in India: prestigious, stable, respected. But I knew transformation was my calling, not accounting.
-              </p>
-
-              <p className="font-semibold text-forest text-sm sm:text-base border-l-2 border-gold pl-4">
-                That decision changed everything.
-              </p>
-
-              <p className="text-sm sm:text-base leading-relaxed">
-                Today, I&apos;ve conducted <strong>5,000+ fitness sessions</strong> and trained <strong>15,000+ women</strong> from Hyderabad professionals to NRIs across the globe. Not through crash diets or punishment, but through holistic transformation that combines fitness, nutrition, and sustainable lifestyle changes.
-              </p>
-
-              <p className="text-base sm:text-lg md:text-xl font-medium text-forest pt-2 font-headline">
-                Here&apos;s what I learned: Hot isn&apos;t just a body. It&apos;s a mindset, an aura, a life you design.
-              </p>
-
-              <p className="text-sm sm:text-base leading-relaxed">
-                This quiz reveals which transformation path is right for your goals, lifestyle, and timeline. Whether you need structure with flexibility, community accountability, or personalized coaching, you&apos;ll know in 2 minutes.
-              </p>
-
-              {/* Signature */}
-              <div className="pt-4 sm:pt-6">
-                <p className="font-accent text-2xl sm:text-3xl text-forest italic">
-                  TheDMK
-                </p>
-                <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-forest/60">
-                  Master&apos;s in Applied Finance | Health Coach | Certified STRONG Trainer | Corporate Wellness Expert | 10+ Years Experience
-                </p>
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* ============================================
-            HOW THIS WORKS SECTION
-            ============================================ */}
-        <Section maxWidth="5xl" className="relative overflow-hidden py-10">
-          {/* Decorative Blob */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-full bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none -z-10" />
-
-          <SectionHeading className="text-forest">How This Works</SectionHeading>
-
-          <ol className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-8 md:gap-8 lg:gap-10">
-            {[
-              {
-                step: 1,
-                title: "Answer 8 Questions",
-                description: "2 minutes. Your goals, lifestyle, and what you're ready for right now.",
-              },
-              {
-                step: 2,
-                title: "Get Your Personalized Path",
-                description: "Based on your answers, we'll recommend the exact program designed for you.",
-              },
-              {
-                step: 3,
-                title: "Start Your Transformation",
-                description: "Choose to begin immediately, or explore your options. No pressure. Just clarity.",
-              },
-            ].map((item) => (
-              <li
-                key={item.step}
-                className="group h-full"
-              >
-                <div className="glass-card rounded-[1.5rem] sm:rounded-[2rem] shadow-medium transition-all duration-500 hover:shadow-float hover:-translate-y-2 border border-white/50 hover:border-white/80 flex flex-col text-center p-6 sm:p-8 md:p-10">
-                  {/* Step number - pill shape with soft shadow */}
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 mx-auto mb-4 sm:mb-6 md:mb-8 rounded-full bg-gradient-to-br from-gold to-gold-dark flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500 shrink-0">
-                    <span className="font-headline text-xl sm:text-2xl md:text-3xl font-bold text-charcoal">
-                      {item.step}
-                    </span>
-                  </div>
-                  <h3 className="font-headline text-lg sm:text-xl md:text-2xl font-bold text-forest mb-3 sm:mb-4">
-                    {item.title}
-                  </h3>
-                  <p className="text-sm sm:text-base text-forest/70 leading-relaxed font-body">
-                    {item.description}
+          <div className="max-w-6xl mx-auto bg-[#f4efe4] border border-[#cdbf9a] p-6 sm:p-8 lg:p-10">
+            <div className="flex gap-5 overflow-x-auto overflow-y-visible pt-3 pb-2">
+              {[
+                {
+                  level: "LEVEL 0",
+                  name: "Trial Webinar",
+                  subtitle: "For the skeptic. Taste it before you commit to anything.",
+                  points: [
+                    "90-min masterclass with Disha that changes everything",
+                    "Experience the glowup framework",
+                    "Your questions answered in real time",
+                  ],
+                  price: "₹199 - one-time",
+                  cta: "Reserve My Spot",
+                  href: "/results/webinar",
+                  featured: false,
+                },
+                {
+                  level: "LEVEL 1 BEGINNER",
+                  name: "24 Day Challenge",
+                  subtitle: "Build your essentials at your own pace with real structure.",
+                  points: [
+                    "Working at your own pace",
+                    "Not just workouts, complete transformation",
+                    "Structure without pressure with weekly support calls",
+                  ],
+                  price: "₹1,999",
+                  cta: "Join the Challenge",
+                  href: "/results/essentials",
+                  featured: true,
+                },
+                {
+                  level: "LEVEL 2 BEGINNER TO INTERMEDIATE",
+                  name: "Circle Community",
+                  subtitle: "For women who fly higher with their tribe around them.",
+                  points: [
+                    "Monthly LIVE group coaching",
+                    "Private women's community",
+                    "Meal planning guidance - Indian friendly",
+                  ],
+                  price: "₹4,999/month",
+                  cta: "Join Circle",
+                  href: "/circle",
+                  featured: false,
+                },
+                {
+                  level: "LEVEL 3 - BEGINNER TO ADVANCE",
+                  name: "Elite Transform",
+                  subtitle: "1:1 attention so you dont fail this time",
+                  points: [
+                    "1:1 coaching - personalized just for you",
+                    "Expert women coaches to help you achieve your goals",
+                    "Guaranteed transformation",
+                  ],
+                  price: "Application + strategy call",
+                  cta: "Apply Now",
+                  href: "/transform",
+                  featured: false,
+                },
+              ].map((program) => (
+                <div key={program.name} className="min-w-[280px] md:min-w-[300px] lg:min-w-0 lg:flex-1 relative">
+                  {program.level === "LEVEL 1 BEGINNER" ? (
+                    <div className="absolute top-0 left-0 right-0 z-20 -translate-y-1/2 text-center bg-[#7e0f1d] py-1.5 text-[10px] font-semibold tracking-[0.14em] text-[#f7f3e8] uppercase shadow-[0_8px_18px_rgba(126,15,29,0.35)]">
+                      Start Here
+                    </div>
+                  ) : null}
+                  <div
+                    className={`border p-5 sm:p-6 flex flex-col min-h-[520px] ${
+                      program.featured
+                        ? "border-[#c2a85a] bg-[#fbf6ea]"
+                        : "border-[#cdbf9a] bg-[#f9f4e8]"
+                    }`}
+                  >
+                  <p className="text-[9px] sm:text-[10px] tracking-[0.04em] uppercase text-[#9e7f39] mb-2 whitespace-nowrap">
+                    <span className="font-bold">{(program.level.match(/^LEVEL\s+\d/) || [program.level])[0]}</span>
+                    {program.level.match(/^LEVEL\s+\d/) ? (
+                      <span className="font-normal"> {program.level.replace(/^LEVEL\s+\d/, "").trim()}</span>
+                    ) : null}
                   </p>
+                  <h3 className="font-headline text-4xl text-[#0f3c36] mb-2">{program.name}</h3>
+                  <p className="text-sm italic text-[#21453f]/85 mb-6 leading-relaxed">{program.subtitle}</p>
+                  <ul className="space-y-3 text-sm text-[#123b34] flex-1">
+                    {program.points.map((point) => (
+                      <li key={point} className="flex gap-2">
+                        <span className="text-[#9e7f39]">-</span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[#8e6f2a] text-sm mt-6 mb-4">{program.price}</p>
+                  <a
+                    href={program.href}
+                    className={`block text-center border px-4 py-3 text-xs tracking-[0.2em] uppercase transition-colors ${
+                      program.featured
+                        ? "bg-[#7e0f1d] border-[#7e0f1d] text-[#f7f3e8] hover:bg-[#6b0c18]"
+                        : program.cta === "Apply Now"
+                          ? "bg-[#7e0f1d] border-[#7e0f1d] text-[#f7f3e8] hover:bg-[#6b0c18]"
+                          : "border-[#9e7f39] text-[#0f3c36] hover:bg-[#efe5cb]"
+                    }`}
+                  >
+                    {program.cta}
+                  </a>
                 </div>
-              </li>
-            ))}
-          </ol>
-
-          <p className="mt-6 sm:mt-12 md:mt-16 text-center text-sm sm:text-base text-forest/80 max-w-2xl mx-auto italic font-medium">
-            No generic recommendations. No one-size-fits-all. Your answers determine your
-            perfect starting point. Because transformation only works when it fits YOUR life.
-          </p>
-        </Section>
-
-        {/* ============================================
-            CREDIBILITY / STATS SECTION
-            ============================================ */}
-        <Section maxWidth="5xl" className="py-10">
-          {/* Inner floater card for stats - Dark Forest Variant */}
-          <div className="p-6 sm:p-10 md:p-12 lg:p-16 rounded-[2rem] sm:rounded-[2.5rem] bg-forest text-ivory shadow-float relative overflow-hidden">
-             {/* Background glow */}
-             <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-             <div className="absolute bottom-0 left-0 w-64 h-64 bg-gold/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-
-            <div className="relative z-10">
-              <SectionHeading className="!mb-6 sm:!mb-10 md:!mb-12 text-ivory">The Results Speak</SectionHeading>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-8 md:gap-12 lg:gap-16 text-center">
-                {stats.map((stat, index) => (
-                  <StatBlock
-                    key={stat.label}
-                    value={stat.value}
-                    label={stat.label}
-                    className={
-                      index === 1
-                        ? "border-y border-white/10 sm:border-y-0 sm:border-x py-8 sm:py-0"
-                        : undefined
-                    }
-                  />
-                ))}
-              </div>
-
-              {/* Featured in - Glass pill */}
-              <div className="mt-10 sm:mt-12 md:mt-14 lg:mt-16 text-center">
-                <p className="text-xs sm:text-sm uppercase tracking-widest text-ivory/40 mb-4 sm:mb-5 font-subheader">
-                  Featured In
-                </p>
-                <div className="inline-flex items-center justify-center px-8 sm:px-10 py-3 sm:py-4 bg-white/5 backdrop-blur-md rounded-full border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group cursor-default">
-                  <span className="text-lg sm:text-xl text-ivory/90 font-headline font-medium tracking-wide group-hover:text-white transition-colors drop-shadow-sm">Telangana Today</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        {/* ============================================
-            TESTIMONIALS SECTION - Swipable Carousel
-            ============================================ */}
-        <Section maxWidth="6xl" className="py-10">
-          <SectionHeading className="text-forest">
-            What Hot &amp; Unstoppable Looks Like
-          </SectionHeading>
-
-          {/* Swipable Carousel Container */}
-          <div className="relative -mx-4 sm:-mx-6 lg:mx-0">
-            {/* Scroll Container */}
-            <div
-              className="flex gap-4 sm:gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth px-4 sm:px-6 lg:px-0 pb-4 scrollbar-hide"
-            >
-              {testimonials.map((testimonial) => (
-                <div
-                  key={testimonial.name}
-                  className="flex-shrink-0 w-[280px] sm:w-[320px] lg:w-[380px] snap-center"
-                >
-                  <TestimonialCard
-                    {...testimonial}
-                    variant="featured"
-                    asListItem={false}
-                  />
                 </div>
               ))}
             </div>
-
-            {/* Swipe Hint */}
-            <p className="text-center text-xs text-forest/40 mt-6 lg:hidden">
-              Swipe to see more
-            </p>
           </div>
-        </Section>
-
-        {/* ============================================
-            SECONDARY CTA SECTION - Floater Card
-            ============================================ */}
-        <Section maxWidth="3xl" className="pt-10 pb-14 sm:pb-24 md:pb-32">
-          <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] shadow-float border border-white/60 overflow-hidden relative flex flex-col text-center p-7 sm:p-10 md:p-14">
-             <div className="absolute inset-0 bg-gradient-to-tr from-gold/5 to-transparent pointer-events-none" />
-
-            <div className="relative z-10 w-full">
-              <h2 className="font-headline text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-forest mb-4 sm:mb-5 md:mb-6">
-                The DMK Woman doesn&apos;t Wait. She Acts.
-              </h2>
-
-              <p className="text-base sm:text-lg md:text-xl text-forest/80 mb-3 sm:mb-4 max-w-xl mx-auto">
-                Disha has trained 15,000+ women worldwide. You could be next.
-              </p>
-
-              <p className="text-base sm:text-lg md:text-xl font-semibold text-forest/90 mb-8 sm:mb-9 md:mb-10 max-w-xl mx-auto">
-                Building India&apos;s Most Confident Women Worldwide
-              </p>
-
-              <CTAButton href="/quiz">Discover Your Path</CTAButton>
-
-              <p className="mt-6 sm:mt-7 md:mt-8 text-xs sm:text-sm text-forest/50 font-medium">
-                Free | 2 Minutes | Personalized Results
-                <br />
-                No credit card required
-              </p>
-            </div>
-          </div>
-        </Section>
+        </section>
       </main>
 
       {/* Footer */}

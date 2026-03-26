@@ -82,10 +82,10 @@ export default function ContactPage() {
                     communication.
                   </p>
                   <a
-                    href="mailto:hello@thedmk.online"
+                    href="mailto:tech.thedmk@gmail.com"
                     className="inline-flex items-center gap-2 text-wine font-medium hover:text-wine-light font-subheader text-lg hover:underline underline-offset-4 transition-all"
                   >
-                    hello@thedmk.online
+                    tech.thedmk@gmail.com
                   </a>
                 </div>
               </div>
@@ -112,3 +112,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

@@ -236,16 +236,16 @@ export interface ProgramContent {
 
 const essentialsContent: ProgramContent = {
   // Hero Section
-  badge: "Essentials",
+  badge: "24 Day Challenge",
   heroHeadline: "Build Your Foundation - Become Unstoppable on Your Timeline",
   heroSubheadlineTemplate:
-    "{personalization} <em>Essentials</em> gives you everything you need to fall in love with working on yourself, at your own pace.",
+    "{personalization} <em>24 Day Challenge</em> gives you everything you need to fall in love with working on yourself, at your own pace.",
   heroImageAlt: "Woman working out at home, confident and empowered, morning light, peaceful energy",
 
   // Transformation Journey Section
   journeySectionHeadline: "This Is How You Become Unstoppable",
   journeyIntro:
-    "<em>Essentials</em> isn't a program. It's your personal transformation library - designed by Disha to help you build the body, confidence, and habits that make you feel powerful every single day.",
+    "<em>24 Day Challenge</em> isn't a program. It's your personal transformation library - designed by Disha to help you build the body, confidence, and habits that make you feel powerful every single day.",
 
   // 4 Pillars
   pillars: [
@@ -304,11 +304,11 @@ const essentialsContent: ProgramContent = {
   dishaHeadline: '"This Is the Foundation I Used"',
   dishaQuote: `When I left my CA studies to pursue transformation, I didn't have a fancy gym or expensive equipment.
 
-I built my foundation with the exact framework you're getting in <em>Essentials</em>: structured workouts you can do at home, holistic nutrition that feels sustainable, and daily habits that build discipline without pressure.
+I built my foundation with the exact framework you're getting in <em>24 Day Challenge</em>: structured workouts you can do at home, holistic nutrition that feels sustainable, and daily habits that build discipline without pressure.
 
 Over 5,000+ sessions later, this foundation has transformed 2,500+ women across India and around the world.
 
-It works. Because transformation isn't about perfection. It's about consistency. And <em>Essentials</em> gives you the structure to be consistent - on your timeline, in your space, at your pace.`,
+It works. Because transformation isn't about perfection. It's about consistency. And <em>24 Day Challenge</em> gives you the structure to be consistent - on your timeline, in your space, at your pace.`,
 
   // Investment Section
   investmentHeadline: "Your Investment in Becoming Unstoppable",
@@ -324,7 +324,7 @@ It works. Because transformation isn't about perfection. It's about consistency.
   ],
 
   // Why This Works Section
-  whyWorksHeadline: "Why <em>Essentials</em> Is Perfect for You",
+  whyWorksHeadline: "Why <em>24 Day Challenge</em> Is Perfect for You",
   whyWorksIntroTemplate: "You chose flexibility because {reason}.",
   whyWorksBenefits: [
     {
@@ -353,9 +353,9 @@ It works. Because transformation isn't about perfection. It's about consistency.
       location: "Mumbai",
       role: "Marketing Manager",
       age: 22,
-      membershipDuration: "Essentials Member",
+      membershipDuration: "24 Day Challenge Member",
       quote:
-        "At 22, I thought transformation was for later. Essentials showed me it's for now. The flexibility fits my crazy work schedule, and I'm building habits that will serve me for life. This is how you start your glow up era.",
+        "At 22, I thought transformation was for later. 24 Day Challenge showed me it's for now. The flexibility fits my crazy work schedule, and I'm building habits that will serve me for life. This is how you start your glow up era.",
       photoUrl: "/images/misc/Ishita G.jpg",
     },
     {
@@ -364,9 +364,9 @@ It works. Because transformation isn't about perfection. It's about consistency.
       location: "Dublin",
       role: "Corporate Professional",
       age: 25,
-      membershipDuration: "Essentials Member",
+      membershipDuration: "24 Day Challenge Member",
       quote:
-        "Living in Dublin, I needed something that worked with my timezone and my life. Essentials gave me that - structure I could access anytime, anywhere. I'm transforming on my terms, and that's the most empowering part.",
+        "Living in Dublin, I needed something that worked with my timezone and my life. 24 Day Challenge gave me that - structure I could access anytime, anywhere. I'm transforming on my terms, and that's the most empowering part.",
       photoUrl: "/images/misc/Roma N. .jpg",
     },
   ],
@@ -382,12 +382,12 @@ It works. Because transformation isn't about perfection. It's about consistency.
     {
       question: "What if I need extra support?",
       answer:
-        "Essentials includes weekly accountability check-ins and access to our community support. You're never alone - just working at your pace.",
+        "24 Day Challenge includes weekly accountability check-ins and access to our community support. You're never alone - just working at your pace.",
     },
     {
       question: "Can I upgrade later if I want more?",
       answer:
-        "Absolutely. Many Essentials members upgrade when they're ready for live workouts and group coaching. Start here, evolve when it feels right.",
+        "Absolutely. Many 24 Day Challenge members upgrade when they're ready for live workouts and group coaching. Start here, evolve when it feels right.",
     },
     {
       question: "Is this really enough to transform?",
@@ -397,7 +397,7 @@ It works. Because transformation isn't about perfection. It's about consistency.
     {
       question: "What if I've tried programs before and quit?",
       answer:
-        "That's exactly why Essentials works. It's designed for real life - not Instagram perfection. You work at your pace, with structure that supports you, not pressure that breaks you.",
+        "That's exactly why 24 Day Challenge works. It's designed for real life - not Instagram perfection. You work at your pace, with structure that supports you, not pressure that breaks you.",
     },
     {
       question: "Do I need any equipment?",
@@ -415,7 +415,7 @@ It works. Because transformation isn't about perfection. It's about consistency.
   upgradePath: {
     headline: "Want Live Community Support?",
     description:
-      "Many Essentials members add live workouts, group coaching, and sisterhood accountability when they're ready for that next level of transformation. If that sounds right for you now - or later - you can explore our live community program. Start with Essentials and upgrade anytime. No pressure. Just options.",
+      "Many 24 Day Challenge members add live workouts, group coaching, and sisterhood accountability when they're ready for that next level of transformation. If that sounds right for you now - or later - you can explore our live community program. Start with 24 Day Challenge and upgrade anytime. No pressure. Just options.",
     ctaText: "Explore Live Community Option",
     ctaHref: "/circle",
   },
@@ -423,7 +423,7 @@ It works. Because transformation isn't about perfection. It's about consistency.
   // Final CTA
   finalCtaHeadline: "Strong. Consistent. Unstoppable.",
   finalCtaSubheadline: "Enter your Glow Up Era Today Babe!",
-  finalCtaButtonText: "Join Essentials Now",
+  finalCtaButtonText: "Join 24 Day Challenge Now",
   trustReminder: "2,500+ women transformed. Cancel anytime. Start immediately.",
 };
 
@@ -551,7 +551,7 @@ This isn't theory. It's proven. It's what works.`,
       location: "Mumbai",
       role: "Teacher",
       age: 34,
-      membershipDuration: "Started with Webinar, Now Essentials Member",
+      membershipDuration: "Started with Webinar, Now 24 Day Challenge Member",
       quote:
         "I needed proof before I could trust again. Webinar gave me exactly that. Now I'm building consistency I never thought possible.",
       photoUrl: "/images/testimonials/priya-k.jpg",
@@ -568,7 +568,7 @@ This isn't theory. It's proven. It's what works.`,
     {
       question: "What happens after the webinar ends?",
       answer:
-        "You'll be invited to join Circle or Essentials at a special rate. There's no automatic billing -you choose if and when to continue. No pressure, no tricks.",
+        "You'll be invited to join Circle or 24 Day Challenge at a special rate. There's no automatic billing -you choose if and when to continue. No pressure, no tricks.",
     },
     {
       question: "Why is the webinar so affordable?",

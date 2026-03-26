@@ -18,6 +18,9 @@ import { getCDNUrl } from "@/lib/cdn";
 // DATA CONSTANTS
 // =============================================================================
 
+/** Shown after <TransformBrand /> in hero microcopy (single source; avoids HMR/SSR text drift). */
+const TRANSFORM_INVESTMENT_TAGLINE = " is a premium 1:1 investment";
+
 const comparisonItems = [
   {
     item: "Your last international vacation",
@@ -87,7 +90,7 @@ const testimonials = [
     location: "Bangalore",
     profession: "Tech Executive",
     quote:
-      "I spent ₹2.5L on a Chanel bag last year without hesitation. When I told my husband I was investing ₹2L in TRANSFORM, I expected pushback. Instead, he said: 'Finally, you're prioritizing yourself the way you prioritize everyone else.' Three months in, he notices how much more present I am with our kids.",
+      "I spent ₹2.5L on a Chanel bag last year without hesitation. When I told my husband I was investing in TRANSFORM, I expected pushback. Instead, he said: 'Finally, you're prioritizing yourself the way you prioritize everyone else.' Three months in, he notices how much more present I am with our kids.",
   },
   {
     name: "Kavya S.",
@@ -112,7 +115,7 @@ const annualSpendingBreakdown = [
   {
     category: "Gym membership you barely use",
     monthly: "₹10-15K/month",
-    annual: "₹1.2L-₹1.8L/year",
+    annual: "₹1.2 lakh-₹1.8 lakh/year",
   },
   {
     category: "Online shopping (clothes, accessories)",
@@ -137,14 +140,14 @@ const transformClients = [
 
 const faqs = [
   {
-    question: "What if I can't afford ₹1,20,000 upfront?",
+    question: "What if I can't afford the full investment upfront?",
     answer:
       "We offer flexible payment plans through Razorpay. You can split the investment into EMI options that fit your budget. The strategy call (₹1,999) must be paid upfront, but it's credited back if you enroll.",
   },
   {
-    question: "How is this different from Circle or Essentials?",
+    question: "How is this different from Circle or 24 Day Challenge?",
     answer:
-      "TRANSFORM is 1:1 personal coaching with only 14 clients per year. Circle is group-based community coaching. Essentials is self-paced. If you want direct access to Disha, custom protocols, and personal accountability, TRANSFORM is your path.",
+      "TRANSFORM is 1:1 personal coaching with only 14 clients per year. Circle is group-based community coaching. 24 Day Challenge is self-paced. If you want direct access to Disha, custom protocols, and personal accountability, TRANSFORM is your path.",
   },
   {
     question: "What if I'm not based in India?",
@@ -347,14 +350,16 @@ export default function TransformLandingPage() {
 
           {/* Microcopy above CTA */}
           <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 backdrop-blur-sm rounded-3xl p-4 sm:p-6 md:p-8 mb-6 sm:mb-8 md:mb-10 max-w-3xl mx-4 sm:mx-auto border border-gold/20 shadow-lg">
-            <p className="font-body text-base md:text-lg text-forest/80 leading-relaxed">
+            <p
+              className="font-body text-base md:text-lg text-forest/80 leading-relaxed"
+              suppressHydrationWarning
+            >
               Women like you have invested in Chanel bags (₹2.5L), fancy lehngas (₹4L), cosmetic treatments (₹5L+).{" "}
-              <span className="font-headline font-bold text-wine">
-                <TransformBrand className="text-base md:text-lg" /> is
-                ₹1,20,000
+              <span className="font-headline font-bold text-wine" suppressHydrationWarning>
+                <TransformBrand className="text-base md:text-lg" />
+                {TRANSFORM_INVESTMENT_TAGLINE}
               </span>{" "}
-              to become the woman who owns all of it - body, confidence, and
-              presence.
+              to become the woman who owns all of it - body, confidence, and presence.
             </p>
           </div>
 
@@ -509,14 +514,13 @@ export default function TransformLandingPage() {
 
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
-            What Your ₹2L Could Buy vs.
+            What 10% of Your Expenses Could Buy vs.
             <br />
             <span className="text-wine">What It Could Make You Become</span>
           </h2>
 
           <p className="font-body text-base md:text-lg text-forest/80 text-center mb-8 max-w-2xl mx-auto leading-relaxed">
-            Let&apos;s be honest. You&apos;ve spent more than ₹2L on things
-            that depreciate:
+            Let&apos;s be honest. You&apos;ve spent 10% of your expenses on things that depreciate:
           </p>
 
           {/* Comparison Cards */}
@@ -560,7 +564,7 @@ export default function TransformLandingPage() {
           {/* The Real Comparison */}
           <div className="bg-gradient-to-br from-wine/5 via-beige-light/30 to-gold/5 rounded-3xl md:rounded-[2rem] p-8 md:p-12 max-w-3xl mx-auto shadow-xl border-2 border-gold/30">
             <p className="font-headline text-2xl md:text-4xl text-wine font-bold text-center mb-8">
-              ₹1,20,000 doesn&apos;t depreciate.
+              This investment doesn&apos;t depreciate.
               <br />
               <span className="text-gold">It compounds.</span>
             </p>
@@ -879,7 +883,7 @@ export default function TransformLandingPage() {
 
         <div className="max-w-5xl mx-auto relative z-10">
           <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-6 md:mb-8 px-2">
-            What ₹1,20,000 Gets You
+            What You Get
           </h2>
           <p className="font-accent text-lg md:text-xl text-wine text-center mb-12 max-w-2xl mx-auto">
             (And Why It&apos;s Worth More Than You&apos;re Paying)
@@ -988,7 +992,7 @@ export default function TransformLandingPage() {
                   With <TransformBrand className="text-sm md:text-base" />:
                 </p>
                 <p className="font-headline text-4xl md:text-6xl text-wine font-bold mb-6">
-                You save <strong className="text-wine">₹5,38,001</strong>
+                  You save a fortune
                 </p>
                 <p className="font-accent text-lg md:text-2xl text-forest/85 mb-8 leading-relaxed">
                   AND
@@ -1066,7 +1070,7 @@ export default function TransformLandingPage() {
       <FloralDivider />
 
       {/* =========================================================================
-          SECTION 8: LET'S TALK ABOUT WHAT ₹2L REALLY MEANS TO YOU
+          SECTION 8: LET'S TALK ABOUT WHAT THIS INVESTMENT REALLY MEANS TO YOU
           ========================================================================= */}
       <section className="relative px-5 md:px-8 py-12 md:py-24 bg-gradient-to-b from-beige-light/50 to-ivory">
         <DecorativeBlob
@@ -1076,7 +1080,7 @@ export default function TransformLandingPage() {
 
         <div className="max-w-4xl mx-auto relative z-10">
           <h2 className="font-headline text-[28px] leading-[1.2] md:text-4xl lg:text-5xl md:leading-tight font-bold text-forest text-center mb-10 md:mb-12 px-2">
-            Let&apos;s Talk About What ₹2L
+            Let&apos;s Talk About What This Investment
             <br />
             <span className="text-wine">Really Means to You</span>
           </h2>
@@ -1087,7 +1091,7 @@ export default function TransformLandingPage() {
           </p>
 
           <p className="font-accent text-lg md:text-xl text-wine text-center mb-12">
-            Let&apos;s be honest about what ₹1,20,000 represents:
+            Let&apos;s be honest about what this investment represents:
           </p>
 
           {/* Income Breakdown Cards */}
@@ -1167,7 +1171,7 @@ export default function TransformLandingPage() {
             <p className="font-accent text-lg md:text-2xl text-forest/85 mb-3 leading-relaxed">
               The question isn&apos;t{" "}
               <span className="text-wine font-semibold">
-                &ldquo;Can I afford ₹2L?&rdquo;
+                &ldquo;Can I afford this investment?&rdquo;
               </span>
             </p>
             <p className="font-headline text-xl md:text-3xl text-wine font-bold leading-tight">
@@ -1244,7 +1248,7 @@ export default function TransformLandingPage() {
             </p>
             <p className="font-body text-base md:text-lg text-forest/80 text-center leading-relaxed mb-6">
               <TransformBrand className="text-base md:text-lg" /> costs
-              ₹1,20,000. You&apos;ve been spending more than that annually on
+              more than you think. You&apos;ve been spending more than that annually on
               things that don&apos;t compound.
             </p>
             <p className="font-accent text-lg md:text-2xl text-forest/85 text-center leading-relaxed">
@@ -1335,7 +1339,7 @@ export default function TransformLandingPage() {
           </h2>
 
           <p className="font-accent text-xl md:text-3xl text-wine text-center mb-12 leading-tight">
-            ...isn&apos;t paying ₹1,20,000 for{" "}
+            ...isn&apos;t paying for{" "}
             <TransformBrand className="text-xl md:text-3xl" />.
             <br />
             It&apos;s staying exactly where you are.
@@ -1522,7 +1526,7 @@ export default function TransformLandingPage() {
                   <div className="space-y-2">
                     <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
                       <strong>If you&apos;re accepted into TRANSFORM:</strong>{" "}
-                      Your ₹1,999 is credited toward your ₹1,20,000 investment
+                      Your ₹1,999 is credited toward your TRANSFORM investment
                     </p>
                     <p className="font-body text-sm md:text-base text-forest/85 leading-relaxed">
                       <strong>

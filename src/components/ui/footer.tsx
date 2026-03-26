@@ -63,6 +63,10 @@ export function Footer({ variant = "default", className = "" }: FooterProps) {
   return (
     <footer className={`px-4 sm:px-6 lg:px-8 py-10 sm:py-12 bg-forest text-ivory rounded-t-[3rem] sm:rounded-t-[4rem] relative z-10 -mt-12 shadow-[0_-20px_50px_rgba(0,0,0,0.2)] ${className}`}>
       <div className="max-w-5xl mx-auto text-center">
+        <p className="font-subheader text-sm sm:text-base tracking-[0.14em] uppercase text-gold mb-8">
+          Let&apos;s make you HOT and UNSTOPPABLE
+        </p>
+
         {/* Logos */}
         <div className="flex items-center justify-center gap-8 mb-8">
           <Link href="/" className="hover:opacity-80 transition-opacity">

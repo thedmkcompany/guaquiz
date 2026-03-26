@@ -10,11 +10,11 @@
  *
  * | Tier | Price | Description |
  * |------|-------|-------------|
- * | Essentials | ₹1,999 | Entry-level, self-paced |
+ * | 24 Day Challenge | ₹1,999 | Entry-level, self-paced |
  * | Webinar | ₹199 | Low-commitment taster (upsells to Circle) |
- * | Circle | ₹3,999 | Community-driven group coaching |
+ * | Circle | ₹4,999 | Community-driven group coaching |
  * | Transform Strategy | ₹1,999 | 1:1 strategy session |
- * | Transform | ₹1,20,000 | 1:1 transformation |
+ * | Transform | Premium investment | 1:1 transformation |
  *
  * ## Usage
  *
@@ -25,7 +25,7 @@
  * const program = getProgramById('circle');
  * if (program) {
  *   console.log(`${program.name}: ${formatPrice(program.price)}`);
- *   // Output: "Circle: ₹3,999"
+ *   // Output: "Circle: ₹4,999"
  * }
  * ```
  */
@@ -45,7 +45,7 @@ export const programs: Program[] = [
   {
     id: "essentials",
     slug: "essentials",
-    name: "Essentials",
+    name: "24 Day Challenge",
     tagline: "Structure on your schedule.",
     description: "The complete system for women who rise on their own time. Everything you need, exactly when you need it.",
     price: 1999,
@@ -89,7 +89,7 @@ export const programs: Program[] = [
     name: "Circle",
     tagline: "Your tribe. Your transformation.",
     description: "Accountability meets sisterhood. Live workouts, weekly check-ins, and a community of unstoppable women.",
-    price: 3999,
+    price: 4999,
     currency: "INR",
     tier: "circle",
     features: [
@@ -180,7 +180,7 @@ const programsByTier = new Map<Program['tier'], Program>(
  * ```typescript
  * const program = getProgramById('circle');
  * if (program) {
- *   console.log(program.price); // 3999
+ *   console.log(program.price); // 4999
  * }
  * ```
  */
@@ -234,7 +234,7 @@ export function getAllPrograms(): Program[] {
  * @example
  * ```typescript
  * const directPrograms = getDirectPaymentPrograms();
- * // Returns: Essentials, Webinar, Circle, Transform Strategy
+ * // Returns: 24 Day Challenge, Webinar, Circle, Transform Strategy
  * ```
  */
 export function getDirectPaymentPrograms(): Program[] {
@@ -256,14 +256,14 @@ export function getHighTicketPrograms(): Program[] {
 /**
  * Formats a price for display with Indian locale formatting.
  *
- * @param price - The price in smallest currency unit (e.g., 3999 for ₹3,999)
+ * @param price - The price in smallest currency unit (e.g., 4999 for ₹4,999)
  * @param currency - ISO currency code (default: 'INR')
  * @returns Formatted price string with currency symbol
  *
  * @example
  * ```typescript
- * formatPrice(3999);        // "₹3,999"
- * formatPrice(120000);      // "₹1,20,000"
+ * formatPrice(4999);        // "₹4,999"
+ * formatPrice(120000);      // e.g. premium transform pricing display
  * formatPrice(100, 'USD');  // "$100"
  * ```
  */

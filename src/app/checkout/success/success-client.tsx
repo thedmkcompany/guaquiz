@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { getProgramBySlug } from "@/lib/programs";
-import { EssentialsThankYou } from "@/components/checkout/EssentialsThankYou";
+import { ChallengeThankYou } from "@/components/checkout/EssentialsThankYou";
 import { WebinarThankYou } from "@/components/checkout/WebinarThankYou";
 import { CircleThankYou } from "@/components/checkout/CircleThankYou";
 import { TransformThankYou } from "@/components/checkout/TransformThankYou";
@@ -22,7 +22,7 @@ export function SuccessPageClient() {
   // Route to program-specific thank you pages
   switch (programSlug) {
     case "essentials":
-      return <EssentialsThankYou customerEmail={customerEmail} startDate={startDate} />;
+      return <ChallengeThankYou customerEmail={customerEmail} startDate={startDate} />;
 
     case "webinar":
       return <WebinarThankYou customerEmail={customerEmail} sessionDate={startDate} />;

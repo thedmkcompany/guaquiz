@@ -4,7 +4,7 @@ import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 export const metadata: Metadata = getPageMetadata({
   title: "Circle - Your Sisterhood to Unstoppable",
   description:
-    "Join 100+ women in Circle - your transformation sisterhood. Live workouts 5x/week, 4-pillar system (fitness, beauty, finance, confidence), WhatsApp community, expert coaching. ₹3,999/month. Cancel anytime.",
+    "Join 100+ women in Circle - your transformation sisterhood. Live workouts 5x/week, 4-pillar system (fitness, beauty, finance, confidence), WhatsApp community, expert coaching. ₹4,999/month. Cancel anytime.",
   keywords: [
     "women fitness community",
     "transformation program",
@@ -28,3 +28,4 @@ export default function CircleLayout({
 }) {
   return <>{children}</>;
 }
+

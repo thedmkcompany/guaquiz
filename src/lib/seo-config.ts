@@ -37,7 +37,7 @@ export const siteConfig = {
   },
 
   contact: {
-    email: "hello@thedmk.online",
+    email: "tech.thedmk@gmail.com",
     phone: "+91-XXXX-XXXXXX", // Update with actual number
   },
 
@@ -128,9 +128,9 @@ export const defaultMetadata: Metadata = {
 
 export const programMetadata = {
   essentials: {
-    title: "Essentials - Build Your Foundation | Glow Up Academy",
+    title: "24 Day Challenge - Build Your Foundation | Glow Up Academy",
     description:
-      "Transform on your timeline with Essentials. ₹1,999 for lifetime access to fitness, beauty, finance & confidence modules. Self-paced transformation for unstoppable women.",
+      "Transform on your timeline with 24 Day Challenge. ₹1,999 for lifetime access to fitness, beauty, finance & confidence modules. Self-paced transformation for unstoppable women.",
     keywords: [
       "essentials program",
       "self-paced transformation",
@@ -156,7 +156,7 @@ export const programMetadata = {
   circle: {
     title: "Circle - Your Sisterhood to Unstoppable | Glow Up Academy",
     description:
-      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹3,999/month for community-driven transformation across fitness, beauty, finance & confidence.",
+      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹4,999/month for community-driven transformation across fitness, beauty, finance & confidence.",
     keywords: [
       "women fitness community",
       "live workouts India",
@@ -169,7 +169,7 @@ export const programMetadata = {
   transform: {
     title: "Transform - Complete 1:1 Transformation with Disha | Glow Up Academy",
     description:
-      "Premium 1:1 transformation with Disha. 6 months of personal coaching, custom plans, VIP support. ₹1,20,000 investment for complete life transformation.",
+      "Premium 1:1 transformation with Disha. 6 months of personal coaching, custom plans, and VIP support for complete life transformation.",
     keywords: [
       "personal transformation coach",
       "1:1 coaching India",
@@ -308,3 +308,5 @@ export function getOGImageUrl(
 
   return url.toString();
 }
+
+
