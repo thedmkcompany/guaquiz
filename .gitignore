@@ -262,3 +262,4 @@ public/**/*.mp4.tmp
 public/**/*.webm.tmp
 
 .vercel
+.env*.local

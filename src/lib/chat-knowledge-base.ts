@@ -24,13 +24,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     keywords: ["program", "programs", "course", "courses", "offer", "available", "options"],
-    answer: `Hey gorgeous, we have 4 offers:
-- Webinar — ₹199 one-time
-- 24 Day Challenge — ₹1,999/month
-- Circle — ₹4,999/month
-- Transform — starts with a ₹1,999 strategy call
-
-Each one fits a different level of support and accountability. If you're unsure, take the free 2-minute quiz and I'll help you pick the perfect fit: gua.thedmk.online/quiz`,
+    answer: `Perfect babe, let's do this. I'll ask one question at a time and match you to your best-fit plan.`,
   },
   {
     keywords: ["24 day challenge", "24day challenge", "24-day challenge", "essentials", "basic", "starter", "beginner"],

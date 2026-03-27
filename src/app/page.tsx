@@ -87,13 +87,13 @@ export default function Home() {
               <h1 className="sm:hidden font-headline text-[2.5rem] leading-[1.08] tracking-[0.005em] text-[#123b34] mb-6 font-semibold">
                 <span className="block">You don&apos;t need more willpower.</span>
                 <span className="block">
-                  You need a <span className="font-accent italic text-[#7e0f1d]">system.</span>
+                  You need a <span className="font-accent italic text-[#7e0f1d]">framework.</span>
                 </span>
               </h1>
               <h1 className="hidden sm:block font-headline text-5xl sm:text-6xl lg:text-7xl leading-[1.06] tracking-[0.01em] text-[#123b34] mb-6 font-semibold">
                 <span className="block">You don&apos;t need more willpower.</span>
                 <span className="block">
-                  You need a <span className="font-accent italic text-[#7e0f1d]">system.</span>
+                  You need a <span className="font-accent italic text-[#7e0f1d]">framework.</span>
                 </span>
               </h1>
 
@@ -160,7 +160,7 @@ export default function Home() {
                   initial: "D",
                 },
               ].map((item) => (
-                <div key={item.src} className="snap-start shrink-0 w-[84vw] sm:w-[60vw] md:w-auto md:min-w-0 rounded-[1.75rem] overflow-hidden border border-[#0f3c36]/12 shadow-[0_16px_30px_rgba(0,0,0,0.08)] bg-white/70">
+                <div key={item.src} className="snap-start shrink-0 w-[68vw] sm:w-[60vw] md:w-auto md:min-w-0 rounded-[1.75rem] overflow-hidden border border-[#0f3c36]/12 shadow-[0_16px_30px_rgba(0,0,0,0.08)] bg-white/70">
                   <div className="relative aspect-[4/5] w-full">
                     <Image
                       src={getCDNUrl(item.src)}
@@ -281,7 +281,7 @@ export default function Home() {
               Limited slots available - book now
           </div>
           <div className="max-w-6xl mx-auto bg-[#f4efe4] border border-[#cdbf9a] p-6 sm:p-8 lg:p-10">
-            <div className="flex gap-5 overflow-x-auto overflow-y-visible pt-3 pb-2">
+            <div className="flex gap-5 overflow-x-auto overflow-y-visible pt-3 pb-2 snap-x snap-mandatory">
               {[
                 {
                   level: "LEVEL 0",
@@ -340,7 +340,7 @@ export default function Home() {
                   featured: false,
                 },
               ].map((program) => (
-                <div key={program.name} className="min-w-[280px] md:min-w-[300px] lg:min-w-0 lg:flex-1 relative">
+                <div key={program.name} className="snap-start min-w-[68vw] sm:min-w-[300px] lg:min-w-0 lg:flex-1 relative">
                   {program.level === "LEVEL 1 BEGINNER" ? (
                     <div className="absolute top-0 left-0 right-0 z-20 -translate-y-1/2 text-center bg-[#7e0f1d] py-1.5 text-[10px] font-semibold tracking-[0.14em] text-[#f7f3e8] uppercase shadow-[0_8px_18px_rgba(126,15,29,0.35)]">
                       Start Here
