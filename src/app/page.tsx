@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { StructuredData } from "@/components/seo/StructuredData";
 import {
@@ -188,6 +189,30 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+              <Link
+                href="/testimonials"
+                className="md:hidden snap-start shrink-0 w-[68vw] sm:w-[60vw] rounded-[1.75rem] border border-[#7e0f1d]/30 bg-[#fff8ea] shadow-[0_16px_30px_rgba(0,0,0,0.08)] p-5 flex flex-col justify-center"
+              >
+                <p className="text-xs uppercase tracking-[0.12em] font-semibold text-[#7e0f1d]">
+                  More stories
+                </p>
+                <p className="mt-2 font-headline text-2xl text-[#123b34]">
+                  View more testimonials
+                </p>
+                <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#7e0f1d]">
+                  Open all
+                  <ArrowRightIcon className="w-4 h-4" />
+                </span>
+              </Link>
+            </div>
+            <div className="mt-8 hidden md:flex justify-center">
+              <Link
+                href="/testimonials"
+                className="inline-flex items-center gap-2 rounded-full border border-[#7e0f1d]/40 bg-[#fff8ea] px-5 py-2.5 text-sm font-semibold text-[#7e0f1d] shadow-[0_8px_20px_rgba(0,0,0,0.06)] hover:bg-[#f7f3e8] transition-colors"
+              >
+                View more testimonials
+                <ArrowRightIcon className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </section>
