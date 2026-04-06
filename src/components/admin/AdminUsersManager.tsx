@@ -59,7 +59,10 @@ export default function AdminUsersManager() {
         setError(data.error || "Failed to add user.");
         return;
       }
-      if (data.user) setUsers((prev) => [data.user, ...prev]);
+      if (data.user) {
+        const user = data.user;
+        setUsers((prev) => [user, ...prev]);
+      }
       setForm({ username: "", password: "", role: "coach" });
     } catch {
       setError("Network error while adding user.");
