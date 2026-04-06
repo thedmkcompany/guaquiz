@@ -3,13 +3,13 @@
 import { useSearchParams } from "next/navigation";
 import { getProgramBySlug } from "@/lib/programs";
 import { ChallengeThankYou } from "@/components/checkout/EssentialsThankYou";
-import { WebinarThankYou } from "@/components/checkout/WebinarThankYou";
 import { CircleThankYou } from "@/components/checkout/CircleThankYou";
 import { TransformThankYou } from "@/components/checkout/TransformThankYou";
 
 export function SuccessPageClient() {
   const searchParams = useSearchParams();
-  const programSlug = searchParams.get("program") || "";
+  const rawSlug = searchParams.get("program") || "";
+  const programSlug = rawSlug === "webinar" ? "essentials" : rawSlug;
   // Email is no longer passed via URL for privacy - use generic reference
   const customerEmail = "your registered email";
   const startDateParam = searchParams.get("start_date");
@@ -23,9 +23,6 @@ export function SuccessPageClient() {
   switch (programSlug) {
     case "essentials":
       return <ChallengeThankYou customerEmail={customerEmail} startDate={startDate} />;
-
-    case "webinar":
-      return <WebinarThankYou customerEmail={customerEmail} sessionDate={startDate} />;
 
     case "circle":
       return <CircleThankYou customerEmail={customerEmail} startDate={startDate} />;

@@ -5,9 +5,10 @@
  * Uses @vercel/og to create images with brand colors, fonts, and content.
  */
 
+import type { ReactNode } from "react";
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
-import { getProgramBySlug } from "@/lib/programs";
+import { getProgramBySlug, getPriceStrikeDisplay } from "@/lib/programs";
 
 export const runtime = "edge";
 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
     // Determine which OG image to generate
     let title = "Glow Up Academy";
     let subtitle = "Where Unstoppable Becomes Your Identity";
-    let price = "";
+    let price: ReactNode = null;
     let badge = "";
 
     if (program) {
@@ -37,7 +38,26 @@ export async function GET(request: NextRequest) {
       if (programData) {
         title = programData.name;
         subtitle = programData.tagline || programData.description;
-        price = `₹${programData.price.toLocaleString("en-IN")}`;
+        const { strikeText, saleText } = getPriceStrikeDisplay(programData);
+        price =
+          strikeText != null ? (
+            <>
+              <span
+                style={{
+                  textDecoration: "line-through",
+                  opacity: 0.85,
+                  marginRight: "16px",
+                  fontSize: "40px",
+                  fontWeight: 600,
+                }}
+              >
+                {strikeText}
+              </span>
+              <span>{saleText}</span>
+            </>
+          ) : (
+            saleText
+          );
         badge = programData.tier.toUpperCase();
       }
     } else if (page === "home") {

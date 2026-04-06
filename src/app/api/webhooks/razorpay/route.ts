@@ -21,7 +21,6 @@ import { parseCustomerName } from '@/lib/payment-api';
 import { maskEmail } from '@/lib/validation';
 import { sendPaymentConfirmation } from '@/lib/aisensy';
 import { getProgramById } from '@/lib/programs';
-import { sendWebinarPaymentEmails } from '@/lib/webinar-email';
 import type { RazorpayWebhookPayload, RazorpayPaymentEntity, RazorpaySubscriptionEntity } from '@/types/payment';
 
 type WebhookEventHandler = (payload: RazorpayWebhookPayload) => Promise<void>;
@@ -458,22 +457,6 @@ async function syncPaymentToCRM(payment: RazorpayPaymentEntity): Promise<void> {
 
   // Fetch lead once (used for email + sync status updates)
   const lead = await findLeadByEmail(email);
-
-  // Send Webinar emails (customer + internal) after confirmed payment
-  if (programId === 'webinar') {
-    try {
-      await sendWebinarPaymentEmails({
-        customerEmail: email,
-        customerName,
-        customerPhone: customerPhone || payment.contact || '',
-        sessionDateIso: lead?.program_start_date ?? null,
-        paymentId: payment.id,
-        gateway: 'razorpay',
-      });
-    } catch (error) {
-      console.error('[Razorpay Webhook] Webinar email failed:', error);
-    }
-  }
 
   // Sync to Wix CRM
   try {

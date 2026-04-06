@@ -1,17 +1,28 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { Footer } from "@/components/ui/footer";
-import { RazorpayCheckout } from "@/components/checkout/RazorpayCheckout";
 import { FAQAccordion } from "@/components/ui/faq-accordion";
-import { useRouter } from "next/navigation";
 import { getCheckoutPrefill, migrateLegacyStorage } from "@/lib/lead-storage";
-import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
-import { getComingMondayIST, getFollowingMondayIST, calculateCircleStartDate, getCurrentISTDate } from "@/lib/date-utils";
-import type { CircleStartDateOption } from "@/types";
 import { getCDNUrl } from "@/lib/cdn";
-import { getProgramById } from "@/lib/programs";
+import { ElegantButton } from "@/components/circle/elegant-button";
+import { HERO_WORKOUT_VIDEO_SHELL_CLASS } from "@/components/circle/hero-workout-video-shell";
+
+function HeroWorkoutVideoSkeleton() {
+  return (
+    <div
+      className={`${HERO_WORKOUT_VIDEO_SHELL_CLASS} bg-beige/25`}
+      aria-hidden
+    />
+  );
+}
+
+const HeroWorkoutVideo = dynamic(
+  () => import("@/components/circle/hero-workout-video"),
+  { ssr: false, loading: HeroWorkoutVideoSkeleton }
+);
 
 // ============================================
 // DATA CONSTANTS
@@ -182,7 +193,7 @@ function FloralDivider() {
 // COMPONENTS
 // ============================================
 
-function StickyCTABar({ visible, onScrollToPayment }: { visible: boolean; onScrollToPayment: () => void }) {
+function StickyCTABar({ visible, onScrollToWaitlist }: { visible: boolean; onScrollToWaitlist: () => void }) {
   return (
     <div
       className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -190,18 +201,16 @@ function StickyCTABar({ visible, onScrollToPayment }: { visible: boolean; onScro
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="bg-gradient-to-r from-forest via-forest to-forest-light h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
-        <div className="flex-1">
-          <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
-            CIRCLE Membership
-          </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹117<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
-        </div>
+      <div className="bg-gradient-to-r from-forest via-forest to-forest-light min-h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-2 sm:gap-x-8 sm:gap-y-2 px-4 sm:px-6 py-3 border-t border-gold/20">
+        <p className="text-[10px] sm:text-[11px] uppercase text-gold font-semibold tracking-[0.12em] sm:tracking-[0.15em] text-center sm:text-left max-w-[14rem] sm:max-w-none leading-tight">
+          CIRCLE — waitlist open
+        </p>
         <button
-          onClick={onScrollToPayment}
-          className="flex-shrink-0 h-12 px-7 bg-gradient-to-r from-gold to-gold-light text-forest font-semibold text-base rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.4)] active:scale-[0.96] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.5)]"
+          type="button"
+          onClick={onScrollToWaitlist}
+          className="h-11 sm:h-12 w-full max-w-[280px] sm:w-auto sm:max-w-none shrink-0 px-6 sm:px-8 bg-gradient-to-r from-gold to-gold-light text-forest font-semibold text-sm sm:text-base rounded-full shadow-[0_4px_20px_rgba(212,175,55,0.4)] active:scale-[0.96] transition-all duration-200 hover:shadow-[0_6px_24px_rgba(212,175,55,0.5)]"
         >
-          Join Now →
+          Join the waitlist →
         </button>
       </div>
     </div>
@@ -220,7 +229,7 @@ const pillarImages: Record<string, string> = {
 
 function PillarCard({ pillar, index }: { pillar: typeof pillars[0]; index: number }) {
   return (
-    <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-8 mb-6 overflow-hidden shadow-[0_8px_32px_rgba(1,45,38,0.25)]">
+    <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 mb-6 overflow-hidden shadow-[0_8px_32px_rgba(1,45,38,0.25)]">
       {/* Decorative glow */}
       <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-32 h-32 bg-wine/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
@@ -331,7 +340,7 @@ function TransformationCard({ transformation, index }: { transformation: typeof 
       </div>
 
       {/* Content */}
-      <div className="p-6 relative">
+      <div className="p-4 sm:p-6 relative">
         {/* Name and duration */}
         <div className="flex items-start justify-between mb-2">
           <div>
@@ -361,62 +370,31 @@ function TransformationCard({ transformation, index }: { transformation: typeof 
   );
 }
 
-function ElegantButton({
-  onClick,
-  children,
-  variant = "primary",
-  className = "",
-}: {
-  onClick: () => void;
-  children: React.ReactNode;
-  variant?: "primary" | "secondary";
-  className?: string;
-}) {
-  const baseStyles = "w-full h-14 font-semibold text-lg rounded-2xl transition-all duration-300 active:scale-[0.98]";
-  const variants = {
-    primary: "bg-gradient-to-r from-gold via-gold to-gold-light text-forest shadow-[0_4px_20px_rgba(212,175,55,0.35)] hover:shadow-[0_6px_28px_rgba(212,175,55,0.45)] hover:-translate-y-0.5",
-    secondary: "bg-gradient-to-r from-wine to-wine-light text-ivory shadow-[0_4px_20px_rgba(128,0,0,0.25)] hover:shadow-[0_6px_28px_rgba(128,0,0,0.35)] hover:-translate-y-0.5",
-  };
-
-  return (
-    <button onClick={onClick} className={`${baseStyles} ${variants[variant]} ${className}`}>
-      {children}
-    </button>
-  );
-}
-
 // ============================================
 // MAIN PAGE COMPONENT
 // ============================================
 
 export default function CircleLandingPage() {
-  const circleProgram = getProgramById('circle')!;
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
-  const [startDateOption, setStartDateOption] = useState<CircleStartDateOption>('coming-monday');
-  const [comingMonday, setComingMonday] = useState<Date>(new Date());
-  const [followingMonday, setFollowingMonday] = useState<Date>(new Date());
-  const [isTodayMonday, setIsTodayMonday] = useState(false);
+  const [waitlistMessage, setWaitlistMessage] = useState("");
+  const [waitlistSending, setWaitlistSending] = useState(false);
+  const [waitlistDone, setWaitlistDone] = useState(false);
+  const [waitlistErr, setWaitlistErr] = useState("");
   const heroRef = useRef<HTMLDivElement>(null);
   const paymentRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Preload LCP resources (video poster) for faster initial paint
   useEffect(() => {
-    // Preload the video poster through Next.js Image optimization
     const posterUrl = getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg");
-    const optimizedPosterUrl = `/_next/image?url=${encodeURIComponent(posterUrl)}&w=828&q=75`;
-
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = optimizedPosterUrl;
-    link.type = 'image/webp';
+    const link = document.createElement("link");
+    link.rel = "preload";
+    link.as = "image";
+    link.href = posterUrl;
     document.head.appendChild(link);
-
     return () => {
       document.head.removeChild(link);
     };
@@ -467,19 +445,8 @@ export default function CircleLandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  // Calculate Circle start date options (coming Monday and following Monday)
-  useEffect(() => {
-    const coming = getComingMondayIST();
-    const following = getFollowingMondayIST();
-    const today = getCurrentISTDate();
-    setComingMonday(coming);
-    setFollowingMonday(following);
-    setIsTodayMonday(today.getDay() === 1 && today.getHours() < 6);
-  }, []);
-
-  const scrollToPayment = () => {
+  const scrollToWaitlist = () => {
     if (paymentRef.current) {
-      // Respect reduced motion preference
       const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       paymentRef.current.scrollIntoView({
         behavior: prefersReducedMotion ? 'auto' : 'smooth'
@@ -487,16 +454,60 @@ export default function CircleLandingPage() {
     }
   };
 
-  const handlePaymentSuccess = (data: { paymentId: string; subscriptionId?: string }) => {
-    const startDateSelection = calculateCircleStartDate(startDateOption);
-    router.push(`/checkout/success?program=circle&payment_id=${data.paymentId}${data.subscriptionId ? `&subscription_id=${data.subscriptionId}` : ""}&start_date=${encodeURIComponent(startDateSelection.isoString)}`);
+  /** Reads live input values (fixes browser autofill not updating React controlled state). */
+  const getWaitlistFormValues = () => {
+    const nameEl = document.getElementById("circle-name") as HTMLInputElement | null;
+    const emailEl = document.getElementById("circle-email") as HTMLInputElement | null;
+    const phoneEl = document.getElementById("circle-phone") as HTMLInputElement | null;
+    const msgEl = document.getElementById("circle-waitlist-msg") as HTMLTextAreaElement | null;
+    return {
+      name: (nameEl?.value ?? customerName).trim(),
+      email: (emailEl?.value ?? customerEmail).trim(),
+      phone: (phoneEl?.value ?? customerPhone).trim(),
+      message: (msgEl?.value ?? waitlistMessage).trim(),
+    };
   };
 
-  const handlePaymentError = (error: string) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.error("Payment error:", error);
+  const handleWaitlistSubmit = async () => {
+    setWaitlistErr("");
+    const { name, email, phone, message } = getWaitlistFormValues();
+    // Keep React state in sync with what the user sees (autofill, paste, etc.)
+    setCustomerName(name);
+    setCustomerEmail(email);
+    setCustomerPhone(phone);
+    setWaitlistMessage(message);
+
+    if (!name || !email || !phone) {
+      setWaitlistErr("Please fill name, email, and phone.");
+      return;
     }
-    router.push(`/checkout/failed?error=${encodeURIComponent(error)}`);
+    if (!email.includes("@")) {
+      setWaitlistErr("Please enter a valid email.");
+      return;
+    }
+    setWaitlistSending(true);
+    try {
+      const res = await fetch("/api/circle/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          message,
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        setWaitlistErr(data.error ?? "Something went wrong. Try again.");
+        return;
+      }
+      setWaitlistDone(true);
+    } catch {
+      setWaitlistErr("Network error. Please try again.");
+    } finally {
+      setWaitlistSending(false);
+    }
   };
 
   return (
@@ -504,15 +515,15 @@ export default function CircleLandingPage() {
       {/* ============================================
           SWIPE 1: HERO SECTION
           ============================================ */}
-      <section ref={heroRef} className="relative px-5 pt-8 pb-12">
+      <section ref={heroRef} className="relative px-4 sm:px-5 md:px-8 lg:px-10 pt-6 sm:pt-8 pb-10 sm:pb-12 md:pb-16">
         {/* Decorative blobs */}
-        <DecorativeBlob className="w-64 h-64 -top-20 -right-20" />
-        <DecorativeBlob className="w-48 h-48 top-40 -left-24 opacity-60" />
+        <DecorativeBlob className="w-48 h-48 sm:w-64 sm:h-64 -top-16 sm:-top-20 -right-16 sm:-right-20" />
+        <DecorativeBlob className="w-36 h-36 sm:w-48 sm:h-48 top-32 sm:top-40 -left-16 sm:-left-24 opacity-60" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 max-w-5xl lg:max-w-6xl mx-auto w-full">
           {/* Badge */}
-          <div className="flex justify-center mb-5">
-            <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-wine/15 via-wine/10 to-gold/10 rounded-full border border-wine/20 shadow-[0_4px_20px_rgba(128,0,0,0.12)] backdrop-blur-sm">
+          <div className="flex justify-center mb-4 sm:mb-5">
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 sm:px-6 sm:py-3 bg-gradient-to-r from-wine/15 via-wine/10 to-gold/10 rounded-full border border-wine/20 shadow-[0_4px_20px_rgba(128,0,0,0.12)] backdrop-blur-sm">
               <span className="w-2 h-2 rounded-full bg-gradient-to-r from-wine to-gold animate-pulse" aria-hidden="true"></span>
               <span className="text-wine text-sm font-bold uppercase tracking-[0.2em]">
                 CIRCLE
@@ -522,7 +533,7 @@ export default function CircleLandingPage() {
           </div>
 
           {/* Hero Headline */}
-          <h1 className="font-headline text-[32px] leading-[1.15] text-forest mb-5 md:text-5xl text-center">
+          <h1 className="font-headline text-[clamp(1.75rem,5vw+0.5rem,3rem)] md:text-5xl leading-[1.12] sm:leading-[1.15] text-forest mb-4 sm:mb-5 text-center px-1">
             Your Sisterhood to
             <span className="block text-gold-dark">Unstoppable</span>
           </h1>
@@ -535,7 +546,7 @@ export default function CircleLandingPage() {
           </p>
 
           {/* Social Proof Line */}
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex flex-wrap items-center gap-3 mb-6 sm:mb-8">
             <div className="flex -space-x-2" aria-label="Community members" role="img">
               {[
                 getCDNUrl("/images/circle/1 mini image.jpg"),
@@ -559,53 +570,10 @@ export default function CircleLandingPage() {
             </p>
           </div>
 
-          {/* Hero Video */}
-          <div className="relative w-[calc(100%+40px)] -ml-5 aspect-[4/3] mb-8 rounded-none overflow-hidden">
-            {/* Video with luxury filters */}
-            <div
-              className="absolute inset-0"
-              style={{
-                filter: "brightness(1.02) contrast(0.92) saturate(0.7) sepia(0.15)",
-              }}
-            >
-              {/* Optimized poster image for LCP */}
-              <Image
-                src={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
-                alt=""
-                fill
-                className="object-cover"
-                sizes="100vw"
-                priority
-                quality={75}
-              />
-              <video
-                autoPlay
-                loop
-                muted
-                playsInline
-                preload="metadata"
-                className="absolute inset-0 w-full h-full object-cover"
-              >
-                <source src={getCDNUrl("/images/circle/Circle live workout session with community members.mp4")} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            </div>
-            {/* Elegant overlay */}
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: "linear-gradient(to top, rgba(1,45,38,0.5) 0%, transparent 50%, rgba(212,175,55,0.1) 100%)",
-              }}
-            />
-            {/* Decorative frame corners */}
-            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gold/40 z-10" />
-            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-gold/40 z-10" />
-            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-gold/40 z-10" />
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-gold/40 z-10" />
-          </div>
+          <HeroWorkoutVideo />
 
           {/* Primary CTA */}
-          <ElegantButton onClick={scrollToPayment}>
+          <ElegantButton onClick={scrollToWaitlist}>
             Join CIRCLE →
           </ElegantButton>
 
@@ -781,7 +749,7 @@ export default function CircleLandingPage() {
 
         <div className="px-5">
           {/* Secondary CTA */}
-          <ElegantButton onClick={scrollToPayment}>
+          <ElegantButton onClick={scrollToWaitlist}>
             Claim My Spot in CIRCLE
           </ElegantButton>
         </div>
@@ -793,48 +761,6 @@ export default function CircleLandingPage() {
           SWIPE 3: VISUAL PROOF
           ============================================ */}
       <section className="pb-12">
-        {/* Video Testimonial - Barsa Client Transformation */}
-        <div className="relative w-[calc(100%+40px)] -ml-5 aspect-video mb-8 overflow-hidden">
-          <div
-            className="absolute inset-0"
-            style={{
-              filter: "brightness(1.02) contrast(0.92) saturate(0.7) sepia(0.15)",
-            }}
-          >
-            {/* Poster image as placeholder until video is played */}
-            <Image
-              src={getCDNUrl("/images/circle/Circle community - women supporting women in transformation.jpg")}
-              alt="Barsa transformation story"
-              fill
-              className="object-cover"
-              sizes="100vw"
-              loading="lazy"
-              quality={75}
-            />
-            <video
-              playsInline
-              controls
-              preload="none"
-              className="absolute inset-0 w-full h-full object-cover"
-            >
-              <source src={getCDNUrl("/images/circle/Barsa Client Circle Transformation .mp4")} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          {/* Elegant overlay */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: "linear-gradient(to top, rgba(1,45,38,0.5) 0%, transparent 50%, rgba(212,175,55,0.1) 100%)",
-            }}
-          />
-          {/* Decorative frame corners */}
-          <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gold/40 z-10" />
-          <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-gold/40 z-10" />
-          <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-gold/40 z-10" />
-          <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-gold/40 z-10" />
-        </div>
-
         <div className="px-5">
           {/* Transformation Story Card */}
           <div className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-7 mb-8 overflow-hidden shadow-[0_8px_32px_rgba(1,45,38,0.3)]">
@@ -882,7 +808,7 @@ export default function CircleLandingPage() {
             <p className="text-forest/70">Ready to join?</p>
           </div>
 
-          <ElegantButton onClick={scrollToPayment}>
+          <ElegantButton onClick={scrollToWaitlist}>
             Yes, I&apos;m Ready for CIRCLE
           </ElegantButton>
         </div>
@@ -891,14 +817,14 @@ export default function CircleLandingPage() {
       {/* ============================================
           SWIPE 4: WHAT IS CIRCLE
           ============================================ */}
-      <section className="px-5 py-12 relative">
+      <section className="px-4 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-12 relative">
         <DecorativeBlob className="w-48 h-48 top-0 right-0 opacity-50" />
 
-        <div className="relative z-10">
-          <h2 className="font-headline text-[26px] text-forest mb-2 md:text-4xl leading-tight">
+        <div className="relative z-10 max-w-5xl lg:max-w-6xl mx-auto w-full">
+          <h2 className="font-headline text-[clamp(1.375rem,3vw+0.75rem,2.25rem)] text-forest mb-2 md:text-4xl leading-tight">
             Where Transformation Becomes
           </h2>
-          <h2 className="font-headline text-[26px] text-gold-dark mb-6 md:text-4xl">
+          <h2 className="font-headline text-[clamp(1.375rem,3vw+0.75rem,2.25rem)] text-gold-dark mb-6 md:text-4xl">
             Your Lifestyle
           </h2>
 
@@ -913,7 +839,7 @@ export default function CircleLandingPage() {
           </p>
 
           {/* Community Photo */}
-          <div className="relative w-[calc(100%+40px)] -ml-5 aspect-video mb-8 overflow-hidden">
+          <div className="relative w-[calc(100%+32px)] -ml-4 sm:w-[calc(100%+40px)] sm:-ml-5 md:w-full md:ml-0 aspect-video mb-6 sm:mb-8 overflow-hidden rounded-xl sm:rounded-2xl">
             <div
               className="absolute inset-0"
               style={{
@@ -925,7 +851,7 @@ export default function CircleLandingPage() {
                 alt="Circle community - women supporting women in transformation"
                 fill
                 className="object-cover"
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1152px"
                 loading="lazy"
                 quality={75}
               />
@@ -938,10 +864,10 @@ export default function CircleLandingPage() {
               }}
             />
             {/* Decorative frame corners */}
-            <div className="absolute top-4 left-4 w-8 h-8 border-l-2 border-t-2 border-gold/40 z-10" />
-            <div className="absolute top-4 right-4 w-8 h-8 border-r-2 border-t-2 border-gold/40 z-10" />
-            <div className="absolute bottom-4 left-4 w-8 h-8 border-l-2 border-b-2 border-gold/40 z-10" />
-            <div className="absolute bottom-4 right-4 w-8 h-8 border-r-2 border-b-2 border-gold/40 z-10" />
+            <div className="absolute top-2 left-2 sm:top-4 sm:left-4 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-t-2 border-gold/40 z-10" />
+            <div className="absolute top-2 right-2 sm:top-4 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-t-2 border-gold/40 z-10" />
+            <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 w-6 h-6 sm:w-8 sm:h-8 border-l-2 border-b-2 border-gold/40 z-10" />
+            <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 border-r-2 border-b-2 border-gold/40 z-10" />
           </div>
 
           {/* This Is For You If Checklist */}
@@ -965,7 +891,7 @@ export default function CircleLandingPage() {
 
           {/* CTA */}
           <div className="mt-8">
-            <ElegantButton onClick={scrollToPayment}>
+            <ElegantButton onClick={scrollToWaitlist}>
               This Is What I Need-Join CIRCLE
             </ElegantButton>
           </div>
@@ -1004,7 +930,7 @@ export default function CircleLandingPage() {
               {/* CTA after pillar 2 and 4 */}
               {(index === 1 || index === 3) && (
                 <div className="mb-8">
-                  <ElegantButton onClick={scrollToPayment}>
+                  <ElegantButton onClick={scrollToWaitlist}>
                     Join the Sisterhood
                   </ElegantButton>
                 </div>
@@ -1191,7 +1117,7 @@ export default function CircleLandingPage() {
         </div>
 
         {/* CTA */}
-        <ElegantButton onClick={scrollToPayment}>
+        <ElegantButton onClick={scrollToWaitlist}>
           I&apos;m Ready to Start This Week
         </ElegantButton>
       </section>
@@ -1201,11 +1127,11 @@ export default function CircleLandingPage() {
       {/* ============================================
           SWIPE 10: SOCIAL PROOF
           ============================================ */}
-      <section className="px-5 py-12 relative overflow-hidden">
+      <section className="px-4 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-ivory via-beige-light/30 to-ivory" />
         <DecorativeBlob className="w-48 h-48 top-20 -right-20 opacity-40" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 max-w-5xl lg:max-w-6xl mx-auto w-full">
           <div className="text-center mb-10">
             <p className="text-[10px] uppercase tracking-[0.2em] text-wine mb-3">Real Transformations</p>
             <h2 className="font-headline text-[24px] text-forest md:text-4xl">
@@ -1220,7 +1146,7 @@ export default function CircleLandingPage() {
           ))}
 
           {/* Group Workout Photos */}
-          <div className="grid grid-cols-2 gap-2 w-[calc(100%+40px)] -ml-5 mb-10">
+          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 md:gap-3 w-[calc(100%+32px)] -ml-4 sm:w-[calc(100%+40px)] sm:-ml-5 md:w-full md:ml-0 mb-8 sm:mb-10 rounded-xl sm:rounded-2xl overflow-hidden">
             {[
               getCDNUrl("/images/circle/Fitness Geetika Transformation.jpg.png"),
               getCDNUrl("/images/circle/Confidence Aurvi Before & After.jpg"),
@@ -1251,7 +1177,7 @@ export default function CircleLandingPage() {
           </div>
 
           {/* CTA */}
-          <ElegantButton onClick={scrollToPayment}>
+          <ElegantButton onClick={scrollToWaitlist}>
             Join Your girlies in CIRCLE
           </ElegantButton>
         </div>
@@ -1260,7 +1186,7 @@ export default function CircleLandingPage() {
       {/* ============================================
           SWIPE 11: FAQ
           ============================================ */}
-      <section className="px-5 py-12">
+      <section className="relative z-10 px-4 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-12 max-w-5xl lg:max-w-6xl mx-auto w-full">
         <div className="text-center mb-8">
           <p className="text-[10px] uppercase tracking-[0.2em] text-wine mb-3">Common Questions</p>
           <h2 className="font-headline text-[24px] text-forest md:text-4xl">
@@ -1274,21 +1200,21 @@ export default function CircleLandingPage() {
             key={index}
             faq={faq}
             isExpanded={expandedFaq === index}
-            onToggle={() => setExpandedFaq(expandedFaq === index ? null : index)}
+            onToggle={() => setExpandedFaq((prev) => (prev === index ? null : index))}
             variant="card"
           />
         ))}
       </section>
 
       {/* ============================================
-          SWIPE 12: FINAL CTA + PAYMENT
+          SWIPE 12: FINAL CTA + WAITLIST
           ============================================ */}
-      <section id="payment-section" className="px-5 py-12 relative overflow-hidden">
+      <section id="payment-section" className="px-4 sm:px-5 md:px-8 lg:px-10 py-10 sm:py-12 relative overflow-hidden">
         <DecorativeBlob className="w-64 h-64 -top-20 -left-20 opacity-40" />
 
-        <div className="relative z-10">
+        <div className="relative z-10 max-w-5xl lg:max-w-6xl mx-auto w-full">
           {/* Disha's Message */}
-          <div className="relative bg-gradient-to-br from-wine via-wine to-wine-dark text-ivory rounded-3xl p-8 mb-10 overflow-hidden shadow-[0_8px_32px_rgba(128,0,0,0.3)]">
+          <div className="relative bg-gradient-to-br from-wine via-wine to-wine-dark text-ivory rounded-2xl sm:rounded-3xl p-5 sm:p-7 md:p-8 mb-8 sm:mb-10 overflow-hidden shadow-[0_8px_32px_rgba(128,0,0,0.3)]">
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-ivory/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
@@ -1296,16 +1222,16 @@ export default function CircleLandingPage() {
             <div className="relative z-10">
               <span className="text-5xl text-ivory/30 font-accent absolute -top-2 left-0">&ldquo;</span>
 
-              <div className="pt-6 space-y-4">
-                <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
+              <div className="pt-4 sm:pt-6 space-y-3 sm:space-y-4">
+                <p className="text-base sm:text-lg leading-[1.7] font-accent italic text-ivory/95">
                   Here&apos;s what I know: Transformation isn&apos;t a solo journey.
                   Every woman who&apos;s risen has had her girlies beside her.
                 </p>
-                <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
+                <p className="text-base sm:text-lg leading-[1.7] font-accent italic text-ivory/95">
                   CIRCLE is where you stop doing this alone. Where discipline feels like
                   love. Where your girlies show up for you-and you show up for them.
                 </p>
-                <p className="text-lg leading-[1.7] font-accent italic text-ivory/95">
+                <p className="text-base sm:text-lg leading-[1.7] font-accent italic text-ivory/95">
                   Your tribe is waiting. Let&apos;s rise together.
                 </p>
               </div>
@@ -1331,7 +1257,7 @@ export default function CircleLandingPage() {
           </div>
 
           {/* Final CTA Container */}
-          <div ref={paymentRef} className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-3xl p-6 md:p-10 text-center mb-10 overflow-hidden shadow-[0_8px_40px_rgba(1,45,38,0.35)]">
+          <div ref={paymentRef} className="relative bg-gradient-to-br from-forest via-forest to-forest-dark text-ivory rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-10 text-center mb-8 sm:mb-10 overflow-hidden shadow-[0_8px_40px_rgba(1,45,38,0.35)]">
             {/* Decorative elements */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-64 bg-gold/10 rounded-full blur-3xl -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-40 h-40 bg-wine/10 rounded-full blur-2xl translate-y-1/2 translate-x-1/2" />
@@ -1340,104 +1266,106 @@ export default function CircleLandingPage() {
               <p className="text-xs uppercase tracking-[0.2em] text-gold/80 mb-2 md:mb-3">Join Us</p>
               <h2 className="font-headline text-[22px] md:text-[28px] mb-2 md:mb-3">Your Queens Are Waiting</h2>
               <p className="text-sm md:text-base text-ivory/80 mb-4 md:mb-6">
-                CIRCLE starts this Monday. Your transformation starts today.
+                Join the waitlist — the team will follow up when it&apos;s your turn.
               </p>
 
-              <div className="mb-5 md:mb-8">
-                <p className="text-3xl md:text-4xl font-headline font-bold text-gold mb-1">₹4,999</p>
-                <p className="text-xs md:text-sm text-ivory/60">per month • Cancel anytime</p>
-              </div>
+              {waitlistDone && (
+                <div className="rounded-2xl bg-ivory/10 border border-gold/30 px-4 py-5 text-center text-ivory mb-6 max-w-sm mx-auto">
+                  <p className="font-headline text-lg text-gold mb-1">You&apos;re on the list</p>
+                  <p className="text-sm text-ivory/80">
+                    We received your details. The team will reach out soon — check spam just in case.
+                  </p>
+                </div>
+              )}
 
               {/* Payment Form */}
-              <div className="space-y-2.5 md:space-y-3 mb-5 md:mb-8 text-left max-w-sm mx-auto">
+              <div className="space-y-2.5 md:space-y-3 mb-5 md:mb-8 text-left w-full max-w-sm sm:max-w-md mx-auto">
                 <div>
                   <label htmlFor="circle-name" className="sr-only">Your Name</label>
                   <input
                     id="circle-name"
+                    name="name"
                     type="text"
                     placeholder="Your Name *"
+                    autoComplete="name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     required
                     aria-required="true"
-                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                    disabled={waitlistDone}
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all disabled:opacity-50"
                   />
                 </div>
                 <div>
                   <label htmlFor="circle-email" className="sr-only">Your Email</label>
                   <input
                     id="circle-email"
+                    name="email"
                     type="email"
                     placeholder="Your Email *"
+                    autoComplete="email"
                     value={customerEmail}
                     onChange={(e) => setCustomerEmail(e.target.value)}
                     required
                     aria-required="true"
-                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                    disabled={waitlistDone}
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all disabled:opacity-50"
                   />
                 </div>
                 <div>
                   <label htmlFor="circle-phone" className="sr-only">Phone Number with Country Code</label>
                   <input
                     id="circle-phone"
+                    name="phone"
                     type="tel"
-                    placeholder="WA Number (+919876543210) *"
+                    placeholder="WhatsApp (+91…) *"
+                    autoComplete="tel"
+                    inputMode="tel"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
                     required
                     aria-required="true"
-                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all"
+                    disabled={waitlistDone}
+                    className="w-full h-11 md:h-14 px-4 md:px-5 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/50 transition-all disabled:opacity-50"
                   />
                 </div>
                 {/* Validation message */}
-                {(!customerName.trim() || !customerEmail.trim() || !customerPhone.trim()) && (
-                  <p className="text-ivory/60 text-xs text-center">* All fields are required</p>
+                {!waitlistDone && (
+                  <p className="text-ivory/60 text-xs text-center">
+                    Name, email, and WhatsApp with country code (e.g. +919398141595) are required.
+                  </p>
+                )}
+                {!waitlistDone && (
+                  <div>
+                    <label htmlFor="circle-waitlist-msg" className="sr-only">
+                      Anything you want us to know (optional)
+                    </label>
+                    <textarea
+                      id="circle-waitlist-msg"
+                      rows={3}
+                      placeholder="Anything you want us to know? (optional)"
+                      value={waitlistMessage}
+                      onChange={(e) => setWaitlistMessage(e.target.value)}
+                      className="w-full mt-2 px-4 md:px-5 py-3 rounded-xl md:rounded-2xl bg-ivory/10 border border-ivory/20 text-ivory text-sm md:text-base placeholder:text-ivory/40 focus:outline-none focus:ring-2 focus:ring-gold/50 resize-y min-h-[88px]"
+                    />
+                  </div>
                 )}
               </div>
 
-              {/* Circle Start Date Selector */}
-              <CircleStartDateSelector
-                value={startDateOption}
-                onChange={setStartDateOption}
-                comingMondayDate={comingMonday}
-                followingMondayDate={followingMonday}
-                isTodayMonday={isTodayMonday}
-                className="mb-5 md:mb-6"
-              />
-
-              {/* Razorpay Checkout */}
-              {customerName.trim() && customerEmail.trim() && customerEmail.includes('@') && customerPhone.trim() ? (
-                <RazorpayCheckout
-                  amount={circleProgram.price}
-                  programId={circleProgram.id}
-                  programName={circleProgram.name}
-                  customerEmail={customerEmail.trim()}
-                  customerName={customerName.trim()}
-                  customerPhone={customerPhone.trim()}
-                  isSubscription={circleProgram.isSubscription}
-                  razorpayPlanId={circleProgram.razorpayPlanId}
-                  onSuccess={handlePaymentSuccess}
-                  onError={handlePaymentError}
-                  buttonText="Join CIRCLE Now"
-                  className="w-full h-12 md:h-14 bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:to-gold text-forest font-semibold text-base md:text-lg rounded-xl md:rounded-2xl shadow-[0_4px_24px_rgba(212,175,55,0.4)] hover:shadow-[0_6px_32px_rgba(212,175,55,0.5)] transition-all duration-300"
-                  programStartDate={calculateCircleStartDate(startDateOption)}
-                />
-              ) : (
-                <button
-                  disabled
-                  className="w-full h-12 md:h-14 bg-ivory/20 text-ivory/50 font-semibold text-base md:text-lg rounded-xl md:rounded-2xl cursor-not-allowed transition-all duration-300"
-                  aria-disabled="true"
-                >
-                  Enter your details to continue
-                </button>
+              {waitlistErr && (
+                <p className="text-center text-sm text-red-300 mb-4 max-w-sm mx-auto">{waitlistErr}</p>
               )}
 
-              {/* Trust signals */}
-              <div className="flex items-center justify-center gap-4 mt-6 text-ivory/50 text-xs">
-                <span>◈ Secure payment</span>
-                <span>•</span>
-                <span>Cancel anytime</span>
-              </div>
+              {!waitlistDone && (
+                <button
+                  type="button"
+                  disabled={waitlistSending}
+                  onClick={() => void handleWaitlistSubmit()}
+                  className="w-full max-w-sm sm:max-w-md mx-auto block text-center h-12 md:h-14 bg-gradient-to-r from-gold via-gold to-gold-light hover:from-gold-light hover:to-gold disabled:opacity-50 disabled:cursor-not-allowed text-forest font-semibold text-base md:text-lg rounded-xl md:rounded-2xl shadow-[0_4px_24px_rgba(212,175,55,0.4)] transition-all duration-300 mb-6"
+                >
+                  {waitlistSending ? "Sending…" : "Submit waitlist"}
+                </button>
+              )}
             </div>
           </div>
 
@@ -1445,10 +1373,10 @@ export default function CircleLandingPage() {
       </section>
 
       {/* Sticky CTA Bar */}
-      <StickyCTABar visible={showStickyBar} onScrollToPayment={scrollToPayment} />
+      <StickyCTABar visible={showStickyBar} onScrollToWaitlist={scrollToWaitlist} />
 
       {/* Add padding at bottom for sticky bar */}
-      <div className="h-20 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
+      <div className="h-28 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
 
       <Footer />
     </main>

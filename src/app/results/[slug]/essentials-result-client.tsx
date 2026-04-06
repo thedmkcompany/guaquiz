@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { Program } from "@/types";
-import { formatPrice } from "@/lib/programs";
+import { getPriceStrikeDisplay } from "@/lib/programs";
 import {
   getProgramContent,
   getFullQuizPersonalization,
@@ -34,8 +34,10 @@ import {
   Wallet,
   Heart,
   Star,
+  ChevronDown,
 } from "lucide-react";
 import { getCDNUrl } from "@/lib/cdn";
+import { cn } from "@/lib/utils";
 
 // Lazy load MobileLogoLoop - below fold
 const MobileLogoLoop = dynamic(
@@ -60,7 +62,16 @@ const renderHTML = (htmlString: string) => {
   return <span dangerouslySetInnerHTML={{ __html: htmlString }} />;
 };
 
-function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string }) {
+function StickyCTABar({
+  visible,
+  ctaHref,
+  program,
+}: {
+  visible: boolean;
+  ctaHref: string;
+  program: Program;
+}) {
+  const { strikeText, saleText } = getPriceStrikeDisplay(program);
   return (
     <div
       className={`fixed bottom-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -68,12 +79,21 @@ function StickyCTABar({ visible, ctaHref }: { visible: boolean; ctaHref: string 
       }`}
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="bg-gradient-to-r from-forest via-forest to-forest-light h-[76px] shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
-        <div className="flex-1">
+      <div className="bg-gradient-to-r from-forest via-forest to-forest-light min-h-[76px] py-2 shadow-[0_-8px_32px_rgba(1,45,38,0.3)] flex items-center justify-between px-5 border-t border-gold/20">
+        <div className="flex-1 min-w-0 pr-2">
           <p className="text-[11px] uppercase text-gold font-semibold tracking-[0.15em]">
             ESSENTIALS
           </p>
-          <p className="text-[22px] font-headline font-bold text-ivory">₹67<span className="text-sm font-body font-normal text-ivory/70">/day</span></p>
+          <p className="text-lg sm:text-[22px] font-headline font-bold text-ivory leading-tight">
+            {strikeText ? (
+              <span className="text-sm sm:text-base line-through text-ivory/55 font-body font-normal mr-1.5 sm:mr-2">
+                {strikeText}
+              </span>
+            ) : null}
+            {saleText}
+            <span className="text-xs sm:text-sm font-body font-normal text-ivory/70">/mo</span>
+          </p>
+          <p className="text-[10px] sm:text-xs text-ivory/55 font-body mt-0.5">~₹67/day</p>
         </div>
         <Link
           href={ctaHref}
@@ -103,6 +123,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
     }
   });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [openPillars, setOpenPillars] = useState<Record<number, boolean>>({});
   const [showStickyBar, setShowStickyBar] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -136,7 +157,12 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
     setExpandedFaq(expandedFaq === index ? null : index);
   };
 
+  const togglePillar = (index: number) => {
+    setOpenPillars((prev) => ({ ...prev, [index]: !prev[index] }));
+  };
+
   const ctaHref = `/checkout?program=${program.slug}`;
+  const priceDisplay = getPriceStrikeDisplay(program);
   const heroSubheadline = content.heroSubheadlineTemplate
     .replace("{personalization}", personalization.heroSubheadline);
   const whyWorksIntro = content.whyWorksIntroTemplate
@@ -205,9 +231,8 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
           <div className="container mx-auto px-6 md:px-8 lg:px-10 py-14 md:py-20 lg:py-24">
             <div className="max-w-3xl mx-auto">
               <FeminineHeader
-                eyebrow="Personalized for You"
-                title="Why This is Perfect for You"
-                subtitle="Based on your quiz answers, here's what we know about your transformation journey."
+                title="Made for the way you work best"
+                subtitle="You do not need more pressure - you need the right structure."
               />
 
               <div className="space-y-4">
@@ -228,24 +253,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                   </div>
                 </FeminineCard>
 
-                {/* Rise Style */}
-                <FeminineCard className="!p-5 md:!p-6">
-                  <div className="flex items-start gap-4">
-                    <FeminineIcon variant="wine" size="sm">
-                      <ArrowRight className="w-4 h-4" />
-                    </FeminineIcon>
-                    <div>
-                      <h3 className="font-subheader font-semibold text-forest mb-1">
-                        How You Rise
-                      </h3>
-                      <p className="text-sm md:text-base text-charcoal/75 font-body">
-                        {personalization.riseStyle}
-                      </p>
-                    </div>
-                  </div>
-                </FeminineCard>
-
-                {/* Time Commitment */}
+                {/* Commitment (replaces How you rise + quiz-based time card) */}
                 <FeminineCard className="!p-5 md:!p-6">
                   <div className="flex items-start gap-4">
                     <FeminineIcon variant="forest" size="sm">
@@ -256,7 +264,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                         Your Commitment
                       </h3>
                       <p className="text-sm md:text-base text-charcoal/75 font-body">
-                        {personalization.timeCommitment}
+                        With 40 min per day, you create real momentum & a perfectly balanced life.
                       </p>
                     </div>
                   </div>
@@ -295,49 +303,89 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                 subtitle={content.journeyIntro}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7">
+              <div className="max-w-3xl mx-auto space-y-3 md:space-y-4">
                 {content.pillars.map((pillar, index) => {
                   const IconComponent = pillarIcons[pillar.icon];
+                  const isOpen = !!openPillars[index];
+                  const panelId = `pillar-panel-${index}`;
                   return (
-                    <FeminineCard key={index} className="flex flex-col h-full">
-                      {/* Icon + Title */}
-                      <div className="flex items-start gap-4 mb-5">
+                    <div
+                      key={index}
+                      className={cn(
+                        "relative rounded-[1.25rem] border transition-all duration-300 bg-gradient-to-br from-white to-ivory overflow-hidden",
+                        isOpen
+                          ? "border-gold/30 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.06)]"
+                          : "border-beige/40 hover:border-beige-dark/30"
+                      )}
+                    >
+                      <button
+                        type="button"
+                        id={`pillar-trigger-${index}`}
+                        aria-expanded={isOpen}
+                        aria-controls={panelId}
+                        onClick={() => togglePillar(index)}
+                        className="w-full px-4 py-4 md:px-5 md:py-5 flex items-center gap-3 md:gap-4 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 focus-visible:ring-offset-2 rounded-[1.25rem]"
+                      >
                         <FeminineIcon variant="gold" size="md">
                           <IconComponent className="w-5 h-5 md:w-6 md:h-6" />
                         </FeminineIcon>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[10px] md:text-xs font-subheader uppercase tracking-wider text-gold-dark mb-1">
+                          <p className="text-[10px] md:text-xs font-subheader uppercase tracking-wider text-gold-dark mb-0.5">
                             {pillar.title}
                           </p>
-                          <h3 className="font-headline text-lg md:text-xl text-forest leading-tight">
+                          <h3 className="font-headline text-base md:text-xl text-forest leading-tight">
                             {pillar.headline}
                           </h3>
                         </div>
-                      </div>
+                        <div
+                          className={cn(
+                            "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300",
+                            isOpen ? "bg-gold text-white" : "bg-beige-light text-forest"
+                          )}
+                          aria-hidden
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "w-4 h-4 transition-transform duration-300",
+                              isOpen && "rotate-180"
+                            )}
+                          />
+                        </div>
+                      </button>
 
-                      <p className="text-sm md:text-base text-charcoal/75 font-body mb-5 leading-relaxed flex-grow">
-                        {pillar.description}
-                      </p>
-
-                      {/* Benefits with soft styling */}
-                      <div className="bg-beige-light/50 rounded-2xl p-4 md:p-5 border border-beige/40 mt-auto">
-                        <p className="text-xs md:text-sm font-subheader text-forest/70 mb-3 font-semibold flex items-center gap-2">
-                          <Heart className="w-3 h-3 text-wine/60" />
-                          What this means for you:
-                        </p>
-                        <ul className="space-y-1.5">
-                          {pillar.benefits.map((benefit, i) => (
-                            <li
-                              key={i}
-                              className="text-xs md:text-sm text-charcoal/70 font-body flex items-start gap-2"
-                            >
-                              <Star className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
-                              {benefit}
-                            </li>
-                          ))}
-                        </ul>
+                      <div
+                        id={panelId}
+                        role="region"
+                        aria-labelledby={`pillar-trigger-${index}`}
+                        className={cn(
+                          "overflow-hidden transition-all duration-300 ease-out",
+                          isOpen ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                        )}
+                      >
+                        <div className="px-4 pb-4 md:px-5 md:pb-5 border-t border-beige/30">
+                          <p className="text-sm md:text-base text-charcoal/75 font-body leading-relaxed pt-4 mb-5">
+                            {pillar.description}
+                          </p>
+                          <div className="bg-beige-light/50 rounded-2xl p-4 md:p-5 border border-beige/40">
+                            <p className="text-xs md:text-sm font-subheader text-forest/70 mb-3 font-semibold flex items-center gap-2">
+                              <Heart className="w-3 h-3 text-wine/60 flex-shrink-0" />
+                              What this means for you:
+                            </p>
+                            <ul className="space-y-1.5">
+                              {pillar.benefits.map((benefit, i) => (
+                                <li
+                                  key={i}
+                                  className="text-xs md:text-sm text-charcoal/70 font-body flex items-start gap-2"
+                                >
+                                  <Star className="w-3 h-3 text-gold mt-0.5 flex-shrink-0" />
+                                  {benefit}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
                       </div>
-                    </FeminineCard>
+                    </div>
                   );
                 })}
               </div>
@@ -438,10 +486,17 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
 
                     {/* Price with elegant presentation */}
                     <div className="my-8 md:my-10">
-                      <p className="font-headline text-4xl sm:text-5xl md:text-6xl text-forest mb-2">
-                        {formatPrice(program.price)}
-                        <span className="text-lg md:text-xl font-body text-charcoal/50">
-                          /month
+                      <p className="font-headline text-4xl sm:text-5xl md:text-6xl text-forest mb-2 flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1">
+                        {priceDisplay.strikeText ? (
+                          <span className="text-2xl sm:text-3xl md:text-4xl text-charcoal/45 line-through decoration-charcoal/35 font-body font-normal">
+                            {priceDisplay.strikeText}
+                          </span>
+                        ) : null}
+                        <span>
+                          {priceDisplay.saleText}
+                          <span className="text-lg md:text-xl font-body text-charcoal/50">
+                            /month
+                          </span>
                         </span>
                       </p>
                       <p className="text-xs md:text-sm text-charcoal/60 font-body">
@@ -550,12 +605,21 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
                           <div className="relative w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden shadow-soft">
                             <Image
                               src={
-                                testimonial.photoUrl ||
-                                "/images/placeholder-avatar.jpg"
+                                testimonial.photoUrl
+                                  ? getCDNUrl(testimonial.photoUrl)
+                                  : "/images/placeholder-avatar.jpg"
                               }
                               alt={testimonial.name}
                               fill
-                              className="object-cover"
+                              className={cn(
+                                "object-cover",
+                                testimonial.photoImageClassName
+                              )}
+                              style={
+                                testimonial.photoObjectPosition
+                                  ? { objectPosition: testimonial.photoObjectPosition }
+                                  : undefined
+                              }
                               sizes="80px"
                               onError={(e) => {
                                 e.currentTarget.style.display = "none";
@@ -697,7 +761,7 @@ export function EssentialsResultClient({ program }: EssentialsResultClientProps)
       </main>
 
       {/* Sticky CTA Bar */}
-      <StickyCTABar visible={showStickyBar} ctaHref={`/checkout?program=${program.slug}`} />
+      <StickyCTABar visible={showStickyBar} ctaHref={`/checkout?program=${program.slug}`} program={program} />
 
       {/* Add padding at bottom for sticky bar */}
       <div className="h-20 md:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />

@@ -1,6 +1,5 @@
 "use client";
 
-import { memo } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,7 +31,7 @@ interface FAQAccordionProps {
   className?: string;
 }
 
-export const FAQAccordion = memo(function FAQAccordion({
+export function FAQAccordion({
   faq,
   isExpanded,
   onToggle,
@@ -118,8 +117,9 @@ export const FAQAccordion = memo(function FAQAccordion({
   return (
     <div className={containerClasses}>
       <button
+        type="button"
         onClick={onToggle}
-        className={v.button}
+        className={cn(v.button, "cursor-pointer relative z-[1]")}
         aria-expanded={isExpanded}
       >
         <span className={v.question}>{faq.question}</span>
@@ -136,31 +136,18 @@ export const FAQAccordion = memo(function FAQAccordion({
         )}
       </button>
 
-      {/* Expandable content */}
-      {variant === "glass" ? (
-        // Glass variant uses conditional render
-        isExpanded && (
-          <div className={v.content}>
-            <p className={v.answer}>{faq.answer}</p>
-          </div>
-        )
-      ) : (
-        // Other variants use max-height animation
-        <div
-          className={cn(
-            "overflow-hidden transition-all duration-300",
-            isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-          )}
-        >
-          <div className={v.content}>
-            {"contentDivider" in v && v.contentDivider && <div className={v.contentDivider} />}
-            <p className={v.answer}>{faq.answer}</p>
-          </div>
+      {/* Expandable content — conditional mount only (grid/max-height accordions break in some browsers + Tailwind v4 scans) */}
+      {isExpanded ? (
+        <div className={v.content}>
+          {variant !== "glass" && "contentDivider" in v && v.contentDivider ? (
+            <div className={v.contentDivider} />
+          ) : null}
+          <p className={v.answer}>{faq.answer}</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
-});
+}
 
 // Re-export for backwards compatibility with existing FAQItem usage
 export { FAQAccordion as FAQItem };

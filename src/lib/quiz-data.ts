@@ -278,16 +278,10 @@ export const quizQuestions: QuizQuestion[] = [
  * 1. **Score Accumulation**: Sum weighted scores from each selected option
  * 2. **Edge Case Handling**:
  *    - High budget (q7-c/d) + low time (q4-a) → disqualify Transform
- *    - Circle/Webinar within 10 pts + commitment-hesitant (q6-b OR q8-c) → boost Webinar +15
+ *    - Circle vs internal “try first” (webinar) bucket within 10 pts + commitment-hesitant → boost that bucket +15 (merges into essentials)
  * 3. **Score Normalization**: Cap negative scores at 0
  * 4. **Winner Selection**: Highest score wins, with tie-breaker priority:
- *    transform > webinar > circle > essentials
- *
- * ## Webinar Optimization (Target: 35-40% routing)
- * - Q6-b (started/stopped): +35 webinar weight
- * - Q7-b (₹4-6K budget): +25 webinar weight (matches Circle)
- * - Q8-c (exploring): +22 webinar weight
- * - Tie-breaker boost: +15 when commitment-hesitant
+ *    transform > circle > essentials (retired webinar weight rolls into essentials)
  *
  * @param answers - Array of user's quiz answers
  * @returns Quiz result with recommended program and all scores
@@ -310,7 +304,7 @@ export const quizQuestions: QuizQuestion[] = [
  * //   programId: 'circle',
  * //   programSlug: 'circle',
  * //   score: 65,
- * //   allScores: { essentials: 0, webinar: 25, circle: 65, transform: 15 }
+ * //   allScores: { essentials: 25, circle: 65, transform: 15 }
  * // }
  * ```
  */
@@ -362,15 +356,26 @@ export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
     if (scores[key] < 0) scores[key] = 0;
   });
 
-  // Find the program with the highest score using tie-breaker priority
-  // Priority: transform > webinar > circle > essentials (per spec)
-  const priority = ["transform", "webinar", "circle", "essentials"];
-  const maxScore = Math.max(...Object.values(scores));
+  // Webinar program is retired — fold webinar points into essentials for routing
+  const essentialsTotal = scores.essentials + scores.webinar;
+  const finalScores = {
+    essentials: essentialsTotal,
+    circle: scores.circle,
+    transform: scores.transform,
+  };
 
-  let recommendedProgramId = "essentials"; // Default fallback
+  // Priority: transform > circle > essentials
+  const priority = ["transform", "circle", "essentials"] as const;
+  const maxScore = Math.max(
+    finalScores.essentials,
+    finalScores.circle,
+    finalScores.transform
+  );
+
+  let recommendedProgramId = "essentials";
 
   for (const programId of priority) {
-    if (scores[programId] === maxScore && maxScore > 0) {
+    if (finalScores[programId] === maxScore && maxScore > 0) {
       recommendedProgramId = programId;
       break;
     }
@@ -380,7 +385,7 @@ export function calculateQuizResult(answers: QuizAnswer[]): QuizResult {
     programId: recommendedProgramId,
     programSlug: recommendedProgramId,
     score: maxScore,
-    allScores: scores,
+    allScores: finalScores,
   };
 }
 

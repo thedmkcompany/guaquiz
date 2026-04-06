@@ -10,8 +10,7 @@
  *
  * | Tier | Price | Description |
  * |------|-------|-------------|
- * | 24 Day Challenge | ₹1,999 | Entry-level, self-paced |
- * | Webinar | ₹199 | Low-commitment taster (upsells to Circle) |
+ * | 24 Day Challenge | ₹1,999 (from ₹2,499) | Entry-level, self-paced |
  * | Circle | ₹4,999 | Community-driven group coaching |
  * | Transform Strategy | ₹1,999 | 1:1 strategy session |
  * | Transform | Premium investment | 1:1 transformation |
@@ -49,6 +48,7 @@ export const programs: Program[] = [
     tagline: "Structure on your schedule.",
     description: "The complete system for women who rise on their own time. Everything you need, exactly when you need it.",
     price: 1999,
+    originalPrice: 2499,
     currency: "INR",
     tier: "essentials",
     features: [
@@ -62,26 +62,6 @@ export const programs: Program[] = [
     // Configure these in Wix Dashboard and Razorpay Dashboard:
     wixPlanId: process.env.WIX_PLAN_ID_ESSENTIALS || "",
     razorpayPlanId: process.env.RAZORPAY_PLAN_ID_ESSENTIALS || "",
-  },
-  {
-    id: "webinar",
-    slug: "webinar",
-    name: "Webinar",
-    tagline: "Your first step into hot and unstoppable.",
-    description: "Experience DMK live. Test the energy, meet the method, and decide if this is your tribe.",
-    price: 199,
-    currency: "INR",
-    tier: "webinar",
-    features: [
-      "90-minute live transformation session",
-      "Full-body workout + mindset coaching",
-      "Community energy that ignites you",
-      "Direct path to Circle if you're ready",
-    ],
-    isSubscription: false,
-    upsellTo: "circle", // After webinar, upsell to Circle
-    wixPlanId: process.env.WIX_PLAN_ID_WEBINAR || "",
-    razorpayPlanId: process.env.RAZORPAY_PLAN_ID_WEBINAR || "",
   },
   {
     id: "circle",
@@ -234,7 +214,7 @@ export function getAllPrograms(): Program[] {
  * @example
  * ```typescript
  * const directPrograms = getDirectPaymentPrograms();
- * // Returns: 24 Day Challenge, Webinar, Circle, Transform Strategy
+ * // Returns: 24 Day Challenge, Circle, Transform Strategy
  * ```
  */
 export function getDirectPaymentPrograms(): Program[] {
@@ -277,6 +257,26 @@ export function formatPrice(price: number, currency: string = "INR"): string {
 }
 
 /**
+ * Strikethrough + sale labels when {@link Program.originalPrice} is above {@link Program.price}.
+ */
+export function getPriceStrikeDisplay(
+  program: Program,
+  currency: string = "INR"
+): { strikeText: string | null; saleText: string } {
+  const saleText = formatPrice(program.price, currency);
+  if (
+    program.originalPrice != null &&
+    program.originalPrice > program.price
+  ) {
+    return {
+      strikeText: formatPrice(program.originalPrice, currency),
+      saleText,
+    };
+  }
+  return { strikeText: null, saleText };
+}
+
+/**
  * Returns the brand color associated with a program tier.
  *
  * Used for consistent UI styling across the application.
@@ -293,7 +293,6 @@ export function formatPrice(price: number, currency: string = "INR"): string {
 export function getTierColor(tier: Program['tier']): string {
   const colors: Record<string, string> = {
     essentials: "gold",           // Gold - Prestige & warmth
-    webinar: "beige",             // Beige - Soft femininity
     circle: "wine",               // Wine - Passion & luxury
     transform: "forest",          // Forest - Strength & sophistication
     "transform-strategy": "wine", // Wine - Premium strategy call

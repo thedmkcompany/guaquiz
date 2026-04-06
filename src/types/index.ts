@@ -10,7 +10,7 @@
 /**
  * Union type for all valid program identifiers.
  */
-export type ProgramId = 'essentials' | 'webinar' | 'circle' | 'transform' | 'transform-strategy' | 'transform-strategy-call';
+export type ProgramId = 'essentials' | 'circle' | 'transform' | 'transform-strategy' | 'transform-strategy-call';
 
 /**
  * Program definition representing a transformation program offering.
@@ -38,7 +38,7 @@ export interface Program {
   requiresCall?: boolean; // If true, show Calendly instead of direct payment (e.g., Transform)
   calendlyUrl?: string; // Calendly booking URL for high-ticket items
   upsellTo?: string; // Program ID to upsell to after purchase (e.g., Webinar -> Circle)
-  tier: 'essentials' | 'webinar' | 'circle' | 'transform' | 'transform-strategy'; // Program tier for styling/logic
+  tier: 'essentials' | 'circle' | 'transform' | 'transform-strategy'; // Program tier for styling/logic
   schedulerUrl?: string; // External scheduler URL shown on success page (e.g., Zoom scheduler)
 }
 
@@ -66,8 +66,8 @@ export interface QuizOption {
   text: string;
   /** Optional description shown below the option text */
   description?: string;
-  /** Scoring weights for each program (can be negative) */
-  scores: Partial<Record<ProgramId, number>>;
+  /** Scoring weights (webinar points roll into essentials in the final result) */
+  scores: Partial<Record<ProgramId, number>> & { webinar?: number };
 }
 
 /**
@@ -90,8 +90,8 @@ export interface QuizResult {
   programSlug: string;
   /** Highest score achieved */
   score: number;
-  /** All program scores for debugging/analytics */
-  allScores: Partial<Record<ProgramId, number>>;
+  /** All program scores for debugging/analytics (essentials includes former webinar weight) */
+  allScores: Partial<Pick<Record<ProgramId, number>, "essentials" | "circle" | "transform">>;
 }
 
 /**
@@ -122,10 +122,9 @@ export interface QuizResponse {
     [questionId: string]: string[]; // Array of selected option IDs
   };
 
-  // Calculated scores
+  // Calculated scores (webinar bucket merged into essentials in scoring)
   scores: {
     essentials: number;
-    webinar: number;
     circle: number;
     transform: number;
   };

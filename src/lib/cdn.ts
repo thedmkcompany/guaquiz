@@ -34,7 +34,8 @@
  * Get the CDN URL for an asset
  *
  * @param path - The asset path (e.g., '/images/DMK/hero.png')
- * @returns Full CDN URL if blob storage is configured, otherwise local path
+ * @returns Full CDN URL if blob storage is configured (images, etc.), or local path.
+ *          Video paths (.mp4, .webm, …) always return the local `/public` URL.
  *
  * @example
  * ```typescript
@@ -43,21 +44,32 @@
  * // Or fallback to: '/images/DMK/Disha-Wine-Blazer.png' (local)
  * ```
  */
+function isVideoAssetPath(path: string): boolean {
+  const base = path.split("?")[0] ?? path;
+  return /\.(mp4|webm|mov|m4v|ogg)$/i.test(base);
+}
+
 export function getCDNUrl(path: string): string {
   // This should be a PUBLIC base URL (not a token), e.g.
   // https://<store>.public.blob.vercel-storage.com
   const blobBaseUrl = process.env.NEXT_PUBLIC_BLOB_BASE_URL;
 
-  // If CDN is configured, use it
+  // Videos always use the app origin (/public). Blob often omits large MP4s or
+  // uses different paths — a broken URL leaves a black <video> on top of posters.
+  if (isVideoAssetPath(path)) {
+    return path.startsWith("/") ? path : `/${path}`;
+  }
+
+  // If CDN is configured, use it for images and other static assets
   if (blobBaseUrl) {
     // Remove leading slash if present
-    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    return `${blobBaseUrl.replace(/\/+$/, '')}/${cleanPath}`;
+    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+    return `${blobBaseUrl.replace(/\/+$/, "")}/${cleanPath}`;
   }
 
   // Fallback to local public folder
   // This allows gradual migration - some images on CDN, some local
-  return path.startsWith('/') ? path : `/${path}`;
+  return path.startsWith("/") ? path : `/${path}`;
 }
 
 /**
@@ -102,6 +114,12 @@ export const CDN_IMAGE_PATHS = {
     '/images/circle/Circle community - women supporting women in transformation.jpg',
   ],
 
+  // 24 Day Challenge / essentials testimonials
+  essentials: [
+    '/images/essentials/ishita.jpeg',
+    '/images/essentials/roma.jpeg',
+  ],
+
   // Transform program images
   transform: [
     '/images/transform/Akancha Sharma.jpg',
@@ -110,8 +128,6 @@ export const CDN_IMAGE_PATHS = {
   // Misc large images
   misc: [
     '/images/misc/Aurvi Before & After (empowered energy).png',
-    '/images/misc/Ishita G.jpg',
-    '/images/misc/Roma N. .jpg',
   ],
 } as const;
 
@@ -122,6 +138,7 @@ export function getAllCDNImagePaths(): string[] {
   return [
     ...CDN_IMAGE_PATHS.dmk,
     ...CDN_IMAGE_PATHS.circle,
+    ...CDN_IMAGE_PATHS.essentials,
     ...CDN_IMAGE_PATHS.transform,
     ...CDN_IMAGE_PATHS.misc,
   ];

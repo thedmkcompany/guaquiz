@@ -309,20 +309,6 @@ export default function Home() {
             <div className="flex gap-5 overflow-x-auto overflow-y-visible pt-3 pb-2 snap-x snap-mandatory">
               {[
                 {
-                  level: "LEVEL 0",
-                  name: "Trial Webinar",
-                  subtitle: "For the skeptic. Taste it before you commit to anything.",
-                  points: [
-                    "90-min masterclass with Disha that changes everything",
-                    "Experience the glowup framework",
-                    "Your questions answered in real time",
-                  ],
-                  price: "₹199 - one-time",
-                  cta: "Reserve My Spot",
-                  href: "/results/webinar",
-                  featured: false,
-                },
-                {
                   level: "LEVEL 1 BEGINNER",
                   name: "24 Day Challenge",
                   subtitle: "Build your essentials at your own pace with real structure.",
@@ -331,7 +317,7 @@ export default function Home() {
                     "Not just workouts, complete transformation",
                     "Structure without pressure with weekly support calls",
                   ],
-                  price: "₹1,999",
+                  price: "promo", // rendered with strike + sale below
                   cta: "Join the Challenge",
                   href: "/results/essentials",
                   featured: true,
@@ -345,8 +331,8 @@ export default function Home() {
                     "Private women's community",
                     "Meal planning guidance - Indian friendly",
                   ],
-                  price: "₹4,999/month",
-                  cta: "Join Circle",
+                  price: "Waitlist",
+                  cta: "Join waitlist",
                   href: "/circle",
                   featured: false,
                 },
@@ -394,7 +380,17 @@ export default function Home() {
                       </li>
                     ))}
                   </ul>
-                  <p className="text-[#8e6f2a] text-sm mt-6 mb-4">{program.price}</p>
+                  <p className="text-[#8e6f2a] text-sm mt-6 mb-4">
+                    {program.price === "promo" ? (
+                      <>
+                        <span className="line-through text-[#8e6f2a]/70 mr-2">₹2,499</span>
+                        <span className="font-semibold text-[#0f3c36]">₹1,999</span>
+                        <span className="text-[#21453f]/80">/month</span>
+                      </>
+                    ) : (
+                      program.price
+                    )}
+                  </p>
                   <a
                     href={program.href}
                     className={`block text-center border px-4 py-3 text-xs tracking-[0.2em] uppercase transition-colors ${

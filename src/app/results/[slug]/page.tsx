@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getProgramBySlug, getAllPrograms } from "@/lib/programs";
 import { ResultPageClient } from "./result-page-client";
-import { WebinarResultClient } from "./webinar-result-client";
 import { EssentialsResultClient } from "./essentials-result-client";
 import { getProgramMetadata } from "@/lib/seo-config";
 
@@ -18,6 +17,10 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: ResultPageProps) {
   const { slug } = await params;
+
+  if (slug === "webinar") {
+    redirect("/results/essentials");
+  }
 
   // Circle has its own dedicated page
   if (slug === "circle") {
@@ -42,6 +45,10 @@ export async function generateMetadata({ params }: ResultPageProps) {
 export default async function ResultPage({ params }: ResultPageProps) {
   const { slug } = await params;
 
+  if (slug === "webinar") {
+    redirect("/results/essentials");
+  }
+
   // Redirect Circle results to the dedicated Circle landing page
   if (slug === "circle") {
     redirect("/circle");
@@ -59,10 +66,6 @@ export default async function ResultPage({ params }: ResultPageProps) {
   }
 
   // Use specialized result pages for each program
-  if (program.slug === "webinar") {
-    return <WebinarResultClient program={program} />;
-  }
-
   if (program.slug === "essentials") {
     return <EssentialsResultClient program={program} />;
   }

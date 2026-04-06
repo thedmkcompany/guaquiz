@@ -1,7 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { quizQuestions, calculateQuizResult } from "@/lib/quiz-data";
-import type { QuizResult } from "@/types";
 
 const CONFIG = { businessName: "Glow Up Academy", agentName: "Miss Baddie", tagline: "How can we help you today?" };
 interface Message { role: "user" | "ai"; content: string; }
@@ -18,71 +17,7 @@ interface Lead {
   quizAnswers?: QuizAnswerLite[];
 }
 const LEAD_RE = /__LEAD__({[\s\S]*?})__LEAD__/;
-/** Shown as the third bot message (after two user replies) and optionally when starting quiz if not already shown. */
-const QUIZ_INTRO_LINE =
-  "Perfect babe, let's do this. I'll ask one question at a time and match you to your best-fit plan.";
-
-const PROGRAM_SLUGS = ["essentials", "webinar", "circle", "transform"] as const;
-type ProgramSlug = (typeof PROGRAM_SLUGS)[number];
-
-const PROGRAM_LABELS: Record<ProgramSlug, string> = {
-  essentials: "24 Day Challenge",
-  webinar: "Webinar",
-  circle: "Circle",
-  transform: "Transform",
-};
-
-const PROGRAM_RESULT_PATHS: Record<ProgramSlug, string> = {
-  essentials: "/results/essentials",
-  webinar: "/results/webinar",
-  circle: "/circle",
-  transform: "/transform",
-};
-
 interface QuizAnswerLite { questionId: string; selectedOptionIds: string[]; }
-
-function buildQuizCompletionMessage(result: QuizResult, reasonSummary: string): string {
-  const primary = result.programSlug as ProgramSlug;
-  const scores = result.allScores;
-  const others = (["webinar", "essentials", "circle", "transform"] as const)
-    .filter((s) => s !== primary)
-    .sort((a, b) => (scores[b] ?? 0) - (scores[a] ?? 0))
-    .map((s) => PROGRAM_LABELS[s]);
-  const otherLine =
-    others.length > 0
-      ? `\n\nAnd babe, you're not stuck with just one option — you can also explore ${others.join(", ")} below if that feels better for you.`
-      : "";
-  return `Okay love, based on everything you shared, ${PROGRAM_LABELS[primary]} feels like your best next step right now.\n${reasonSummary}${otherLine}`;
-}
-
-function buildQuizReasonSummary(answers: QuizAnswerLite[], programSlug: string): string {
-  const topSignals = answers
-    .map((answer) => {
-      const question = quizQuestions.find((q) => q.id === answer.questionId);
-      if (!question) return null;
-      const option = question.options.find((o) => o.id === answer.selectedOptionIds[0]);
-      if (!option) return null;
-      const signal = option.scores[programSlug as keyof typeof option.scores] ?? 0;
-      return {
-        signal,
-        // Prefer richer, non-price language for "why this fits" messaging.
-        reason: option.description?.trim() || option.text.trim(),
-      };
-    })
-    .filter((item): item is { signal: number; reason: string } => item !== null && item.signal > 0)
-    .sort((a, b) => b.signal - a.signal)
-    .slice(0, 2);
-
-  if (topSignals.length === 0) {
-    return "From what you shared, this lines up really well with your goals, your current capacity, and the kind of support you'll actually use.";
-  }
-
-  if (topSignals.length === 1) {
-    return `What stood out most is that ${topSignals[0].reason.toLowerCase()}.`;
-  }
-
-  return `What really stood out is that ${topSignals[0].reason.toLowerCase()} and ${topSignals[1].reason.toLowerCase()}.`;
-}
 
 function extractLead(text: string): { clean: string; lead: Lead | null } {
   const match = text.match(LEAD_RE);
@@ -105,8 +40,6 @@ export default function SalesChatWidget() {
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<QuizAnswerLite[]>([]);
   const [quizResultSlug, setQuizResultSlug] = useState<string | null>(null);
-  const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
-  const [resultLeadTargetSlug, setResultLeadTargetSlug] = useState<string | null>(null);
   const [onboardingStep, setOnboardingStep] = useState(0);
   const [showResultLeadModal, setShowResultLeadModal] = useState(false);
   const [savingResultLead, setSavingResultLead] = useState(false);
@@ -114,7 +47,6 @@ export default function SalesChatWidget() {
   const [resultLead, setResultLead] = useState({ name: "", email: "", phone: "" });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const quizIntroLineShownRef = useRef(false);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => { if (open) setTimeout(() => inputRef.current?.focus(), 250); }, [open]);
@@ -159,13 +91,10 @@ export default function SalesChatWidget() {
     setQuizIndex(0);
     setQuizAnswers([]);
     setQuizResultSlug(null);
-    setQuizResult(null);
-    setResultLeadTargetSlug(null);
-    setMessages((prev) => {
-      if (quizIntroLineShownRef.current) return prev;
-      quizIntroLineShownRef.current = true;
-      return [...prev, { role: "ai", content: QUIZ_INTRO_LINE }];
-    });
+    setMessages((prev) => [
+      ...prev,
+      { role: "ai", content: "Perfect babe, let's do this. I’ll ask one question at a time and match you to your best-fit plan." },
+    ]);
     askCurrentQuizQuestion(0);
   }, [askCurrentQuizQuestion]);
 
@@ -187,15 +116,13 @@ export default function SalesChatWidget() {
     }
 
     const result = calculateQuizResult(nextAnswers as never);
-    setQuizResult(result);
     setQuizResultSlug(result.programSlug);
     setQuizActive(false);
-    const reasonSummary = buildQuizReasonSummary(nextAnswers, result.programSlug);
     setMessages((prev) => [
       ...prev,
       {
         role: "ai",
-        content: buildQuizCompletionMessage(result, reasonSummary),
+        content: `Got you babe — your best fit is ${result.programSlug.toUpperCase()}. Tap below to see your personalized result and continue.`,
       },
     ]);
   }, [askCurrentQuizQuestion, quizAnswers, quizIndex]);
@@ -208,8 +135,9 @@ export default function SalesChatWidget() {
 
     if (onboardingStep < 2) {
       const nextPrompt =
-        onboardingStep === 0 ? "What’s your #1 glow-up goal right now?" : QUIZ_INTRO_LINE;
-      if (onboardingStep === 1) quizIntroLineShownRef.current = true;
+        onboardingStep === 0
+          ? "What’s your #1 glow-up goal right now?"
+          : "We have 3 paths, babe:\n- 24 Day Challenge (₹1,999/month)\n- Circle — waitlist only on the Circle page (team gets your details)\n- Transform (starts with a ₹1,999 strategy call)\nThe ₹199 webinar isn’t running right now. To choose the best plan, take the quiz.";
       setMessages((prev) => [...prev, { role: "ai", content: nextPrompt }]);
       setOnboardingStep((prev) => prev + 1);
       setLoading(false);
@@ -308,21 +236,19 @@ export default function SalesChatWidget() {
       setResultLeadError("Result is not available right now. Please retry.");
       return;
     }
-    const chosenSlug = (resultLeadTargetSlug ?? quizResultSlug) as ProgramSlug;
 
     setSavingResultLead(true);
     setResultLeadError("");
     try {
-      const topMatch = quizResult?.programSlug ?? quizResultSlug;
       const payload: Lead = {
         name,
         email,
         phone,
         company: "Quiz Result",
-        challenge: `Requested path: ${chosenSlug} (quiz top match: ${topMatch})`,
-        interestedInTransform: chosenSlug === "transform",
-        interestedInStrategy: chosenSlug === "transform",
-        recommendation: chosenSlug,
+        challenge: `Requested result for ${quizResultSlug}`,
+        interestedInTransform: quizResultSlug === "transform",
+        interestedInStrategy: quizResultSlug === "transform",
+        recommendation: quizResultSlug,
         referralSource: "chat_result_popup",
         quizAnswers,
       };
@@ -337,8 +263,7 @@ export default function SalesChatWidget() {
       }
       setShowResultLeadModal(false);
       setUserEmail(email);
-      setResultLeadTargetSlug(null);
-      window.location.href = PROGRAM_RESULT_PATHS[chosenSlug];
+      window.location.href = `/results/${quizResultSlug}`;
     } catch {
       setResultLeadError("Network issue. Please try again.");
     } finally {
@@ -400,7 +325,7 @@ export default function SalesChatWidget() {
               {!quizStarted && !quizActive && onboardingStep >= 2 && (
                 <div className="scw-quiz-cta-wrap">
                   <button className="scw-quiz-cta" onClick={startQuiz}>
-                    Let's get started!
+                    Take Quiz to select best one for you
                   </button>
                 </div>
               )}
@@ -418,36 +343,11 @@ export default function SalesChatWidget() {
                 </div>
               )}
               {quizResultSlug && (
-                <>
-                  <div className="scw-quiz-cta-wrap">
-                    <button
-                      type="button"
-                      className="scw-quiz-cta"
-                      onClick={() => {
-                        setResultLeadTargetSlug(quizResultSlug);
-                        setShowResultLeadModal(true);
-                      }}
-                    >
-                      Take me to {PROGRAM_LABELS[quizResultSlug as ProgramSlug]}
-                    </button>
-                  </div>
-                  <div className="scw-result-alt-label">Or explore another path — no pressure:</div>
-                  <div className="scw-result-alt-grid">
-                    {PROGRAM_SLUGS.filter((s) => s !== quizResultSlug).map((slug) => (
-                      <button
-                        key={slug}
-                        type="button"
-                        className="scw-quiz-option-btn"
-                        onClick={() => {
-                          setResultLeadTargetSlug(slug);
-                          setShowResultLeadModal(true);
-                        }}
-                      >
-                        {PROGRAM_LABELS[slug]}
-                      </button>
-                    ))}
-                  </div>
-                </>
+                <div className="scw-quiz-cta-wrap">
+                  <button className="scw-quiz-cta" onClick={() => setShowResultLeadModal(true)}>
+                    View My Result
+                  </button>
+                </div>
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -464,11 +364,7 @@ export default function SalesChatWidget() {
           <div className="scw-modal-overlay" role="dialog" aria-modal="true" aria-label="Enter contact information">
             <div className="scw-modal">
               <div className="scw-modal-title">Before we show your result</div>
-              <div className="scw-modal-subtitle">
-                {resultLeadTargetSlug || quizResultSlug
-                  ? `Share your details to continue to ${PROGRAM_LABELS[(resultLeadTargetSlug ?? quizResultSlug) as ProgramSlug]}.`
-                  : "Share your details to continue."}
-              </div>
+              <div className="scw-modal-subtitle">Share your details to continue.</div>
               <input
                 className="scw-modal-input"
                 placeholder="Full name"
@@ -490,14 +386,7 @@ export default function SalesChatWidget() {
               />
               {resultLeadError && <div className="scw-modal-error">{resultLeadError}</div>}
               <div className="scw-modal-actions">
-                <button
-                  className="scw-modal-cancel"
-                  onClick={() => {
-                    setShowResultLeadModal(false);
-                    setResultLeadTargetSlug(null);
-                  }}
-                  disabled={savingResultLead}
-                >
+                <button className="scw-modal-cancel" onClick={() => setShowResultLeadModal(false)} disabled={savingResultLead}>
                   Cancel
                 </button>
                 <button className="scw-modal-submit" onClick={submitResultLeadAndContinue} disabled={savingResultLead}>
@@ -518,64 +407,62 @@ export default function SalesChatWidget() {
 
 const CSS = `
 .scw-root * { box-sizing: border-box; margin: 0; padding: 0; }
-.scw-root { font-family: var(--font-be-vietnam-pro), sans-serif; --scw-ivory: #FFFFF0; --scw-ivory-deep: #F5F0E6; --scw-burgundy: #722F37; --scw-burgundy-dark: #5a252c; --scw-burgundy-muted: rgba(114,47,55,0.14); }
-.scw-trigger { position: fixed; bottom: 28px; right: 28px; z-index: 9999; width: 58px; height: 58px; border-radius: 50%; background: var(--scw-ivory); color: var(--scw-burgundy); border: 2px solid var(--scw-burgundy-muted); cursor: pointer; box-shadow: 0 8px 28px rgba(114,47,55,0.18); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; overflow: hidden; }
+.scw-root { font-family: var(--font-be-vietnam-pro), sans-serif; }
+.scw-trigger { position: fixed; bottom: 28px; right: 28px; z-index: 9999; width: 58px; height: 58px; border-radius: 50%; background: #ffffff; color: #fff; border: none; cursor: pointer; box-shadow: 0 8px 28px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; transition: transform 0.2s; overflow: hidden; }
 .scw-trigger:hover { transform: scale(1.08); }
 .scw-trigger-icon { width: 40px; height: 40px; object-fit: cover; object-position: center; transform: scale(1.1); display: block; }
-.scw-prompt { position: fixed; bottom: 42px; right: 98px; z-index: 9999; background: var(--scw-ivory); color: var(--scw-burgundy); border: 1px solid var(--scw-burgundy-muted); border-radius: 999px; padding: 9px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 28px rgba(114,47,55,0.12); animation: scw-float-prompt 2.2s ease-in-out infinite; }
-.scw-prompt::after { content: ""; position: absolute; right: -6px; top: 50%; width: 10px; height: 10px; transform: translateY(-50%) rotate(45deg); background: var(--scw-ivory); border-right: 1px solid var(--scw-burgundy-muted); border-top: 1px solid var(--scw-burgundy-muted); }
+.scw-prompt { position: fixed; bottom: 42px; right: 98px; z-index: 9999; background: #fff; color: #111827; border: 1px solid rgba(17,24,39,0.08); border-radius: 999px; padding: 9px 14px; font-size: 13px; font-weight: 600; box-shadow: 0 10px 28px rgba(0,0,0,0.12); animation: scw-float-prompt 2.2s ease-in-out infinite; }
+.scw-prompt::after { content: ""; position: absolute; right: -6px; top: 50%; width: 10px; height: 10px; transform: translateY(-50%) rotate(45deg); background: #fff; border-right: 1px solid rgba(17,24,39,0.08); border-top: 1px solid rgba(17,24,39,0.08); }
 @keyframes scw-float-prompt { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-.scw-window { position: fixed; bottom: 98px; right: 28px; z-index: 9998; width: 375px; height: 555px; background: var(--scw-ivory); border-radius: 20px; border: 1px solid var(--scw-burgundy-muted); box-shadow: 0 24px 80px rgba(114,47,55,0.22); display: flex; flex-direction: column; overflow: hidden; animation: scw-in 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+.scw-window { position: fixed; bottom: 98px; right: 28px; z-index: 9998; width: 375px; height: 555px; background: #0F1117; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 24px 80px rgba(0,0,0,0.6); display: flex; flex-direction: column; overflow: hidden; animation: scw-in 0.28s cubic-bezier(0.34,1.56,0.64,1); }
 @keyframes scw-in { from { opacity:0; transform: translateY(20px) scale(0.96); } to { opacity:1; transform: none; } }
-.scw-header { background: var(--scw-ivory-deep); padding: 16px 18px; border-bottom: 1px solid var(--scw-burgundy-muted); display: flex; align-items: center; gap: 11px; }
-.scw-avatar-img { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; object-fit: cover; border: 2px solid var(--scw-burgundy-muted); }
+.scw-header { background: #1A1D27; padding: 16px 18px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 11px; }
+.scw-avatar-img { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; object-fit: cover; border: 1px solid rgba(255,255,255,0.18); }
 .scw-header-info { flex: 1; }
-.scw-header-name { font-size: 14px; font-weight: 600; color: var(--scw-burgundy); }
+.scw-header-name { font-size: 14px; font-weight: 500; color: #F0E6C8; }
 .scw-header-status { display: flex; align-items: center; gap: 5px; margin-top: 2px; }
-.scw-dot { width: 6px; height: 6px; border-radius: 50%; background: #2d8a4e; flex-shrink: 0; }
-.scw-status-text { font-size: 11px; color: rgba(114,47,55,0.65); font-weight: 400; }
-.scw-close { background: none; border: none; cursor: pointer; color: rgba(114,47,55,0.55); padding: 4px; transition: color 0.15s; }
-.scw-close:hover { color: var(--scw-burgundy); }
-.scw-messages { flex: 1; overflow-y: auto; padding: 18px 14px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; scrollbar-color: var(--scw-burgundy-muted) transparent; background: var(--scw-ivory); }
+.scw-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; flex-shrink: 0; }
+.scw-status-text { font-size: 11px; color: #6B7280; font-weight: 300; }
+.scw-close { background: none; border: none; cursor: pointer; color: #4B5563; padding: 4px; transition: color 0.15s; }
+.scw-close:hover { color: #9CA3AF; }
+.scw-messages { flex: 1; overflow-y: auto; padding: 18px 14px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: thin; scrollbar-color: #2A2D3A transparent; }
 .scw-msg { display: flex; gap: 8px; animation: scw-msg 0.18s ease; }
 @keyframes scw-msg { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:none; } }
 .scw-msg--user { flex-direction: row-reverse; }
-.scw-msg-avatar-img { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; object-fit: cover; border: 1px solid var(--scw-burgundy-muted); }
-.scw-msg-avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; background: var(--scw-burgundy); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: var(--scw-ivory); margin-top: 2px; }
-.scw-msg--user .scw-msg-avatar { background: var(--scw-burgundy-dark); color: var(--scw-ivory); }
+.scw-msg-avatar-img { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; object-fit: cover; border: 1px solid rgba(255,255,255,0.14); }
+.scw-msg-avatar { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; background: var(--color-primary, #C9A84C); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #0F1117; margin-top: 2px; }
+.scw-msg--user .scw-msg-avatar { background: #22263A; color: var(--color-primary, #C9A84C); }
 .scw-bubble { max-width: 76%; padding: 9px 13px; border-radius: 16px; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
-.scw-msg--ai .scw-bubble { background: #fffef8; color: #3d1f24; border-bottom-left-radius: 4px; border: 1px solid var(--scw-burgundy-muted); }
-.scw-msg--user .scw-bubble { background: var(--scw-burgundy); color: var(--scw-ivory); border-bottom-right-radius: 4px; font-weight: 500; }
+.scw-msg--ai .scw-bubble { background: #22263A; color: #D1D5DB; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+.scw-msg--user .scw-bubble { background: var(--color-primary, #C9A84C); color: #0F1117; border-bottom-right-radius: 4px; font-weight: 500; }
 .scw-quiz-cta-wrap { display: flex; justify-content: center; margin: 6px 0 2px; }
-.scw-quiz-cta { background: linear-gradient(135deg, var(--scw-burgundy), var(--scw-burgundy-dark)); color: var(--scw-ivory); border: 0; border-radius: 999px; padding: 10px 16px; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; box-shadow: 0 6px 16px rgba(114,47,55,0.35); }
-.scw-result-alt-label { font-size: 11px; color: rgba(114,47,55,0.72); text-align: center; margin: 10px 4px 6px; font-weight: 600; letter-spacing: 0.02em; line-height: 1.35; }
-.scw-result-alt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 2px 0 10px; padding: 0 2px; }
+.scw-quiz-cta { background: linear-gradient(90deg, #C9A84C, #e3c66a); color: #0F1117; border: 0; border-radius: 999px; padding: 10px 16px; font-size: 13px; font-weight: 700; text-decoration: none; cursor: pointer; box-shadow: 0 6px 16px rgba(201,168,76,0.35); }
 .scw-quiz-options { display: grid; gap: 8px; margin: 8px 0 4px; }
-.scw-quiz-option-btn { text-align: left; background: var(--scw-ivory-deep); border: 1px solid var(--scw-burgundy-muted); color: #3d1f24; border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.4; cursor: pointer; }
-.scw-quiz-option-btn:hover { border-color: var(--scw-burgundy); background: #fffef8; }
-.scw-typing { display: flex; gap: 4px; padding: 11px 13px; background: #fffef8; border-radius: 16px; border-bottom-left-radius: 4px; border: 1px solid var(--scw-burgundy-muted); }
-.scw-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--scw-burgundy); opacity: 0.55; animation: scw-bounce 1.2s infinite; }
+.scw-quiz-option-btn { text-align: left; background: #161a24; border: 1px solid rgba(255,255,255,0.12); color: #E5E7EB; border-radius: 12px; padding: 10px 12px; font-size: 12.5px; line-height: 1.4; cursor: pointer; }
+.scw-quiz-option-btn:hover { border-color: #C9A84C; background: #1b2230; }
+.scw-typing { display: flex; gap: 4px; padding: 11px 13px; background: #22263A; border-radius: 16px; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.05); }
+.scw-typing span { width: 6px; height: 6px; border-radius: 50%; background: #6B7280; animation: scw-bounce 1.2s infinite; }
 .scw-typing span:nth-child(2) { animation-delay: 0.2s; }
 .scw-typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes scw-bounce { 0%,60%,100%{transform:translateY(0);opacity:.45} 30%{transform:translateY(-5px);opacity:1} }
-.scw-input-area { padding: 12px 14px; background: var(--scw-ivory-deep); border-top: 1px solid var(--scw-burgundy-muted); display: flex; gap: 9px; align-items: flex-end; }
-.scw-input { flex: 1; background: var(--scw-ivory); border: 1px solid var(--scw-burgundy-muted); border-radius: 12px; padding: 9px 13px; color: #3d1f24; font-size: 13.5px; font-family: inherit; font-weight: 400; resize: none; outline: none; min-height: 38px; max-height: 96px; line-height: 1.5; transition: border-color 0.2s; }
-.scw-input::placeholder { color: rgba(114,47,55,0.45); }
-.scw-input:focus { border-color: var(--scw-burgundy); }
-.scw-send { width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; background: var(--scw-burgundy); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--scw-ivory); transition: opacity 0.15s, transform 0.15s; }
+@keyframes scw-bounce { 0%,60%,100%{transform:translateY(0);opacity:.5} 30%{transform:translateY(-5px);opacity:1} }
+.scw-input-area { padding: 12px 14px; background: #1A1D27; border-top: 1px solid rgba(255,255,255,0.05); display: flex; gap: 9px; align-items: flex-end; }
+.scw-input { flex: 1; background: #0F1117; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 9px 13px; color: #E5E7EB; font-size: 13.5px; font-family: inherit; font-weight: 300; resize: none; outline: none; min-height: 38px; max-height: 96px; line-height: 1.5; transition: border-color 0.2s; }
+.scw-input::placeholder { color: #4B5563; }
+.scw-input:focus { border-color: var(--color-primary, #C9A84C); }
+.scw-send { width: 38px; height: 38px; border-radius: 11px; flex-shrink: 0; background: var(--color-primary, #C9A84C); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #0F1117; transition: opacity 0.15s, transform 0.15s; }
 .scw-send:hover:not(:disabled) { transform: scale(1.06); }
-.scw-send:disabled { background: rgba(114,47,55,0.25); color: rgba(114,47,55,0.4); cursor: not-allowed; }
-.scw-branding { text-align: center; padding: 7px; font-size: 10px; color: rgba(114,47,55,0.45); background: var(--scw-ivory-deep); }
-.scw-modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(61,31,36,0.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
-.scw-modal { width: min(92vw, 360px); background: var(--scw-ivory); border: 1px solid var(--scw-burgundy-muted); border-radius: 16px; padding: 16px; box-shadow: 0 18px 48px rgba(114,47,55,0.25); }
-.scw-modal-title { color: var(--scw-burgundy); font-weight: 700; font-size: 15px; }
-.scw-modal-subtitle { color: rgba(114,47,55,0.65); font-size: 12px; margin-top: 3px; margin-bottom: 12px; }
-.scw-modal-input { width: 100%; background: #fffef8; border: 1px solid var(--scw-burgundy-muted); border-radius: 10px; padding: 10px 12px; color: #3d1f24; font-size: 13px; margin-bottom: 8px; outline: none; }
-.scw-modal-input:focus { border-color: var(--scw-burgundy); }
-.scw-modal-error { color: #9b2335; font-size: 12px; margin: 4px 2px 0; }
+.scw-send:disabled { background: #22263A; color: #4B5563; cursor: not-allowed; }
+.scw-branding { text-align: center; padding: 7px; font-size: 10px; color: #2D3748; }
+.scw-modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.scw-modal { width: min(92vw, 360px); background: #111827; border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 16px; box-shadow: 0 18px 48px rgba(0,0,0,0.45); }
+.scw-modal-title { color: #F0E6C8; font-weight: 700; font-size: 15px; }
+.scw-modal-subtitle { color: #9CA3AF; font-size: 12px; margin-top: 3px; margin-bottom: 12px; }
+.scw-modal-input { width: 100%; background: #0F1117; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 12px; color: #E5E7EB; font-size: 13px; margin-bottom: 8px; outline: none; }
+.scw-modal-input:focus { border-color: var(--color-primary, #C9A84C); }
+.scw-modal-error { color: #FCA5A5; font-size: 12px; margin: 4px 2px 0; }
 .scw-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
-.scw-modal-cancel { background: transparent; border: 1px solid var(--scw-burgundy-muted); color: var(--scw-burgundy); border-radius: 10px; padding: 9px 12px; font-size: 12.5px; cursor: pointer; }
-.scw-modal-submit { background: linear-gradient(135deg, var(--scw-burgundy), var(--scw-burgundy-dark)); color: var(--scw-ivory); border: 0; border-radius: 10px; padding: 9px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.scw-modal-cancel { background: transparent; border: 1px solid rgba(255,255,255,0.22); color: #D1D5DB; border-radius: 10px; padding: 9px 12px; font-size: 12.5px; cursor: pointer; }
+.scw-modal-submit { background: linear-gradient(90deg, #C9A84C, #e3c66a); color: #0F1117; border: 0; border-radius: 10px; padding: 9px 12px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
 .scw-modal-cancel:disabled, .scw-modal-submit:disabled { opacity: 0.7; cursor: not-allowed; }
 @media (max-width: 420px) { .scw-window { width: calc(100vw - 16px); right: 8px; bottom: 86px; height: 68vh; } }
 `;

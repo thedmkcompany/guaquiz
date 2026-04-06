@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     if (isSupabaseConfigured()) {
       const recommendation =
         lead.recommendation ??
-        (lead.interestedInTransform || lead.interestedInStrategy ? "transform" : "webinar");
+        (lead.interestedInTransform || lead.interestedInStrategy ? "transform" : "essentials");
       const existingLead = await findLeadByEmail(normalizedEmail);
       if (existingLead?.id) {
         const updateResult = await updateExistingLead(existingLead.id, {

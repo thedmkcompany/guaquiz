@@ -24,7 +24,12 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     keywords: ["program", "programs", "course", "courses", "offer", "available", "options"],
-    answer: `Perfect babe, let's do this. I'll ask one question at a time and match you to your best-fit plan.`,
+    answer: `Hey gorgeous, we have 3 paths right now:
+- 24 Day Challenge — ₹1,999/month
+- Circle — waitlist only (gua.thedmk.online/circle — your details go to the team)
+- Transform — starts with a ₹1,999 strategy call
+
+Each one fits a different level of support and accountability. If you're unsure, take the free 2-minute quiz and I'll help you pick the perfect fit: gua.thedmk.online/quiz`,
   },
   {
     keywords: ["24 day challenge", "24day challenge", "24-day challenge", "essentials", "basic", "starter", "beginner"],
@@ -32,11 +37,11 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     keywords: ["webinar", "199", "introductory", "try", "trial"],
-    answer: `Hey gorgeous, the Webinar is ₹199 one-time and the easiest low-risk way to experience GUA before committing deeper. If you're curious but not fully ready yet, this is your soft entry. Clean, simple, and beginner-friendly.`,
+    answer: `Hey gorgeous, the ₹199 trial webinar isn’t running right now. The best low-commitment entry is the 24 Day Challenge at ₹1,999/month — structured, self-paced, and built for real life. Want community? Circle has a waitlist on the Circle page.`,
   },
   {
-    keywords: ["circle", "community", "exclusive", "4999"],
-    answer: `Perfect babe, Circle is ₹4,999/month for women who want serious accountability and a high-quality support environment. You get advanced coaching, live group sessions, and a community that keeps you consistent. Best fit when you want momentum plus structure.`,
+    keywords: ["circle", "community", "exclusive", "4999", "waitlist"],
+    answer: `Perfect babe, Circle is our sisterhood for accountability, live group sessions, and community. Right now it’s waitlist-only: open gua.thedmk.online/circle, tap “Join the waitlist,” and your details go straight to the team at thedmkcompany@gmail.com.`,
   },
   {
     keywords: ["transform", "strategy", "1:1", "one on one", "call", "premium", "flagship", "personal", "coaching", "1999"],
@@ -60,7 +65,7 @@ export const KNOWLEDGE_BASE: KBEntry[] = [
   },
   {
     keywords: ["price", "pricing", "cost", "fee", "how much", "rupees", "inr", "afford", "expensive", "cheap"],
-    answer: `Perfect babe, here’s the current pricing: Webinar ₹199 (one-time), 24 Day Challenge ₹1,999/month, Circle ₹4,999/month, and Transform starts with a ₹1,999 strategy call. That strategy call is the entry point to the full Transform 1:1 journey. Tell me your goal and I’ll suggest your best fit quickly.`,
+    answer: `Perfect babe, here’s the current pricing: 24 Day Challenge ₹1,999/month, Circle ₹4,999/month, and Transform starts with a ₹1,999 strategy call. The trial webinar isn’t available right now. Tell me your goal and I’ll suggest your best fit quickly.`,
   },
   {
     keywords: ["refund", "money back", "cancel", "cancellation", "return", "guarantee"],
@@ -121,7 +126,7 @@ You are Miss Baddie, the AI sales assistant and first point of contact for Glow 
 2. Recommend the right offer naturally.
 3. Qualify users with short, relevant questions.
 4. Capture lead details in a smooth conversational way.
-5. Move users to one next step: quiz, webinar, 24 Day Challenge, Circle, or Transform strategy call.
+5. Move users to one next step: quiz, 24 Day Challenge, Circle waitlist on /circle, or Transform strategy call.
 6. For Transform interest, direct confidently to: gua.thedmk.online/book-call
 
 == CORE KNOWLEDGE ==
@@ -132,10 +137,10 @@ Delivery: online via mobile app, Zoom sessions, WhatsApp communities, and record
 Approach: fitness + Indian diet-friendly nutrition + mindset + community support.
 
 Programs:
-- Webinar — ₹199 one-time
 - 24 Day Challenge — ₹1,999/month subscription
-- Circle — ₹4,999/month subscription
+- Circle — waitlist only (/circle form emails the team at thedmkcompany@gmail.com)
 - Transform — ₹1,999 one-time to book a 1:1 strategy call
+Note: The old ₹199 webinar is not offered anymore.
 
 Important: Transform Strategy Call and Transform are NOT separate programs. ₹1,999 is the strategy call entry point into the full Transform 1:1 program.
 
@@ -144,7 +149,7 @@ Refund policy: 7-day money-back guarantee for new enrollments. Email tech.thedmk
 Contact: Instagram @glowupacademy.dmk, Email tech.thedmk@gmail.com, Mon-Fri 9 AM-6 PM IST.
 
 == PROGRAM RECOMMENDATION LOGIC ==
-- Browsing/unsure/low-commitment: suggest quiz or Webinar.
+- Browsing/unsure/low-commitment: suggest quiz or 24 Day Challenge.
 - Beginner needing structure with flexibility: 24 Day Challenge.
 - Wants accountability/community/continuous support: Circle.
 - Wants personal guidance/custom support/1:1/deeper transformation: Transform + book-call CTA.
@@ -177,7 +182,7 @@ Populate rules:
 - If unknown, be honest and redirect to best next step (quiz, support, or contact).
 - Keep CTA natural, not forced.
 - Do not promise custom plans and then withhold them. If user asks for a plan, give a practical starter outline first, then invite them to enroll for full structure.
-- For fitness/goal questions, always include one relevant plan recommendation (Webinar / 24 Day Challenge / Circle / Transform) based on user intent.
+- For fitness/goal questions, always include one relevant plan recommendation (24 Day Challenge / Circle / Transform) based on user intent.
 - Never claim "I will personally set up your plan" or imply 1:1 personal setup from Miss Baddie.
 - Avoid lines like "Once you're in, I'll personally help you set up that 7-day kickstart plan".
 - Say this instead: "Inside 24 Day Challenge, you'll get guided structure and support from the team."

@@ -37,7 +37,6 @@ export interface LeadData {
 
 export interface QuizScores {
   essentials: number;
-  webinar: number;
   circle: number;
   transform: number;
 }

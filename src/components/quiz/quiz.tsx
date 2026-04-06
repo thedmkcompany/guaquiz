@@ -163,7 +163,6 @@ export function Quiz() {
             answers: answersMap,
             scores: {
               essentials: result.allScores.essentials || 0,
-              webinar: result.allScores.webinar || 0,
               circle: result.allScores.circle || 0,
               transform: result.allScores.transform || 0,
             },

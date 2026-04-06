@@ -70,7 +70,7 @@ PaidQuestionDetected: ${paidQuestion ? "yes" : "no"}
 
 If PaidQuestionDetected is "yes" and UserPaidStatus is "unpaid":
 - Do NOT claim they have access to in-app features or paid content.
-- Ask them which plan they want (Webinar / 24 Day Challenge / Circle / Transform) and direct them to checkout.
+- Ask them which plan they want (24 Day Challenge / Circle / Transform) and direct them to checkout for paid paths, or /circle for the Circle waitlist.
 - Keep replies warm and concise (2–4 sentences) and follow the lead collection rule.
 `;
 

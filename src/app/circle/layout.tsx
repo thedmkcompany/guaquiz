@@ -4,7 +4,7 @@ import { getPageMetadata, siteConfig } from "@/lib/seo-config";
 export const metadata: Metadata = getPageMetadata({
   title: "Circle - Your Sisterhood to Unstoppable",
   description:
-    "Join 100+ women in Circle - your transformation sisterhood. Live workouts 5x/week, 4-pillar system (fitness, beauty, finance, confidence), WhatsApp community, expert coaching. ₹4,999/month. Cancel anytime.",
+    "Join the Circle waitlist — your transformation sisterhood. Live workouts, 4-pillar system (fitness, beauty, finance, confidence), WhatsApp community, expert coaching. The team follows up when spots open.",
   keywords: [
     "women fitness community",
     "transformation program",

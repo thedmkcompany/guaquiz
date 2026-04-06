@@ -77,7 +77,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // /results/transform → /transform (dedicated page, already in staticRoutes)
   const resultSlugs = [
     "essentials",
-    "webinar",
     "transform-strategy-call",
   ];
 

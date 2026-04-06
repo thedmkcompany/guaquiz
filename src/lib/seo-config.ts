@@ -130,7 +130,7 @@ export const programMetadata = {
   essentials: {
     title: "24 Day Challenge - Build Your Foundation | Glow Up Academy",
     description:
-      "Transform on your timeline with 24 Day Challenge. ₹1,999 for lifetime access to fitness, beauty, finance & confidence modules. Self-paced transformation for unstoppable women.",
+      "Transform on your timeline with 24 Day Challenge. Now ₹1,999/month (was ₹2,499) — fitness, beauty, finance & confidence. Self-paced transformation for unstoppable women.",
     keywords: [
       "essentials program",
       "self-paced transformation",
@@ -140,23 +140,10 @@ export const programMetadata = {
     ],
     ogImage: "/api/og?program=essentials",
   },
-  webinar: {
-    title: "Webinar - Experience the Magic | Glow Up Academy",
-    description:
-      "Try before you commit. 7-day webinar experience for ₹199. Sample modules, live session, and preview our transformation methodology risk-free.",
-    keywords: [
-      "transformation webinar",
-      "trial program",
-      "fitness trial India",
-      "low commitment",
-      "webinar experience",
-    ],
-    ogImage: "/api/og?program=webinar",
-  },
   circle: {
     title: "Circle - Your Sisterhood to Unstoppable | Glow Up Academy",
     description:
-      "Join 100+ women in live workouts, group coaching, and sisterhood accountability. ₹4,999/month for community-driven transformation across fitness, beauty, finance & confidence.",
+      "Join the Circle waitlist for live workouts, group coaching, and sisterhood accountability. Community-driven transformation across fitness, beauty, finance & confidence.",
     keywords: [
       "women fitness community",
       "live workouts India",

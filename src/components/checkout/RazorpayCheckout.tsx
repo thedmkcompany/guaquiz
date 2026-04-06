@@ -5,7 +5,7 @@ import Script from 'next/script';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/programs';
-import type { CircleStartDateSelection, ChallengeStartDateSelection, WebinarSessionDateSelection } from '@/types';
+import type { CircleStartDateSelection, ChallengeStartDateSelection } from '@/types';
 
 interface RazorpayCheckoutProps {
   amount: number;
@@ -16,7 +16,7 @@ interface RazorpayCheckoutProps {
   customerPhone?: string;
   isSubscription?: boolean;
   razorpayPlanId?: string; // Required for subscriptions
-  programStartDate?: CircleStartDateSelection | ChallengeStartDateSelection | WebinarSessionDateSelection; // Optional program start date (Circle, 24 Day Challenge, or Webinar)
+  programStartDate?: CircleStartDateSelection | ChallengeStartDateSelection;
   onSuccess: (data: {
     paymentId: string;
     orderId?: string;

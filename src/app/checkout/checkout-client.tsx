@@ -3,11 +3,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { getProgramBySlug, formatPrice } from "@/lib/programs";
+import { getProgramBySlug, getPriceStrikeDisplay } from "@/lib/programs";
 import { RazorpayCheckout } from "@/components/checkout";
 import { CircleStartDateSelector } from "@/components/checkout/CircleStartDateSelector";
 import { ChallengeStartDateSelector } from "@/components/checkout/EssentialsStartDateSelector";
-import { WebinarSessionSelector } from "@/components/checkout/WebinarSessionSelector";
 import { Shield, Lock } from "lucide-react";
 import { DecorativeBlobs } from "@/components/ui/decorative-blobs";
 import {
@@ -18,12 +17,11 @@ import {
 import {
   calculateCircleStartDate,
   calculateChallengeStartDate,
-  calculateWebinarSessionDate,
   getComingMondayIST,
   getFollowingMondayIST,
   getCurrentISTDate,
 } from "@/lib/date-utils";
-import type { CircleStartDateOption, CircleStartDateSelection, ChallengeStartDateSelection, WebinarSessionDateSelection } from "@/types";
+import type { CircleStartDateOption, CircleStartDateSelection, ChallengeStartDateSelection } from "@/types";
 
 interface CustomerInfo {
   name: string;
@@ -33,7 +31,8 @@ interface CustomerInfo {
 
 export function CheckoutPageClient() {
   const searchParams = useSearchParams();
-  const programSlug = searchParams.get("program") || "essentials";
+  const rawSlug = searchParams.get("program") || "essentials";
+  const programSlug = rawSlug === "webinar" ? "essentials" : rawSlug;
   const program = getProgramBySlug(programSlug);
 
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -58,10 +57,6 @@ export function CheckoutPageClient() {
   // Essentials program start date selection
   const isEssentialsProgram = programSlug === "essentials";
   const [essentialsStartDate, setEssentialsStartDate] = useState<ChallengeStartDateSelection | undefined>();
-
-  // Webinar program session date
-  const isWebinarProgram = programSlug === "webinar";
-  const [webinarSessionDate, setWebinarSessionDate] = useState<WebinarSessionDateSelection | undefined>();
 
   // Pre-fill from quiz data on mount
   // Uses unified storage (localStorage + sessionStorage) for persistence
@@ -103,14 +98,6 @@ export function CheckoutPageClient() {
       setEssentialsStartDate(selection);
     }
   }, [isEssentialsProgram]);
-
-  // Calculate Webinar session date on mount
-  useEffect(() => {
-    if (isWebinarProgram) {
-      const selection = calculateWebinarSessionDate();
-      setWebinarSessionDate(selection);
-    }
-  }, [isWebinarProgram]);
 
   // Show loading while checking for quiz data
   if (isLoading) {
@@ -213,17 +200,14 @@ export function CheckoutPageClient() {
       params.append('start_date', essentialsStartDate.isoString);
     }
 
-    // Add Webinar session date if applicable
-    if (isWebinarProgram && webinarSessionDate) {
-      params.append('start_date', webinarSessionDate.isoString);
-    }
-
     window.location.href = `/checkout/success?${params.toString()}`;
   };
 
   const handlePaymentError = (error: string) => {
     alert(`Payment failed: ${error}. Please try again.`);
   };
+
+  const checkoutPriceDisplay = getPriceStrikeDisplay(program);
 
   return (
     <div className="min-h-screen bg-gradient-pastel relative overflow-hidden">
@@ -249,9 +233,17 @@ export function CheckoutPageClient() {
                   <p className="font-headline text-lg sm:text-xl text-forest mb-1">{program.name}</p>
                   <p className="text-sm text-charcoal/70 font-body">{program.tagline}</p>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl sm:text-3xl font-bold font-headline text-forest">
-                    {formatPrice(program.price)}
+                <div className="text-right flex flex-col items-end gap-0.5 shrink-0">
+                  {checkoutPriceDisplay.strikeText ? (
+                    <p className="text-base sm:text-lg font-headline text-charcoal/45 line-through">
+                      {checkoutPriceDisplay.strikeText}
+                    </p>
+                  ) : null}
+                  <p className="text-2xl sm:text-3xl font-bold font-headline text-forest leading-tight">
+                    {checkoutPriceDisplay.saleText}
+                    {program.isSubscription ? (
+                      <span className="text-sm font-body font-normal text-charcoal/50">/mo</span>
+                    ) : null}
                   </p>
                 </div>
               </div>
@@ -386,13 +378,6 @@ export function CheckoutPageClient() {
                     </div>
                   )}
 
-                  {/* Webinar Session Selector */}
-                  {isWebinarProgram && webinarSessionDate && (
-                    <div className="bg-white/40 rounded-2xl p-5 border border-white/40 backdrop-blur-sm">
-                      <WebinarSessionSelector sessionDate={webinarSessionDate} />
-                    </div>
-                  )}
-
                   {/* Razorpay Checkout */}
                   <RazorpayCheckout
                     amount={program.price}
@@ -408,8 +393,6 @@ export function CheckoutPageClient() {
                         ? circleStartDate
                         : isEssentialsProgram
                         ? essentialsStartDate
-                        : isWebinarProgram
-                        ? webinarSessionDate
                         : undefined
                     }
                     onSuccess={handlePaymentSuccess}

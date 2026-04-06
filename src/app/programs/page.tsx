@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAllPrograms, formatPrice } from "@/lib/programs";
+import { getAllPrograms, getPriceStrikeDisplay } from "@/lib/programs";
 import { Program } from "@/types";
 import { Footer } from "@/components/ui/footer";
 import { getPageMetadata, siteConfig } from "@/lib/seo-config";
@@ -32,7 +32,7 @@ function ArrowRight({ className = "" }: { className?: string }) {
 export const metadata = getPageMetadata({
   title: "Our Programs - Find Your Perfect Transformation Path",
   description:
-    "Explore Glow Up Academy's transformation programs for Indian women. From ₹199 webinar to premium 1:1 coaching. Choose your path: 24 Day Challenge, Webinar, Circle, or Transform. Fitness, beauty, finance & confidence.",
+    "Explore Glow Up Academy's transformation programs for Indian women. From 24 Day Challenge to Circle community and premium 1:1 Transform. Fitness, beauty, finance & confidence.",
   keywords: [
     "transformation programs India",
     "women fitness programs",
@@ -48,7 +48,6 @@ export const metadata = getPageMetadata({
 export default function ProgramsPage() {
   const allPrograms = getAllPrograms();
   const orderedPrograms = [
-    allPrograms.find(p => p.slug === 'webinar'),
     allPrograms.find(p => p.slug === 'essentials'),
     allPrograms.find(p => p.slug === 'circle'),
     allPrograms.find(p => p.slug === 'transform'),
@@ -128,6 +127,7 @@ export default function ProgramsPage() {
 }
 
 function ProgramCard({ program }: { program: Program; index: number }) {
+  const promoPrice = getPriceStrikeDisplay(program);
   const programLink = program.slug === 'circle'
     ? '/circle'
     : program.slug === 'transform'
@@ -135,20 +135,21 @@ function ProgramCard({ program }: { program: Program; index: number }) {
     : `/results/${program.slug}`;
 
   const isTransform = program.slug === 'transform';
-  const isWebinar = program.slug === 'webinar';
+  const isEssentials = program.slug === 'essentials';
+  const isCircle = program.slug === 'circle';
 
   return (
     <div className={`relative group bg-white rounded-3xl p-8 md:p-12 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 ${
       isTransform
         ? 'border-gold/40 hover:border-gold'
-        : isWebinar
+        : isEssentials
         ? 'border-wine/30 hover:border-wine'
         : 'border-forest/10 hover:border-forest/30'
     }`}>
       {/* Badges */}
-      {isWebinar && (
+      {isEssentials && (
         <div className="absolute -top-3 left-8 bg-wine text-white text-xs font-semibold px-4 py-1.5 rounded-full shadow-md font-subheader tracking-wide">
-          Most Popular
+          Start here
         </div>
       )}
       {isTransform && (
@@ -161,7 +162,7 @@ function ProgramCard({ program }: { program: Program; index: number }) {
       <div className={`absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
         isTransform
           ? 'bg-gradient-to-br from-gold/5 to-transparent'
-          : isWebinar
+          : isEssentials
           ? 'bg-gradient-to-br from-wine/5 to-transparent'
           : 'bg-gradient-to-br from-forest/5 to-transparent'
       }`} />
@@ -176,9 +177,20 @@ function ProgramCard({ program }: { program: Program; index: number }) {
         <div className={`text-4xl md:text-5xl font-headline font-bold mb-6 ${
           isTransform ? 'text-gold' : 'text-forest'
         }`}>
-          {formatPrice(program.price)}
-          {program.isSubscription && (
-            <span className="text-base font-body font-normal text-forest/50">/month</span>
+          {isCircle ? (
+            "Waitlist"
+          ) : (
+            <>
+              {promoPrice.strikeText ? (
+                <span className="text-2xl md:text-3xl text-forest/45 line-through font-body font-normal mr-2 md:mr-3 align-middle">
+                  {promoPrice.strikeText}
+                </span>
+              ) : null}
+              {promoPrice.saleText}
+              {program.isSubscription && (
+                <span className="text-base font-body font-normal text-forest/50">/month</span>
+              )}
+            </>
           )}
         </div>
 
@@ -201,7 +213,7 @@ function ProgramCard({ program }: { program: Program; index: number }) {
             {program.features.map((feature, idx) => (
               <li key={idx} className="flex items-start gap-4 text-base md:text-lg text-forest/80">
                 <span className={`text-2xl leading-none mt-0.5 ${
-                  isTransform ? 'text-gold' : isWebinar ? 'text-wine' : 'text-forest'
+                  isTransform ? 'text-gold' : isEssentials ? 'text-wine' : 'text-forest'
                 }`}>
                   •
                 </span>
@@ -226,12 +238,12 @@ function ProgramCard({ program }: { program: Program; index: number }) {
           className={`block w-full text-center py-5 rounded-full font-bold text-lg transition-all duration-300 ${
             isTransform
               ? 'bg-gradient-to-r from-gold to-gold-light text-forest hover:shadow-xl hover:scale-105'
-              : isWebinar
+              : isEssentials
               ? 'bg-wine text-white hover:bg-wine-dark hover:shadow-xl'
               : 'bg-forest text-white hover:bg-forest-light hover:shadow-xl'
           }`}
         >
-          Learn More →
+          {isCircle ? "Join waitlist →" : "Learn More →"}
         </Link>
       </div>
     </div>

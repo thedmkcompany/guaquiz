@@ -32,8 +32,7 @@ export const quizPersonalization: QuizPersonalizationMap = {
   },
   "q1-b": {
     // Inconsistent - wants to start at own pace
-    heroSubheadline:
-      "Based on your quiz answers, you're ready for structure with flexibility - the perfect foundation for lasting transformation.",
+    heroSubheadline: "The perfect foundation for lasting transformation.",
     whyThisWorksReason: "you want to start at your own pace",
     readyStatement: "build consistency that lasts",
     // Webinar-specific
@@ -57,8 +56,7 @@ export const quizPersonalization: QuizPersonalizationMap = {
 export function getQuizPersonalization(q1OptionId: string): QuizPersonalization {
   return (
     quizPersonalization[q1OptionId] || {
-      heroSubheadline:
-        "Based on your quiz answers, you're ready for structure with flexibility - the perfect foundation for lasting transformation.",
+      heroSubheadline: "The perfect foundation for lasting transformation.",
       whyThisWorksReason: "you need to work around a demanding schedule",
       readyStatement: "build consistency",
       webinarHeroSubheadline:
@@ -162,6 +160,10 @@ export interface Testimonial {
   membershipDuration: string;
   quote: string;
   photoUrl?: string;
+  /** CSS object-position for circular avatar (e.g. center 58%) */
+  photoObjectPosition?: string;
+  /** Extra classes on the avatar Image (e.g. scale / translate) */
+  photoImageClassName?: string;
 }
 
 export interface FAQ {
@@ -239,7 +241,7 @@ const essentialsContent: ProgramContent = {
   badge: "24 Day Challenge",
   heroHeadline: "Build Your Foundation - Become Unstoppable on Your Timeline",
   heroSubheadlineTemplate:
-    "{personalization} <em>24 Day Challenge</em> gives you everything you need to fall in love with working on yourself, at your own pace.",
+    "{personalization} This challenge gives you everything you need to fall in love with working on yourself, at your own pace.",
   heroImageAlt: "Woman working out at home, confident and empowered, morning light, peaceful energy",
 
   // Transformation Journey Section
@@ -356,7 +358,7 @@ It works. Because transformation isn't about perfection. It's about consistency.
       membershipDuration: "24 Day Challenge Member",
       quote:
         "At 22, I thought transformation was for later. 24 Day Challenge showed me it's for now. The flexibility fits my crazy work schedule, and I'm building habits that will serve me for life. This is how you start your glow up era.",
-      photoUrl: "/images/misc/Ishita G.jpg",
+      photoUrl: "/images/essentials/ishita.jpeg",
     },
     {
       id: "ess-4",
@@ -367,7 +369,8 @@ It works. Because transformation isn't about perfection. It's about consistency.
       membershipDuration: "24 Day Challenge Member",
       quote:
         "Living in Dublin, I needed something that worked with my timezone and my life. 24 Day Challenge gave me that - structure I could access anytime, anywhere. I'm transforming on my terms, and that's the most empowering part.",
-      photoUrl: "/images/misc/Roma N. .jpg",
+      photoUrl: "/images/essentials/roma.jpeg",
+      photoObjectPosition: "center top",
     },
   ],
 
@@ -425,167 +428,6 @@ It works. Because transformation isn't about perfection. It's about consistency.
   finalCtaSubheadline: "Enter your Glow Up Era Today Babe!",
   finalCtaButtonText: "Join 24 Day Challenge Now",
   trustReminder: "2,500+ women transformed. Cancel anytime. Start immediately.",
-};
-
-// ============================================
-// WEBINAR PROGRAM CONTENT
-// ============================================
-
-const webinarContent: ProgramContent = {
-  badge: "Your First Step",
-  heroHeadline: "Experience the Magic -Risk Free",
-  heroSubheadlineTemplate:
-    "{webinarPersonalization} Webinar gives you 7 days to experience our methodology before committing fully.",
-  heroImageAlt: "Woman discovering her potential, curious and excited energy",
-
-  journeySectionHeadline: "7 Days to Discover Your Unstoppable Self",
-  journeyIntro:
-    "Webinar isn't a watered-down version -it's a concentrated taste of transformation. Experience our methodology, feel the difference, then decide if you're ready for more.",
-
-  pillars: [
-    {
-      icon: "body",
-      title: "PILLAR 1: MOVEMENT JUMPSTART",
-      headline: "Feel the Difference in 7 Days",
-      description:
-        "Experience quick daily workouts designed to kickstart your body and build momentum. By day 7, you'll understand why our methodology works.",
-      benefits: [
-        "Quick 15-20 minute daily workouts",
-        "Feel your energy shift",
-        "Build momentum that carries forward",
-      ],
-    },
-    {
-      icon: "beauty",
-      title: "PILLAR 2: GLOW PREVIEW",
-      headline: "Instant Beauty Wins",
-      description:
-        "Get access to beauty tips and rituals you can implement immediately. Quick wins that show you what's possible.",
-      benefits: [
-        "Skincare quick-start guide",
-        "Morning ritual framework",
-        "Visible glow within days",
-      ],
-    },
-    {
-      icon: "finance",
-      title: "PILLAR 3: MONEY MINDSET INTRO",
-      headline: "Shift Your Money Story",
-      description:
-        "Begin transforming your relationship with money through foundational mindset exercises.",
-      benefits: [
-        "Identify your money blocks",
-        "Start building abundance thinking",
-        "Preview of wealth habits",
-      ],
-    },
-    {
-      icon: "confidence",
-      title: "PILLAR 4: CONFIDENCE SPARK",
-      headline: "Ignite Your Inner Power",
-      description:
-        "Experience the mindset practices that help you show up differently -even in just 7 days.",
-      benefits: [
-        "Daily affirmation practice",
-        "Boundary-setting introduction",
-        "Build early momentum",
-      ],
-    },
-  ],
-
-  dishaHeadline: '"The Framework Behind 2,500+ Transformations"',
-  dishaQuote: `In this 90-minute experience, you'll get the complete Glow Up Academy framework -the same one I've perfected over 5,000+ fitness sessions with everyone from busy corporate professionals to international clients.
-
-This isn't theory. It's proven. It's what works.`,
-  dishaSignature: "Disha",
-  dishaCredentials: "Corporate Wellness Expert for Greenko, Gold's Gym, and leading organizations",
-
-  investmentHeadline: "Your 7-Day Investment",
-  pricePerDay: "₹28/day",
-  priceComparison: "less than a coffee",
-  investmentDescription:
-    "7 days of full access to prove we're the real deal. No risk. No pressure. Just experience.",
-  ctaText: "Try For ₹199",
-  trustSignals: [
-    "No automatic billing after webinar",
-    "You choose whether to continue",
-    "Instant access",
-  ],
-
-  whyWorksHeadline: "Why Webinar Is Perfect for You",
-  whyWorksIntroTemplate: "You want to try before committing because {webinarReason}.",
-  whyWorksBenefits: [
-    {
-      headline: "ZERO RISK, REAL EXPERIENCE",
-      description:
-        "₹199 gives you 7 full days of our methodology. No tricks, no hidden fees, no automatic upgrades. Just honest experience.",
-    },
-    {
-      headline: "PROOF BEFORE COMMITMENT",
-      description:
-        "Feel the difference in your body, energy, and confidence before deciding. Let the results speak.",
-    },
-    {
-      headline: "CLEAR PATH FORWARD",
-      description:
-        "After your webinar, you'll know exactly which program fits your transformation goals. No guessing.",
-    },
-  ],
-
-  testimonialsHeadline: "They Started With Webinar Too",
-  testimonials: [
-    {
-      id: "webinar-1",
-      name: "Sneha R.",
-      location: "Pune",
-      role: "IT Professional",
-      age: 26,
-      membershipDuration: "Started with Webinar, Now Circle Member",
-      quote:
-        "I was skeptical of everything. Webinar changed that. By day 4, I knew this was different. I signed up for Circle before my webinar ended.",
-      photoUrl: "/images/testimonials/sneha.jpg",
-    },
-    {
-      id: "webinar-2",
-      name: "Priya K.",
-      location: "Mumbai",
-      role: "Teacher",
-      age: 34,
-      membershipDuration: "Started with Webinar, Now 24 Day Challenge Member",
-      quote:
-        "I needed proof before I could trust again. Webinar gave me exactly that. Now I'm building consistency I never thought possible.",
-      photoUrl: "/images/testimonials/priya-k.jpg",
-    },
-  ],
-
-  faqHeadline: "Webinar Questions Answered",
-  faqs: [
-    {
-      question: "What exactly do I get in 7 days?",
-      answer:
-        "Full access to sample modules from our core program, including workouts, beauty tips, and mindset content. Plus, you'll join one live session to experience the community energy firsthand.",
-    },
-    {
-      question: "What happens after the webinar ends?",
-      answer:
-        "You'll be invited to join Circle or 24 Day Challenge at a special rate. There's no automatic billing -you choose if and when to continue. No pressure, no tricks.",
-    },
-    {
-      question: "Why is the webinar so affordable?",
-      answer:
-        "We want you to experience the DMK difference without risk. The ₹199 covers our operational costs while giving you genuine value. It's our way of saying 'try us, you'll love us.'",
-    },
-    {
-      question: "Can I do the webinar if I'm a complete beginner?",
-      answer:
-        "The webinar is perfect for beginners! It's designed to give you quick wins and build momentum without overwhelming you.",
-    },
-  ],
-
-  finalCtaHeadline: "7 Days. ₹199. Zero Risk.",
-  finalCtaSubheadline: "Your transformation could start today.",
-  finalCtaButtonText: "Start Your Webinar",
-  trustReminder: "No automatic billing. You decide what's next.",
 };
 
 // ============================================
@@ -959,12 +801,12 @@ And it starts with a 45-minute strategy call -just you and me.`,
 
 const programContentMap: { [programId: string]: ProgramContent } = {
   essentials: essentialsContent,
-  webinar: webinarContent,
   circle: circleContent,
   transform: transformContent,
 };
 
 export function getProgramContent(programId: string): ProgramContent {
+  if (programId === "webinar") return essentialsContent;
   return programContentMap[programId] || essentialsContent;
 }
 
