@@ -69,7 +69,7 @@ echo ""
 # Test 3: Generate Payment Signature
 echo -e "${YELLOW}[TEST 3] Generating Payment Signature...${NC}"
 PAYMENT_ID="pay_test_$(date +%s)"
-RAZORPAY_SECRET="pD8Z9rJiTdbQmhx9diajqYuF"
+RAZORPAY_SECRET="${RAZORPAY_KEY_SECRET:?set RAZORPAY_KEY_SECRET}"
 
 # Generate HMAC signature
 SIGNATURE=$(echo -n "${ORDER_ID}|${PAYMENT_ID}" | openssl dgst -sha256 -hmac "$RAZORPAY_SECRET" | cut -d' ' -f2)

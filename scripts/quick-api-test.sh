@@ -58,7 +58,7 @@ fi
 # Test 3: Generate and Verify Signature
 echo -e "${YELLOW}[3/4] Generating Payment Signature...${NC}"
 PAYMENT_ID="pay_test_$(date +%s)"
-SECRET="pD8Z9rJiTdbQmhx9diajqYuF"
+SECRET="${RAZORPAY_KEY_SECRET:?set RAZORPAY_KEY_SECRET}"
 SIGNATURE=$(echo -n "${ORDER_ID}|${PAYMENT_ID}" | openssl dgst -sha256 -hmac "$SECRET" | cut -d' ' -f2)
 echo -e "${GREEN}✓ Signature generated: ${SIGNATURE:0:20}...${NC}\n"
 

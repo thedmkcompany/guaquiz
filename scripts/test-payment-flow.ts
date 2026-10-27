@@ -5,12 +5,21 @@
  */
 
 import crypto from 'crypto';
+function requireEnv(name: string): string {
+  const v = process.env[name];
+  if (!v) {
+    console.error('Missing required env var: ' + name);
+    process.exit(1);
+  }
+  return v;
+}
+
 
 // Test Configuration
 const TEST_CONFIG = {
   // Test Razorpay credentials
   RAZORPAY_KEY_ID: 'rzp_test_E58mTURC6tcuax',
-  RAZORPAY_KEY_SECRET: 'pD8Z9rJiTdbQmhx9diajqYuF',
+  RAZORPAY_KEY_SECRET: requireEnv('RAZORPAY_KEY_SECRET'),
 
   // Test server URL (update if needed)
   API_BASE_URL: process.env.TEST_API_URL || 'http://localhost:3000',
